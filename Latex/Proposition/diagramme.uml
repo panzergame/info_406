@@ -1,0 +1,43 @@
+@startuml
+
+class Agenda
+
+class Agenda {
+	groupe
+	utilisateur
+	sources, filtres
+}
+
+class Utilisateur {
+	nom
+	mdp
+	amis
+	groupes
+}
+
+class Groupe {
+	membres
+}	
+
+class Evenement {
+	agenda
+	date
+	horaire
+	durée
+	description
+	type
+	auteur
+	date création
+}
+
+Utilisateur --> Groupe : est membre
+Utilisateur --> Evenement : ajoute à des agendas
+Utilisateur --> Agenda : crée
+Utilisateur --> Utilisateur : ajoute en ami
+
+Groupe --> Agenda : contient
+Agenda --> Evenement : contient
+
+Agenda --> Agenda : transfert des évenements
+
+@enduml
