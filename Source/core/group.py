@@ -1,5 +1,9 @@
-class Group:
+from .data import *
+
+class Group(Data):
 	def __init__(self):
+		super().__init__()
+
 		self._admins = set()
 		self.subscribers = set()
 		self._agendas = {}

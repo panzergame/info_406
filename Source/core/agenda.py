@@ -1,7 +1,10 @@
 from .event import *
+from .data import *
 
-class Agenda:
+class Agenda(Data):
 	def __init__(self, name):
+		super().__init__()
+
 		self.name = name
 		self.events = set()
 		self.linked_agendas = set()
