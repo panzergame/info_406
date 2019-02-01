@@ -3,3 +3,6 @@ class Event:
 		self.slot = slot
 		self.type = type
 		self.description = description
+
+	def __repr__(self):
+		return "{} {}".format(self.type, self.slot)

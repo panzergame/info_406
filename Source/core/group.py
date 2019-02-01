@@ -1,6 +1,7 @@
 class Group:
 	def __init__(self):
 		self._admins = set()
+		self.subscribers = set()
 		self._agendas = {}
 
 	def create_agenda(self, name):
@@ -14,6 +15,12 @@ class Group:
 
 	def find_agenda(self, name, default=None):
 		return self._agendas.get(name, default)
+
+	def subscribe(self, user):
+		self.subscribers.add(user)
+
+	def unsubscribe(self, user):
+		self.subscribers.discard(user)
 
 	def is_admin(self, user):
 		return user in self._admins
