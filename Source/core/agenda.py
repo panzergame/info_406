@@ -2,12 +2,12 @@ from .event import *
 from .data import *
 
 class Agenda(Data):
-	def __init__(self, name):
-		super().__init__()
+	def __init__(self, id, name, events=set(), linked_agendas=set()):
+		super().__init__(id)
 
 		self.name = name
-		self.events = set()
-		self.linked_agendas = set()
+		self.events = events
+		self.linked_agendas = linked_agendas
 
 	def create_event(self, *args):
 		self.events.add(Event(*args))

@@ -1,8 +1,8 @@
 from .data import *
 
 class Slot(Data):
-	def __init__(self, date, start, duration):
-		super().__init__()
+	def __init__(self, id, date, start, duration):
+		super().__init__(id)
 
 		self.date = date
 		self.start = start

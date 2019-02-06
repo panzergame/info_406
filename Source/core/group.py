@@ -1,12 +1,12 @@
 from .data import *
 
 class Group(Data):
-	def __init__(self):
-		super().__init__()
+	def __init__(self, id, admins=set(), subscribers=set(), agendas={}):
+		super().__init__(id)
 
-		self._admins = set()
-		self.subscribers = set()
-		self._agendas = {}
+		self._admins = admins
+		self.subscribers = subscribers
+		self._agendas = agendas
 
 	def create_agenda(self, name):
 		agenda = Agenda(name)
