@@ -1,24 +1,22 @@
 from .data import *
 
 class Group(Data):
-	def __init__(self, _id, admins=set(), subscribers=set(), agendas={}):
+	def __init__(self, _id, name, admins=set(), subscribers=set(), agendas=set()):
 		super().__init__(_id)
 
+		self.name = name
 		self._admins = admins
 		self.subscribers = subscribers
 		self._agendas = agendas
 
 	def create_agenda(self, name):
 		agenda = Agenda(name)
-		self._agendas[name] = agenda
+		self._agendas.add(agenda)
 
 		return agenda
 
-	def delete_agenda(self, name):
-		del self._agendas[name]
-
-	def find_agenda(self, name, default=None):
-		return self._agendas.get(name, default)
+	def delete_agenda(self, agenda):
+		self._agendas.discard(agenda)
 
 	def subscribe(self, user):
 		self.subscribers.add(user)
