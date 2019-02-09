@@ -4,7 +4,7 @@ from xmlrpc.server import SimpleXMLRPCRequestHandler
 from datetime import datetime
 
 # Create server
-with SimpleXMLRPCServer(('localhost', 8842)) as server:
+with SimpleXMLRPCServer(('localhost', 8000)) as server:
     server.register_introspection_functions()
 
     # Register pow() function; this will use the value of

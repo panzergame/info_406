@@ -17,6 +17,8 @@ class Server:
 		for name, value in attrs.items():
 			if type(value) == DataProxy:
 				attrs[name] = self._dump_proxy(value)
+			if type(value) == set:
+				attrs[name] = list(value)
 
 		return attrs
 
