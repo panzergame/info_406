@@ -2,8 +2,8 @@ from .agenda import *
 from .data import *
 
 class User(Data):
-	def __init__(self, id, first_name, last_name, email, tel, agenda):
-		super().__init__(id)
+	def __init__(self, _id, first_name, last_name, email, tel, agenda):
+		super().__init__(_id)
 
 		self.first_name = first_name
 		self.last_name = last_name

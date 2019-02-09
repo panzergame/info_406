@@ -1,8 +1,10 @@
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 
+from datetime import datetime
+
 # Create server
-with SimpleXMLRPCServer(('localhost', 8000)) as server:
+with SimpleXMLRPCServer(('localhost', 8842)) as server:
     server.register_introspection_functions()
 
     # Register pow() function; this will use the value of
@@ -22,11 +24,19 @@ with SimpleXMLRPCServer(('localhost', 8000)) as server:
 
     class A:
         def __init__(self, i):
-            self.i = i
+            self._i = i
+
+        @property
+        def i(self):
+            return self._i
 
     @server.register_function
-    def data(i):
-        return A(i)
+    def today():
+        return datetime.now()
+
+    @server.register_function
+    def data():
+        return A(42)
 
     server.register_instance(MyFuncs())
 

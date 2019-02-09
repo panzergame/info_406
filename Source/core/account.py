@@ -1,8 +1,8 @@
 from .data import *
 
 class Account(Data):
-	def __init__(self, id, users, login, mdp, email):
-		super().__init__(id)
+	def __init__(self, _id, users, login, mdp, email):
+		super().__init__(_id)
 
 		self.users = users
 		self.login = login

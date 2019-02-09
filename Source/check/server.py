@@ -2,12 +2,12 @@ from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from server import *
 from core import *
+from .collection import MyCollection
 
-# Création d'un utilisateur
-user = User("Toto", "Dupont", "toto@mail.com", "0656565656")
+collection = MyCollection()
 
 with SimpleXMLRPCServer(('localhost', 8000)) as server:
-    server.register_instance(Server())
+    server.register_instance(Server(collection))
 
     # Run the server's main loop
     server.serve_forever()

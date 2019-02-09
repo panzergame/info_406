@@ -1,6 +1,6 @@
 class DataProxy:
-	def __init__(self, id, type, collection):
-		self.id = id
+	def __init__(self, _id, type, collection):
+		self.id = _id
 		self.type = type
 		self.collection = collection
 		self.data = None

@@ -1,10 +1,11 @@
 import xmlrpc.client
 
-s = xmlrpc.client.ServerProxy('http://localhost:8000')
+s = xmlrpc.client.ServerProxy('http://localhost:8842', use_builtin_types=True)
 print(s.pow(2,3))  # Returns 2**3 = 8
 print(s.add(2,3))  # Returns 5
 print(s.mul(5,2))  # Returns 5*2 = 10
-print(s.data(42))
+print(s.today())
+print(s.data())
 
 # Print list of available methods
 print(s.system.listMethods())

@@ -1,16 +1,16 @@
 from .data import *
 
 class Slot(Data):
-	def __init__(self, id, date, start, duration):
-		super().__init__(id)
+	def __init__(self, _id, date, start, end):
+		super().__init__(_id)
 
 		self.date = date
 		self.start = start
-		self.duration = duration
+		self.end = end
 
 	@property
-	def end(self):
-		return self.start + self.duration
+	def duration(self):
+		return self.end - self.start
 
 	def __repr__(self):
-		return "{} {}:{}({})".format(self.date, self.start, self.end, self.duration)
+		return "{}:{}({})".format(self.start, self.end, self.duration)
