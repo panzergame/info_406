@@ -1,8 +1,8 @@
 from .data import *
 
 class Event(Data):
-	def __init__(self, _id, slot, type="", description="", resources=set(), users=set()):
-		super().__init__(_id)
+	def __init__(self, _id, collection, slot, type, description, resources, users):
+		super().__init__(_id, collection)
 
 		self.slot = slot
 		self.type = type

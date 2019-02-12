@@ -1,9 +1,7 @@
 from .data import *
 
-class Slot(Data):
-	def __init__(self, _id, date, start, end):
-		super().__init__(_id)
-
+class Slot(Data): # TODO ne pas mettre en Data -> exception dans les collections
+	def __init__(self, date, start, end):
 		self.date = date
 		self.start = start
 		self.end = end

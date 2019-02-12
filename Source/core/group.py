@@ -1,8 +1,8 @@
 from .data import *
 
 class Group(Data):
-	def __init__(self, _id, name, admins=set(), subscribers=set(), agendas=set()):
-		super().__init__(_id)
+	def __init__(self, _id, collection, name, admins, subscribers, agendas):
+		super().__init__(_id, collection)
 
 		self.name = name
 		self._admins = admins
@@ -10,7 +10,7 @@ class Group(Data):
 		self._agendas = agendas
 
 	def create_agenda(self, name):
-		agenda = Agenda(name)
+		agenda = Agenda.new(self.collection, name, set(), set())
 		self._agendas.add(agenda)
 
 		return agenda
