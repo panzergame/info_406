@@ -54,7 +54,8 @@ class Collection:
 
 	def delete(self, data, type):
 		self._delete(data, type)
-		self._datas[type].remove(data)
+		print(self._datas[type])
+		self._datas[type].pop(data.id)
 
 	def _update(self, data, type):
 		pass
