@@ -1,4 +1,5 @@
 from core import *
+from db import *
 from datetime import date
 
 class MyCollection(Collection):
@@ -12,18 +13,22 @@ class MyCollection(Collection):
 		data.id = self.id
 		self.id += 1
 
+	def _delete(self, data, type):
+		print("[Collection] delete", type.__name__, data.id)
+
 collection = MyCollection()
 
 account = Account.new(collection, set(), "root", "root", "michel@gmail.com")
-perso_agenda = Agenda.new(collection, "Personnel", set(), set())
+toto_agenda = Agenda.new(collection, "Personnel Toto", set(), set())
+tata_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
 work_agenda = Agenda.new(collection, "Travail", set(), set())
 cheval_agenda = Agenda.new(collection, "Cheval", set(), set())
 
 usmb = Group.new(collection, "USMB", set(), set(), {work_agenda}, set())
 cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())
 
-toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", perso_agenda, set())
-tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656", perso_agenda, set())
+toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", toto_agenda, set())
+tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656", tata_agenda, set())
 
 def state(op):
 	print("========== {} =========".format(op))
@@ -73,13 +78,15 @@ midi = Slot(date.today(), 12, 1.5)
 soir = Slot(date.today(), 20, 3)
 print(midi, soir)
 
-add(perso_agenda, midi, "amis")
+add(toto_agenda, midi, "amis")
+add(tata_agenda, midi, "teuufff")
 add(work_agenda, soir, "reunion")
 add(cheval_agenda, midi, "manif")
 
 state("Ajout d'evenements")
 
-print(perso_agenda, perso_agenda.all_events)
+print(toto_agenda, toto_agenda.all_events)
+print(tata_agenda, tata_agenda.all_events)
 print(work_agenda, work_agenda.all_events)
 print(cheval_agenda, cheval_agenda.all_events)
 
@@ -87,8 +94,11 @@ cheval_agenda.remove_event(list(cheval_agenda.events)[0])
 
 state("Suppression d'un evenement")
 
-print(perso_agenda, perso_agenda.all_events)
+print(toto_agenda, toto_agenda.all_events)
+print(tata_agenda, tata_agenda.all_events)
 print(work_agenda, work_agenda.all_events)
 print(cheval_agenda, cheval_agenda.all_events)
 
 account.delete()
+usmb.delete()
+cheval.delete()

@@ -43,6 +43,8 @@ class Agenda(Data):
 		return events
 
 	def delete(self):
+		super().delete()
+
 		# TODO enlever les liens des autres agendas : faire une liste d'agenda utilisateurs de celui ci ?
 
 		# Suppression de tous les evenements.
