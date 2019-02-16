@@ -1,4 +1,4 @@
-from core import *
+from Source.core import *
 
 class Extractor:
 	def __init__(self, collection, data):
