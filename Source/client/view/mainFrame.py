@@ -23,7 +23,8 @@ work_agenda = Agenda.new(collection, "Travail", set(), set())
 
 user = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", ag)
 user2 = User.new(collection, "Loulou", "Martin", "loulou@mail.com", "0666666666", work_agenda)
-account = Account.new(collection, [user, user2], "zut", "flute", user.email)
+account = Account.new(collection, [user], "zut", "flute", user.email)
+account.add_users(user2)
 
 win = MyWindow(account)
 win.connect("destroy", Gtk.main_quit)
