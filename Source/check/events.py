@@ -1,6 +1,5 @@
 from core import *
-from db import *
-from datetime import date
+from datetime import datetime
 
 class MyCollection(Collection):
 	def __init__(self):
@@ -74,8 +73,8 @@ def add(ag, slot, type):
 	ag.add_event(event)
 
 # Création de 2 évenement ajouté sur chaque agenda
-midi = Slot(date.today(), 12, 1.5)
-soir = Slot(date.today(), 20, 3)
+midi = Slot(datetime(2019, 1, 15, 12), datetime(2019, 1, 15, 13))
+soir = Slot(datetime(2019, 1, 15, 20), datetime(2019, 1, 15, 23))
 print(midi, soir)
 
 add(toto_agenda, midi, "amis")
