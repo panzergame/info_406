@@ -1,6 +1,7 @@
 from .account import *
 from .agenda import *
 from .user import *
+from .resource import *
 from .group import *
 
 # Tous les types supporté.
