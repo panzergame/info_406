@@ -68,19 +68,15 @@ cheval.add_agenda(cheval_agenda)
 
 # Evenements
 
-def add(ag, slot, type):
-	event = Event.new(collection, slot, type, "", set(), set())
+def add(ag, start, end, type):
+	event = Event.new(collection, start, end, type, "", set(), set())
 	ag.add_event(event)
 
-# Création de 2 évenement ajouté sur chaque agenda
-midi = Slot(datetime(2019, 1, 15, 12), datetime(2019, 1, 15, 13))
-soir = Slot(datetime(2019, 1, 15, 20), datetime(2019, 1, 15, 23))
-print(midi, soir)
-
-add(toto_agenda, midi, "amis")
-add(tata_agenda, midi, "teuufff")
-add(work_agenda, soir, "reunion")
-add(cheval_agenda, midi, "manif")
+# Création de 4 évenements ajoutés sur chaque agenda
+add(toto_agenda, datetime(2019, 1, 15, 12), datetime(2019, 1, 15, 13), "amis")
+add(tata_agenda, datetime(2019, 5, 15, 12), datetime(2019, 5, 15, 13), "teuufff")
+add(work_agenda, datetime(2019, 10, 5, 20), datetime(2019, 10, 5, 23), "reunion")
+add(cheval_agenda, datetime(2019, 12, 15, 12), datetime(2019, 12, 15, 13), "manif")
 
 state("Ajout d'evenements")
 
@@ -89,7 +85,9 @@ print(tata_agenda, tata_agenda.all_events)
 print(work_agenda, work_agenda.all_events)
 print(cheval_agenda, cheval_agenda.all_events)
 
-cheval_agenda.remove_event(list(cheval_agenda.events)[0])
+manif = list(cheval_agenda.events)[0]
+cheval_agenda.remove_event(manif)
+manif.delete()
 
 state("Suppression d'un evenement")
 

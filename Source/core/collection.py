@@ -1,6 +1,5 @@
 from .account import *
 from .agenda import *
-from .slot import *
 from .user import *
 from .group import *
 
@@ -10,7 +9,6 @@ supported_types = [
 	Agenda,
 	Event,
 	Group,
-	Slot,
 	User
 ]
 
