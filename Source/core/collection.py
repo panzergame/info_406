@@ -2,6 +2,7 @@ from .account import *
 from .agenda import *
 from .slot import *
 from .user import *
+from .resource import *
 from .group import *
 
 # Tous les types supporté.
@@ -11,6 +12,7 @@ supported_types = [
 	Event,
 	Group,
 	Slot,
+        Resource,
 	User
 ]
 
