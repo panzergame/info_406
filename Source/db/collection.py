@@ -134,6 +134,12 @@ class DbCollection(Collection):
 			   self._list_relation("Group_User", Group, "user", _id, "group"),
 			   row["account"])
 
+	def _update(self, data, type):
+		pass
+
+	def _delete(self, data, type):
+		pass
+
 	def flush(self):
 		""" "Commit" les modifications """
 
@@ -154,7 +160,6 @@ class DbCollection(Collection):
 
 		# Tri par dépendance.
 		new_queue = sorted(self.new_queue, key=lambda item: priority(item[1]))
-		print([_type.__name__ for data, _type in new_queue])
 		for data, type in new_queue:
 			self._delayed_new(data, type)
 

@@ -9,26 +9,25 @@ class DateTimeBox(Gtk.Dialog):
 
         self.set_default_size(200, 200)
         calendar = Gtk.Calendar()
-        main_box =  self.get_content_area()
+        main_box = self.get_content_area()
         main_box.add(calendar)
         main_box.add(TimeBox())
         self.show_all()
 
 
-class TimeBox(Gtk.box):
+class TimeBox(Gtk.Box):
 
     def __init__(self):
         Gtk.Box.__init__(self ,spacing = 10)
         self.set_border_width(10)
 
-
         label = Gtk.Label(" h ")
 
-        adjustment_hour = Gtk.Adjusment(0,0, 23, 1, 10, 0)
+        adjustment_hour = Gtk.Adjustment(0,0, 23, 1, 10, 0)
         hour = Gtk.SpinButton()
         hour.set_adjustment(adjustment_hour)
 
-        adjustment_minute = Gtk.Adjusment(0,0, 59, 1 , 10, 0)
+        adjustment_minute = Gtk.Adjustment(0,0, 59, 1 , 10, 0)
         minute = Gtk.SpinButton()
         minute.set_adjustment(adjustment_minute)
 
