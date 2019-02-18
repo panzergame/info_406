@@ -35,6 +35,6 @@ class Group(Gtk.ListBoxRow):
     # Méthodes :
 
     # On definie la méthode nous permettant d'ajouter un agenda :
-    def addAgenda(self, name, owner):
-        agenda = Agenda(name, owner)
+    def addAgenda(self, name):
+        agenda = Agenda(name)
         self.agendasList.add(agenda)
