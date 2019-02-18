@@ -1,4 +1,4 @@
-from core import *
+from Source.core import *
 from datetime import datetime
 
 class MyCollection(Collection):

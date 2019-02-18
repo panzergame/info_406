@@ -18,7 +18,7 @@ class AccountBox(Gtk.Box):
 
         users = account.users
         for user in users:
-            name = user.__repr__()
+            name = user.first_name + " " + user.last_name
             id = user.id
             button = Gtk.ToggleButton(name)
             button.connect("toggled", self.on_button_toggled)
