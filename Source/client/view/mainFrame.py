@@ -5,7 +5,7 @@ from Source.check import events
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from Source.core import *
-from left import LeftBox
+from mainBox import MainBox
 from Source.client.model.common import *
 
 
@@ -15,7 +15,7 @@ class MyWindow(Gtk.Window):
         Gtk.Window.__init__(self, title="Votre Agenda")
         self.account = account
         self.common = common
-        self.add(LeftBox(account, common))
+        self.add(MainBox(account, common))
 
 
 collection = events.MyCollection()
