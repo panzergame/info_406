@@ -16,28 +16,28 @@ class DateTimeDialog(Gtk.Dialog):
         self.show_all()
 
 
-        @property
-        def hour(self):
-            return self.time_box.spin_hour.get_value_as_int()
+    @property
+    def hour(self):
+        return self.time_box.spin_hour.get_value_as_int()
 
-        @property
-        def hour(self):
-            return self.time_box.spin_minute.get_value_as_int()
+    @property
+    def minute(self):
+        return self.time_box.spin_minute.get_value_as_int()
 
-        @property
-        def year(self):
-            year , month , day = self.calendar.get_date()
-            return year
+    @property
+    def year(self):
+        year , month , day = self.calendar.get_date()
+        return year
 
-        @property
-        def month(self):
-            year , month , day = self.calendar.get_date()
-            return month
+    @property
+    def month(self):
+        year , month , day = self.calendar.get_date()
+        return month
 
-        @property
-        def day(self):
-            year , month , day = self.calendar.get_date()
-            return day
+    @property
+    def day(self):
+        year , month , day = self.calendar.get_date()
+        return day
 
 
 
