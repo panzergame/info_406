@@ -20,7 +20,7 @@ class AccountBox(Gtk.Box):
 
         users = account.users
         first = True
-        groupe = None
+        group = None
         for user in users:
             name = user.first_name + " " + user.last_name
             if first:
