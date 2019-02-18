@@ -29,7 +29,7 @@ class AccountBox(Gtk.Box):
                 button = Gtk.RadioButton.new_with_label_from_widget(None, name)
                 first = False
                 group = button
-                self.common.set_user_clicked(user)
+                self.common.user_clicked = user
             else:
                 button = Gtk.RadioButton.new_with_label_from_widget(group, name)
             button.connect("toggled", self.on_button_toggled, user)
@@ -39,5 +39,5 @@ class AccountBox(Gtk.Box):
     def on_button_toggled(self, button, user):
 
         if button.get_active():
-            self.common.set_user_clicked(user)
+            self.common.user_clicked = user
 
