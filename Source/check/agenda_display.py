@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import cairo
 from datetime import *
 import gi

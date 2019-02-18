@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class DataProxy:
 	def __init__(self, _id, type, collection):
 		self.id = _id

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import gi
 
 from check import events

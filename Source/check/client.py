@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import xmlrpc.client
 
 from client import *

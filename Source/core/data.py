@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class Data:
 	def __init__(self, _id, collection):
 		self.id = _id
