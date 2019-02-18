@@ -1,7 +1,7 @@
 from .account import *
 from .agenda import *
-from .slot import *
 from .user import *
+from .resource import *
 from .group import *
 
 # Tous les types supporté.
@@ -10,7 +10,6 @@ supported_types = [
 	Agenda,
 	Event,
 	Group,
-	Slot,
 	User
 ]
 
@@ -54,7 +53,7 @@ class Collection:
 
 	def delete(self, data, type):
 		self._delete(data, type)
-		self._datas[type].remove(data)
+		self._datas[type].pop(data.id)
 
 	def _update(self, data, type):
 		pass

@@ -5,5 +5,5 @@ from .dataproxy import *
 from .event import *
 from .group import *
 from .presence import *
-from .slot import *
+from .resource import *
 from .user import *

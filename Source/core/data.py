@@ -21,8 +21,3 @@ class Data:
 
 	def update(self):
 		self.collection.update(self, type(self))
-
-	@property
-	def attributes(self):
-		all_attrs = set(dir(self)) - set(dir(type(self)))
-		return {name : getattr(self, name) for name in all_attrs}
