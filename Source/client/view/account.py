@@ -27,6 +27,7 @@ class AccountBox(Gtk.Box):
                 button = Gtk.RadioButton.new_with_label_from_widget(None, name)
                 first = False
                 group = button
+                self.common.set_user_clicked(user)
             else:
                 button = Gtk.RadioButton.new_with_label_from_widget(group, name)
             button.connect("toggled", self.on_button_toggled, user)
