@@ -1,4 +1,4 @@
-from Source.core import user
+from core import user
 
 
 class Common:

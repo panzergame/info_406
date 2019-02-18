@@ -4,10 +4,10 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from search import SearchBox
-from account import AccountBox
-from groupList import *
-from Source.client.model import common
+from .search import SearchBox
+from .account import AccountBox
+from .groupList import *
+from client.model import common
 
 
 class LeftBox(Gtk.Box):

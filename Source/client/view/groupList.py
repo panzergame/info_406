@@ -1,8 +1,8 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from group import *
-from Source.client.model import common
+from .group import *
+from client.model import common
 
 #######################################################################################################################
 

@@ -2,8 +2,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from left import LeftBox
-from Source.client.model import common
+from .left import LeftBox
+from client.model import common
 
 
 class MainBox(Gtk.Box):

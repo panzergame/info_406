@@ -1,8 +1,8 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from Source.core import *
-from Source.client.model.common import *
+from core import *
+from client.model.common import *
 
 
 class AccountBox(Gtk.Box):

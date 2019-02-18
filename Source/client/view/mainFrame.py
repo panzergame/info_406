@@ -1,12 +1,12 @@
 import gi
 
-from Source.check import events
+from check import events
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from Source.core import *
-from mainBox import MainBox
-from Source.client.model.common import *
+from core import *
+from .mainBox import MainBox
+from client.model.common import *
 
 
 class MyWindow(Gtk.Window):
