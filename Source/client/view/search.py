@@ -11,15 +11,15 @@ class SearchBox(Gtk.Box):
 
         title = Gtk.Label("Rechercher un groupe")
 
-        entry = Gtk.Entry()
-        entry.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, "system-search-symbolic")
+        self.entry = Gtk.Entry()
+        self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, "system-search-symbolic")
 
         buttonSearch = Gtk.Button(label="Rechercher")
         buttonSearch.connect("clicked", self.on_button_search_clicked)
 
         searchZone = Gtk.Box(spacing=6)
 
-        searchZone.pack_start(entry, True, True, 0)
+        searchZone.pack_start(self.entry, True, True, 0)
         searchZone.pack_start(buttonSearch, False, False, 0)
 
         self.pack_start(title, True, True, 0)
