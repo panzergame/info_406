@@ -12,4 +12,7 @@ class DataProxy:
 		return getattr(self.data, name)
 
 	def __repr__(self):
-		return "[Proxy of {} : {}]".format(self.type.__name__, "not loaded" if self.data is None else self.data)
+		if self.data is None:
+			return "[Proxy of {} type {}: {}]".format(self.id, self.type.__name__, "not loaded" if self.data is None else self.data)
+		else:
+			return self.data.__repr__()

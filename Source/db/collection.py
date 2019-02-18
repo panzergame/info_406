@@ -12,8 +12,12 @@ class DbCollection(Collection):
 		self.update_queue = []
 
 	def _get(self, query):
+		""" Execution d'un requéte et récupération du résultat sous la forme d'un tableau de dictionnaire """
 		self._run(query)
-		return self.cursor.fetchall()
+		rows = self.cursor.fetchall()
+		fields = list(map(lambda x: x[0], self.cursor.description))
+		return [{fields[i] : row[i] for i in range(0, len(fields))}
+					for row in rows]
 
 	def _run(self, query):
 		print("[query] {}".format(query))
@@ -22,8 +26,13 @@ class DbCollection(Collection):
 	def _get_row(self, _id, table):
 		return self._get("SELECT * FROM `{}` WHERE id = {}".format(table, _id))
 
-	def _list_id(self, table, column, _id):
-		return self._get("SELECT id FROM `{}` WHERE {} = {}".format(table, column, _id))
+	def _list_id(self, _type, attr, _id):
+		table = _type.__name__
+		return self._list_relation(table, _type, "id", _id, attr)
+
+	def _list_relation(self, table, _type, from_attr, from_value, to_attr):
+		rows = self._get("SELECT `{}` FROM `{}` WHERE `{}` = {}".format(to_attr, table, from_attr, from_value))
+		return set(map(lambda x: DataProxy(x[to_attr], _type, self), rows))
 
 	def _last_id(self):
 		self._run("SELECT LAST_INSERT_ID()")
@@ -65,7 +74,7 @@ class DbCollection(Collection):
 		# Nom des colonnes.
 		names = ", ".join("`{}`".format(key) for key in attr.keys())
 		# Valeurs des colonnes.
-		values = ", ".join((self._convert_value(val)) for val in attr.values())
+		values = ", ".join(self._convert_value(val) for val in attr.values())
 
 		# Écriture automatique des champs d'entité
 		self._run("INSERT INTO `{}` ({}) VALUES ({})".format(table, names, values))
@@ -99,18 +108,31 @@ class DbCollection(Collection):
 		self.new_queue.append((data, type))
 
 	def _load(self, _id, type):
-		row = self._get_row(_id, type.__name__)
+		row = self._get_row(_id, type.__name__)[0]
 
 		if type is Account:
-			return Account(_id, self, self._list_id("User", "account", _id), row["login"], row["mdp"], row["email"])
+			return Account(_id, self,
+					self._list_id(User, "account", _id), row["login"], row["mdp"], row["email"])
 		if type is Agenda:
-			return self._load_agenda(_id, row)
+			return Agenda(_id, self, row["name"],
+					self._list_id(Event, "agenda", _id),
+					self._list_relation("Agenda_Agenda", Agenda, "agenda1", _id, "agenda2"), row["owner"])
 		if type is Event:
-			return self._load_event(_id, row)
+			return Event(_id, self, row["start"], row["end"], row["type"], row["description"],
+					self._list_relation("Event_Resource", Resource, "event", _id, "resource"),
+					self._list_relation("Event_User", User, "event", _id, "user"),
+					row["agenda"])
 		if type is Group:
-			return self._load_group(_id, row)
+			return Group(_id, self, row["name"],
+					self._list_relation("Group_Admin", User, "group", _id, "admin"),
+					self._list_relation("Group_User", User, "group", _id, "user"),
+					self._list_id(Agenda, "owner", _id),
+					self._list_id(Resource, "group", _id))
 		if type is User:
-			return self._load_user(_id, row)
+			return User(_id, self, row["first_name"], row["last_name"], row["email"], row["tel"],
+			   list(self._list_id(Agenda, "owner", _id))[0],
+			   self._list_relation("Group_User", Group, "user", _id, "group"),
+			   row["account"])
 
 	def flush(self):
 		""" "Commit" les modifications """

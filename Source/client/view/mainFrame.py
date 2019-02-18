@@ -6,14 +6,16 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from Source.core import *
 from left import LeftBox
+from Source.client.model.common import *
 
 
 class MyWindow(Gtk.Window):
 
-    def __init__(self, account):
+    def __init__(self, account, common):
         Gtk.Window.__init__(self, title="Votre Agenda")
         self.account = account
-        self.add(LeftBox(account))
+        self.common = common
+        self.add(LeftBox(account, common))
 
 
 collection = events.MyCollection()
@@ -26,7 +28,8 @@ user2 = User.new(collection, "Loulou", "Martin", "loulou@mail.com", "0666666666"
 account = Account.new(collection, {user}, "zut", "flute", user.email)
 account.add_user(user2)
 
-win = MyWindow(account)
+common = Common(set())
+win = MyWindow(account, common)
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
