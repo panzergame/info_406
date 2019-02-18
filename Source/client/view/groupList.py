@@ -50,6 +50,5 @@ class GroupList(Gtk.Box):
             agendas = group.agendas
             # On ajoute tous les agendas lié au groupe courant dans la liste des agendas du groupe :
             for agenda in agendas:
-                a = Agenda(agenda.name)
-                g.addAgenda(a)
-        # Affichage des groupes de l'utilisateur sélectionné (courant) :
+                #a = Agenda(agenda.name)
+                g.addAgenda(agenda.name)
