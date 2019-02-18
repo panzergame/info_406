@@ -20,19 +20,21 @@ class AccountBox(Gtk.Box):
 
         users = account.users
         first = True
+        groupe = None
         for user in users:
             name = user.first_name + " " + user.last_name
-            button = Gtk.ToggleButton(name)
-            button.connect("toggled", self.on_button_toggled, user)
-            self.pack_start(button, True, True, 0)
             if first:
-                button.set_active(True)
+                button = Gtk.RadioButton.new_with_label_from_widget(None, name)
                 first = False
+                group = button
+            else:
+                button = Gtk.RadioButton.new_with_label_from_widget(group, name)
+            button.connect("toggled", self.on_button_toggled, user)
+            self.pack_start(button, False, False, 0)
 
 
     def on_button_toggled(self, button, user):
 
         if button.get_active():
             self.common.set_user_clicked(user)
-        else:
-            state = "off"
+
