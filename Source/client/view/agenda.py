@@ -185,4 +185,3 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
         context.set_line_width(0.001)
         context.stroke()
         #Traçage des lignes correspondant aux jours
-
