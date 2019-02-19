@@ -182,6 +182,10 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
         context.scale(size[0], size[1])
         #Mise à l'échelle du contexte
         
+        context.set_source_rgb(0.8, 0.8, 0.8)
+        context.rectangle(0, 0, 1, 1)
+        context.fill()
+        
         context.select_font_face("Purisa")
         #Choix de la police d'écriture
         
