@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import cairo
 from datetime import *
 
@@ -7,30 +9,36 @@ from gi.repository import Gtk
 
 class AgendaBox(Gtk.Box):
     #Affichage d'une semaine d'un agenda, en commençant par le jour passé au constructeur
-    def __init__(self, agenda, day):
+    def __init__(self, common):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
         overlay = Gtk.Overlay()
         #Widget permettant de superposer d'autres widget
         
-        overlay.add(AgendaTimeAnnotations(day))
+        overlay.add(AgendaTimeAnnotations(common.day))
         #Ajout du fond de l'agenda, séparateurs de jours et d'heures
-        
-        overlay.add_overlay(AgendaEvents(agenda.all_events, day))
+
+        self.agenda_events = AgendaEvents(common)
+        overlay.add_overlay(self.agenda_events)
         #Ajout des évènements de l'agenda
         
         self.add(overlay)
 
-
 class AgendaEvents(Gtk.DrawingArea):
     #Classe d'affichage des évènement d'un agenda
-    def __init__(self, events, day):
-        
+    def __init__(self, common):
+        self.common = common
         def draw(da, ctx):
             #Fonction appelée à chaque fois que les évènements doivent être dessinés
-            AgendaEvents.drawAllEvents(da, ctx, events, day)
+            AgendaEvents.drawAllEvents(da, ctx, self.common.user_clicked.agenda.all_events, self.common.day)
             
         Gtk.DrawingArea.__init__(self)
         self.connect('draw', draw)
+
+        common.add_observer(self)
+
+    def update(self, common):
+        self.common = common
+        self.queue_draw()
 
     def drawAllEvents(drawingArea, context, events, firstDay):
         #Méthode appelant la méthode dessinant un event sur chaque event de l'agenda
@@ -122,6 +130,7 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
         Gtk.DrawingArea.__init__(self)
         self.set_property("expand",True)
         self.connect('draw', draw)
+        self.show_all()
 
     def drawAnnotations(drawingArea, context, startDay):
         #Classe de dessin des annotations de temps
@@ -172,6 +181,10 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
         size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
         context.scale(size[0], size[1])
         #Mise à l'échelle du contexte
+        
+        context.set_source_rgb(0.8, 0.8, 0.8)
+        context.rectangle(0, 0, 1, 1)
+        context.fill()
         
         context.select_font_face("Purisa")
         #Choix de la police d'écriture

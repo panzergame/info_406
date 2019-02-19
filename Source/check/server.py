@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from server import *

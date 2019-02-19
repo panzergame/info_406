@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 class Presence:
 	def __init__(self, slot, users):
 		self.slot = slot

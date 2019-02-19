@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from .agenda import *
 from .account import *
 from .collection import *

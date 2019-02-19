@@ -1,4 +1,6 @@
-from Source.core import *
+# -*- coding: utf-8 -*-
+
+from core import *
 from datetime import datetime
 
 class MyCollection(Collection):

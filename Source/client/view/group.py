@@ -1,19 +1,22 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from Source.client.model.common import *
 
-
-class Group(Gtk.Box):
-
+class GroupBox(Gtk.Box):
     def __init__(self, common):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.title = Gtk.Label("\tGroupes : ", xalign=0)
-        self.groupList = self.put_groups(common.user_clicked)
         self.add(self.title)
+        self._create(common)
+        common.add_observer(self)
+
+    def _create(self, common):
+        self.groupList = self.put_groups(common.user_clicked)
         self.add(self.groupList)
 
-
+    def update(self, common):
+        self.remove(self.groupList)
+        self._create(common)
 
     def put_groups(self, user):
         groupList = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)

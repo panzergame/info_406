@@ -1,15 +1,16 @@
+# -*- coding: utf-8 -*-
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from Source.core import *
-from Source.client.model.common import *
+from core import *
+from client.model.common import *
 
 
 class AccountBox(Gtk.Box):
 
-    def __init__(self, account, common):
+    def __init__(self, common):
 
-        self.account = account
         self.common = common
 
         Gtk.Box.__init__(self,orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -18,7 +19,7 @@ class AccountBox(Gtk.Box):
         title = Gtk.Label("Sélectionner un utilisateur")
         self.pack_start(title, True, True, 0)
 
-        users = account.users
+        users = common.account.users
         first = True
         group = None
         for user in users:
@@ -27,7 +28,7 @@ class AccountBox(Gtk.Box):
                 button = Gtk.RadioButton.new_with_label_from_widget(None, name)
                 first = False
                 group = button
-                self.common.set_user_clicked(user)
+                self.common.user_clicked = user
             else:
                 button = Gtk.RadioButton.new_with_label_from_widget(group, name)
             button.connect("toggled", self.on_button_toggled, user)
@@ -35,7 +36,6 @@ class AccountBox(Gtk.Box):
 
 
     def on_button_toggled(self, button, user):
-
         if button.get_active():
-            self.common.set_user_clicked(user)
+            self.common.user_clicked = user
 

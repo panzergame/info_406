@@ -1,4 +1,6 @@
-from Source.core import *
+# -*- coding: utf-8 -*-
+
+from core import *
 
 class Extractor:
 	def __init__(self, collection, data):

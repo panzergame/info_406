@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from core import *
 
 # 0 : User

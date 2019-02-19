@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
+
 import cairo
 from datetime import *
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from Source.client.view.agenda import *
+from client.view.agenda import *
 
 
 ############ Classes de remplacement des entités ##################################
