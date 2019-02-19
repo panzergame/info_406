@@ -9,14 +9,11 @@ class Group(Gtk.Box):
     def __init__(self, common):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.title = Gtk.Label("\tGroupes : ", xalign=0)
-        #self.groupList = self.put_groups(common.user_clicked)
+        self.groupList = self.put_groups(common.user_clicked)
         self.add(self.title)
-        #self.add(self.groupList)
-        self.test(common.user_clicked)
+        self.add(self.groupList)
 
-    def test(self, user):
-        groupList = self.put_groups(user)
-        self.add(groupList)
+
 
     def put_groups(self, user):
         groupList = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
