@@ -1,40 +1,38 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from agenda import *
+from Source.client.model.common import *
 
-# Classe definissant un groupe :
 
-class Group(Gtk.ListBoxRow):
-    # On appelle le constructeur de la classe mère :
-    def __init__(self, name):
-        Gtk.ListBoxRow.__init__(self)
+class Group(Gtk.Box):
 
-        # Actions sur les attributs :
+    def __init__(self, common):
+        Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        self.title = Gtk.Label("\tGroupes : ", xalign=0)
+        self.groupList = self.put_groups(common.user_clicked)
+        self.add(self.title)
+        self.add(self.groupList)
 
-        # On donne une boite horizontale en attribut :
-        self.groupLine = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing = 6)
 
-        # On crée un bouton de couleur (qui sera associée au groupe) :
-        self.color = Gtk.ColorButton()
 
-        # On crée un label avec le nom de notre groupe :
-        self.name = Gtk.Label(name, xalign=0)
+    def put_groups(self, user):
+        groupList = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        groups = user.groups
+        for group in groups:
+            groupLine = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+            color = Gtk.ColorButton()
+            name = Gtk.Label(group.name, xalign=0)
+            agendasList = self.put_agendas(group)
+            groupLine.pack_start(color, False, True, 0)
+            groupLine.pack_start(name, False, True, 0)
+            groupLine.pack_start(agendasList, False, True, 0)
+            groupList.add(groupLine)
+        return groupList
 
-        # On crée la liste d'agendas liée à notre ligne (groupe) :
-        self.agendasList = Gtk.ListBox()
-
-        # On ajoute la couleur, le nom et la liste d'agendas à notre groupe (groupLine) :
-        self.groupLine.pack_start(self.color, False, True, 0)
-        self.groupLine.pack_start(self.name, False, True, 0)
-        self.groupLine.pack_start(self.agendasList, False, True, 0)
-
-        # On ajoute notre boite groupLine à notre ligne (Group) qui contiendra les agendas de son groupe associé :
-        self.add(self.groupLine)
-
-    # Méthodes :
-
-    # On definie la méthode nous permettant d'ajouter un agenda :
-    def addAgenda(self, name):
-        agenda = Agenda(name)
-        self.agendasList.add(agenda)
+    def put_agendas(self, group):
+        agendasList = Gtk.ListBox()
+        agendas = group.agendas
+        for agenda in agendas:
+            name = Gtk.Label(agenda.name, xalign=0)
+            agendasList.add(name)
+        return agendasList
