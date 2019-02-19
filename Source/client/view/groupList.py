@@ -34,12 +34,13 @@ class GroupList(Gtk.Box):
 
         # On appelle l'affichage des infos utilisateur :
         self.getUserData(self.user)
+        self.show_all()
 
     # Méthodes :
 
     # On definie la méthode permettant d'ajouter un groupe à notre boîte :
     def addGroup(self, name):
-        group = Group(name)
+        group = GroupBox(name)
         self.groupList.add(group)
 
     def getUserData(self, user):
@@ -47,7 +48,7 @@ class GroupList(Gtk.Box):
         groups = user.groups
         # On ajoute tous les groupes de l'utilisateur à notre liste :
         for group in groups:
-            g = Group(group.name)
+            g = GroupBox(group.name)
             self.groupList.add(g)
             agendas = group.agendas
             # On ajoute tous les agendas lié au groupe courant dans la liste des agendas du groupe :

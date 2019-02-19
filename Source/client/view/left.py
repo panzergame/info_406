@@ -24,4 +24,5 @@ class LeftBox(Gtk.Box):
         self.add(AccountBox(self.account, self.common))
         self.add(GroupList(self.common))
         self.add(SearchBox())
+        self.show_all()
 

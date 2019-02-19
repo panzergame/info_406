@@ -7,7 +7,7 @@ from .agenda import *
 
 # Classe definissant un groupe :
 
-class Group(Gtk.ListBoxRow):
+class GroupBox(Gtk.ListBoxRow):
     # On appelle le constructeur de la classe mère :
     def __init__(self, name):
         Gtk.ListBoxRow.__init__(self)
@@ -33,10 +33,12 @@ class Group(Gtk.ListBoxRow):
 
         # On ajoute notre boite groupLine à notre ligne (Group) qui contiendra les agendas de son groupe associé :
         self.add(self.groupLine)
+        self.show_all()
 
     # Méthodes :
 
     # On definie la méthode nous permettant d'ajouter un agenda :
     def addAgenda(self, name):
-        agenda = Agenda(name)
-        self.agendasList.add(agenda)
+        #agenda = Agenda(name)
+        #self.agendasList.add(agenda)
+        pass # TODO

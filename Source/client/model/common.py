@@ -1,16 +1,46 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 
 from core import user
-
+from datetime import datetime
 
 class Common:
-    def __init__(self):
-        self._user_clicked = None
+	def __init__(self):
+		self._user_clicked = None
+		self._day = datetime.now()
+		self._event_clicked = None
+		self.observers = set()
 
-    @property
-    def user_clicked(self):
-        return self._user_clicked
+	def add_observer(self, observer):
+		self.observers.add(observer)
 
-    @user_clicked.setter
-    def user_clicked(self, user):
-        self._user_clicked = user
+	def _notify(self):
+		print("notify")
+		for obs in self.observers:
+			obs.update(self)
+
+	@property
+	def user_clicked(self):
+		return self._user_clicked
+
+	@user_clicked.setter
+	def user_clicked(self, user):
+		self._user_clicked = user
+		self._notify()
+
+	@property
+	def event_clicked(self):
+		return self._event_clicked
+
+	@event_clicked.setter
+	def event_clicked(self, event):
+		self._event_clicked = event
+		self._notify()
+
+	@property
+	def day(self):
+		return self._day
+
+	@day.setter
+	def day(self, day):
+		self._day = day
+		self._notify()

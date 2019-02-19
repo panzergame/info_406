@@ -4,7 +4,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from dateTime import *
+from .dateTime import *
+from core import *
 from datetime import datetime
 
 def datetime_str(date):
@@ -79,24 +80,20 @@ class AddEventDialog(Gtk.Dialog):
 		return self.description_entry.get_text()
 
 class AddEventButton(Gtk.Button):
-	def __init__(self, parent, agenda):
+	def __init__(self, parent, common):
 		Gtk.Button.__init__(self, "Ajouter")
 		self.connect("clicked", self.on_clicked)
 
+		self.common = common
 		self.parent = parent
 
 	def on_clicked(self, button):
 		dia = AddEventDialog(self.parent)
 
 		if dia.run() == Gtk.ResponseType.OK:
-			#event = Event
-			pass
+			agenda = self.common.user_clicked.agenda
+			event = Event.new(agenda.collection, dia.start, dia.end, dia.type, dia.description, set(), set())
+			agenda.add_event(event)
+			print(event)
+			self.common.event_clicked = event
 		dia.destroy()
-
-#window = Gtk.Window()
-
-#button = AddEventButton(window)
-#window.add(button)
-#window.show_all()
-
-#Gtk.main()
