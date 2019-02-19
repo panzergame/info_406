@@ -1,0 +1,63 @@
+<<<<<<< HEAD
+﻿# -*- coding: utf-8 -*-
+=======
+from Source.core import user
+from Source.core.group import *
+>>>>>>> master
+
+from core import user
+from datetime import datetime
+
+class Common:
+	def __init__(self):
+		self._user_clicked = None
+		self._day = datetime.now()
+		self._event_clicked = None
+		self.observers = set()
+
+<<<<<<< HEAD
+	def add_observer(self, observer):
+		self.observers.add(observer)
+=======
+
+    def set_user_clicked(self, user_clicked):
+        # Passer par un setter pour pouvoir notifier les changements.
+        self.user_clicked = user_clicked
+>>>>>>> master
+
+	def _notify(self):
+		print("notify")
+		for obs in self.observers:
+			obs.update(self)
+
+<<<<<<< HEAD
+	@property
+	def user_clicked(self):
+		return self._user_clicked
+
+	@user_clicked.setter
+	def user_clicked(self, user):
+		self._user_clicked = user
+		self._notify()
+
+	@property
+	def event_clicked(self):
+		return self._event_clicked
+
+	@event_clicked.setter
+	def event_clicked(self, event):
+		self._event_clicked = event
+		self._notify()
+
+	@property
+	def day(self):
+		return self._day
+
+	@day.setter
+	def day(self, day):
+		self._day = day
+		self._notify()
+=======
+
+        print(self.user_clicked.first_name)
+>>>>>>> master

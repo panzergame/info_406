@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from .dateTime import *
+from .date_time import DateTimeDialog
 from core import *
 from datetime import datetime
 

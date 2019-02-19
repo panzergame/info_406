@@ -5,8 +5,8 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from client.model import common
-from .agenda import *
-from .addevent import *
+from .agenda import AgendaBox
+from .add_event import AddEventButton
 
 class CenterBox(Gtk.Box):
     """Boîte contenant tout ce qui est affiché à l'écran"""

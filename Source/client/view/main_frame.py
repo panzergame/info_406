@@ -5,8 +5,8 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from core import *
-from .mainBox import MainBox
-from client.model.common import *
+from .main_box import MainBox
+from client.model.common import Common
 from datetime import datetime
 
 class MyWindow(Gtk.Window):

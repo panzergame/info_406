@@ -6,8 +6,8 @@ from gi.repository import Gtk
 
 from .left import LeftBox
 from .right import RightBox
-from .centerBox import *
-from .agenda import *
+from .center_box import CenterBox
+from .agenda import AgendaBox
 from client.model import common
 
 
