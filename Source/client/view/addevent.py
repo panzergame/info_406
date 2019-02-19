@@ -37,7 +37,7 @@ class AddEventDialog(Gtk.Dialog):
 
 		box = self.get_content_area()
 		box.add(self.name_entry)
-		box.add(self.type_entry)
+		#box.add(self.type_entry)
 		box.add(self.description_entry)
 
 		row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
@@ -92,7 +92,7 @@ class AddEventButton(Gtk.Button):
 
 		if dia.run() == Gtk.ResponseType.OK:
 			agenda = self.common.user_clicked.agenda
-			event = Event.new(agenda.collection, dia.start, dia.end, dia.type, dia.description, set(), set())
+			event = Event.new(agenda.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 			agenda.add_event(event)
 			print(agenda.events)
 			self.common.event_clicked = event
