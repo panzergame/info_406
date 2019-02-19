@@ -6,7 +6,7 @@ from gi.repository import Gtk
 
 from search import SearchBox
 from account import AccountBox
-from groupList import *
+from group import *
 from Source.client.model import common
 
 
@@ -20,6 +20,6 @@ class LeftBox(Gtk.Box):
         self.set_border_width(10)
 
         self.add(AccountBox(self.account, self.common))
-        self.add(GroupList(self.common))
+        self.add(Group(self.common))
         self.add(SearchBox())
 
