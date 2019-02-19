@@ -11,11 +11,9 @@ from datetime import datetime
 
 class MyWindow(Gtk.Window):
 
-    def __init__(self, account, common):
+    def __init__(self, common):
         Gtk.Window.__init__(self, title="Votre Agenda")
-        self.account = account
-        self.common = common
-        self.add(MainBox(account, common))
+        self.add(MainBox(common))
 
 # DEMMOOOOOOO
 
@@ -50,8 +48,9 @@ for i in range(7):
 common = Common()
 common.day = datetime(2019, 2, 18)
 common.event_clicked = list(ag.events)[0]
+common.account = account
 
-win = MyWindow(account, common)
+win = MyWindow(common)
 
 win.connect("destroy", Gtk.main_quit)
 win.show_all()

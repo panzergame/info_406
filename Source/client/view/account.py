@@ -9,9 +9,8 @@ from client.model.common import *
 
 class AccountBox(Gtk.Box):
 
-    def __init__(self, account, common):
+    def __init__(self, common):
 
-        self.account = account
         self.common = common
 
         Gtk.Box.__init__(self,orientation=Gtk.Orientation.VERTICAL, spacing=6)
@@ -20,7 +19,7 @@ class AccountBox(Gtk.Box):
         title = Gtk.Label("Sélectionner un utilisateur")
         self.pack_start(title, True, True, 0)
 
-        users = account.users
+        users = common.account.users
         first = True
         group = None
         for user in users:
@@ -37,7 +36,6 @@ class AccountBox(Gtk.Box):
 
 
     def on_button_toggled(self, button, user):
-
         if button.get_active():
             self.common.user_clicked = user
 
