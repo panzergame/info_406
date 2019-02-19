@@ -41,13 +41,18 @@ def add(ag, start, end, type, desc):
 
 for i in range(7):
 	add(ag, datetime(2019, 2, 18 + i, 12), datetime(2019, 2, 18 + i, 13), "repas", "Repas avec les copains")
-	add(usmb_agenda, datetime(2019, 2, 18 + i, 8), datetime(2019, 2, 18 + i, 18), "examen", "Examen de rattrapage")
+	add(work_agenda, datetime(2019, 2, 18 + i, 12), datetime(2019, 2, 18 + i, 13), "repas", "Repas avec les copains")
+	add(work_agenda, datetime(2019, 2, 18 + i, 8), datetime(2019, 2, 18 + i, 11, 45), "Travail", "")
+	add(usmb_agenda, datetime(2019, 2, 18 + i, 8), datetime(2019, 2, 18 + i, 11, 30), "examen", "Examen de rattrapage")
+	add(usmb_agenda, datetime(2019, 2, 18 + i, 13, 30), datetime(2019, 2, 18 + i, 18), "examen", "Examen de rattrapage")
+	ag.link_agenda(usmb_agenda)
 
 common = Common()
 common.day = datetime(2019, 2, 18)
 common.event_clicked = list(ag.events)[0]
 
 win = MyWindow(account, common)
+
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()

@@ -34,7 +34,7 @@ class DateTimeDialog(Gtk.Dialog):
     @property
     def month(self):
         year , month , day = self.calendar.get_date()
-        return month
+        return month + 1
 
     @property
     def day(self):

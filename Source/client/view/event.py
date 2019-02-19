@@ -20,15 +20,25 @@ class EventBox(Gtk.Box):
         #Description
         #Ressources utilisées
         #Utilisateurs inscrits
-        elements.append(EventTypeLabel(event.type))
-        elements.append(EventDescriptionScrollable(event.description))
-        elements.append(EventResourcesScrollable(event.resources))
-        elements.append(EventUsersScrollable(event.users))
+        name = EventTypeLabel(event.type)
+        common.add_observer(name)
+        self.add(name)
         
-        for el in elements:
-            common.add_observer(el)
-            self.add(el)
-            
+        description = EventDescriptionScrollable(event.description)
+        common.add_observer(description)
+        self.add(Gtk.Label("Description"))
+        self.add(description)
+        
+        resources = EventResourcesScrollable(event.resources)
+        common.add_observer(resources)
+        self.add(Gtk.Label("Ressources"))
+        self.add(resources)
+        
+        users = EventUsersScrollable(event.users)
+        common.add_observer(users)
+        self.add(Gtk.Label("Participants"))
+        self.add(users)
+
 class EventTypeLabel(Gtk.Label):
     #Label d'affichage du type d'un évènement
     def __init__(self, eventType):
