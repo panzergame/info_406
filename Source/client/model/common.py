@@ -15,7 +15,6 @@ class Common:
 		self.observers.add(observer)
 
 	def _notify(self):
-		print("notify")
 		for obs in self.observers:
 			obs.update(self)
 
