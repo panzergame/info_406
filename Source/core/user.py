@@ -25,7 +25,7 @@ class User(Data):
 	@agenda.setter
 	def agenda(self, agenda):
 		self._agenda = agenda
-		self._agenda.owner = self
+		self._agenda.user = self
 
 	def _add_group(self, group):
 		self.groups.add(group)

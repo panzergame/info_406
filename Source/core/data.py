@@ -22,4 +22,5 @@ class Data:
 		self.collection.delete(self, type(self))
 
 	def update(self):
+		print(id(self), self, type(self))
 		self.collection.update(self, type(self))

@@ -26,39 +26,15 @@ class Collection:
 	classe fille de la classe Collection.
 	"""
 
-	def __init__(self):
-		self._datas = {type : {} for type in supported_types}
-
-	def _load(self, _id, type):
-		pass
-
 	def load(self, _id, type):
 		""" Charge une données selon son type et id. """
-		category = self._datas[type]
-		if _id not in category:
-			category[_id] = self._load(_id, type)
-		return category[_id]
-
-	def _new(self, data, type):
 		pass
 
 	def new(self, data, type):
-		self._new(data, type)
-
-		category = self._datas[type]
-		category[data.id] = data
-
-		return data
-
-	def _delete(self, data, type):
 		pass
 
 	def delete(self, data, type):
-		self._delete(data, type)
-		self._datas[type].pop(data.id)
-
-	def _update(self, data, type):
 		pass
 
 	def update(self, data, type):
-		self._update(data, type)
+		pass

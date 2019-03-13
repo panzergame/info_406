@@ -20,13 +20,13 @@ class Group(Data):
 		""" Ajout d'un agenda. """
 		self.agendas.add(agenda)
 		# Actualisation de son propriétaire.
-		agenda.owner = self
+		agenda.group = self
 
 	def remove_agenda(self, agenda):
 		""" Suppression d'un agenda de la liste. """
 		self.agendas.discard(agenda)
 		# Actualisation de son propriétaire.
-		agenda.owner = None
+		agenda.group = None
 
 	def subscribe(self, user):
 		""" Inscription d'un utilisateur. """

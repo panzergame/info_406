@@ -4,13 +4,14 @@ from .event import *
 from .data import *
 
 class Agenda(Data):
-	def __init__(self, _id, collection, name, events, linked_agendas, owner=None):
+	def __init__(self, _id, collection, name, events, linked_agendas, user=None, group=None):
 		super().__init__(_id, collection)
 
 		self.name = name
 		self.events = events
 		self.linked_agendas = linked_agendas
-		self.owner = owner
+		self.user = user
+		self.group = group
 
 	def __repr__(self):
 		return self.name
