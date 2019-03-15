@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from .core import *
+from core import *
+from .data import *
 
-class DbUser(User):
+class DbUser(User, DbData):
+	db_attr_names = ("first_name", "last_name", "email", "tel", "account")
+	db_table = "User"
+
 	def __init__(self, *args):
-		super().__init__(self, *args)
+		super().__init__(*args)

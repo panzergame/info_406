@@ -6,7 +6,7 @@ from .user import *
 from .resource import *
 from .group import *
 
-# Tous les types supporté.
+# Tous les types supportés.
 supported_types = [
 	Account,
 	Agenda,
