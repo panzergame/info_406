@@ -10,7 +10,7 @@ class DbData:
 		self.collection._update(self.db_table, self, self.db_attr_names)
 
 	def db_delete(self):
-		self.collection._delete(self)
+		self.collection._delete(self.db_table, self)
 
 	def db_insert_relations(self):
 		pass

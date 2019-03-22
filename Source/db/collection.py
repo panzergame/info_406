@@ -30,14 +30,22 @@ class DbCollection(Collection):
 		self.cursor = cursor
 
 		# Liste d'attente pour l'écriture et la modification.
-		self.new_queue = []
-		self.update_queue = []
-		self.delete_queue = []
+		self.new_queue = set()
+		self.update_queue = set()
+		self.delete_queue = set()
 
 ############### OUTILS ###############
 
+	def _translate_type(self, _type):
+		if _type in supported_types.keys():
+			return supported_types[_type]
+		elif _type in supported_types.values():
+			return _type
+
+		return None
+
 	def _get(self, query):
-		""" Execution d'un requéte et récupération du résultat sous la forme d'un tableau de dictionnaire """
+		""" Execution d'un requête et récupération du résultat sous la forme d'un tableau de dictionnaire """
 		self._run(query)
 		rows = self.cursor.fetchall()
 		fields = list(map(lambda x: x[0], self.cursor.description))
@@ -45,33 +53,43 @@ class DbCollection(Collection):
 					for row in rows]
 
 	def _run(self, query):
+		""" Execution d'une requête """
 		print("[query] {}".format(query))
 		self.cursor.execute(query)
 
 	def _get_row(self, _id, table):
+		""" Obtention d'une ligne par son id """
 		return self._get("SELECT * FROM `{}` WHERE id = {}".format(table, _id))
 
 	def _list_id(self, _type, attr, _id):
-		table = _type.__name__
+		""" Obtention d'une colonne (attr) ou id = _id """
+		table = _type.db_table
 		return self._list_relation(table, _type, attr, _id, "id")
 
 	def _list_relation(self, table, _type, from_attr, from_value, to_attr):
+		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la contrainte
+			from_attr = from_value
+		"""
 		rows = self._get("SELECT `{}` FROM `{}` WHERE `{}` = {}".format(to_attr, table, from_attr, from_value))
 		return set(map(lambda x: self._convert_sql_id(x[to_attr], _type), rows))
 
 	def _last_id(self):
+		""" Récupère l'id de la dernière ligne insérée """
 		self._run("SELECT LAST_INSERT_ID()")
 		return self.cursor.fetchone()[0]
 
 	def _convert_sql_id(self, id, _type):
+		""" Conversion d'un numéro issue d'une requête en proxy """
 		return DataProxy(id, _type, self)
 
 	def _convert_sql_to_value(self, sql):
+		""" Conversion d'un resultat sql en python """
 		if sql == -1:
 			return None
 		return sql
 
 	def _convert_value_to_sql(self, value):
+		""" Conversion d'une valeur python en format sql """
 		_type = type(value)
 		if issubclass(_type, Data) or issubclass(_type, DataProxy):
 			return str(value.id)
@@ -101,11 +119,11 @@ class DbCollection(Collection):
 
 		data.id = self._last_id()
 
-	def _delete(self, table, data, type):
+	def _delete(self, table, data):
 		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, data.id))
 
 	def _update(self, data, fields):
-		table = type(data).__name__
+		table = data.db_table
 		# Les attributs à écrire.
 		attr = {name : getattr(data, name) for name in fields}
 		# Liste de pair nom = valeur
@@ -142,11 +160,11 @@ class DbCollection(Collection):
 		data.db_delete_relations()
 		data.db_insert_relations()
 
-	def _delayed_delete_relation(self, data, _type):
+	def _delayed_delete_relation(self, data):
 		data.db_delete_relations()
 
 	def _load(self, _id, type):
-		row = self._get_row(_id, type.__name__)[0]
+		row = self._get_row(_id, type.db_table)[0]
 
 		if type is DbAccount:
 			return DbAccount(_id, self,
@@ -174,14 +192,15 @@ class DbCollection(Collection):
 			   self._convert_sql_id(row["account"], DbAccount))
 
 	def new(self, type, *args):
-		_type = supported_types[type]
+		_type = self._translate_type(type)
 		data = _type(-1, self, *args)
-		self.new_queue.append(data)
+		self.new_queue.add(data)
 
 		return data
 
 	def load(self, _id, type):
-		_type = supported_types[type]
+		_type = self._translate_type(type)
+
 		# Recherche dans le cache
 		category = self._datas[_type]
 		if _id not in category:
@@ -189,11 +208,11 @@ class DbCollection(Collection):
 		return category[_id]
 
 	def update(self, data):
-		self.update_queue.append(data)
+		self.update_queue.add(data)
 
 	def delete(self, data):
-		_type = supported_types[type(data)]
-		self.delete_queue.append(data)
+		_type = self._translate_type(type(data))
+		self.delete_queue.add(data)
 
 		self._datas[_type].pop(data.id)
 
@@ -215,7 +234,14 @@ class DbCollection(Collection):
 			if _type is DbEvent:
 				return 4
 
-		print(self.new_queue)
+		""" Ordre :
+		Insert
+		Update
+		Delete
+
+		Pour chaque étape on procède aux entités avant leur relations.
+		"""
+
 		# Tri par dépendance.
 		new_queue = sorted(self.new_queue, key=lambda item: priority(type(item)))
 		for data in new_queue:
