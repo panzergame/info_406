@@ -26,6 +26,12 @@ class DataProxy:
 
 	def __repr__(self):
 		if "data" not in self.__dict__ or self.__dict__["data"] is None:
-				return "[Proxy of {} type {}]".format(self.__dict__["id"], self.__dict__["type"].__name__)
+				return "[Proxy of {} type {} {}]".format(self.__dict__["id"], self.__dict__["type"].__name__, hash(self))
 		else:
 			return self.__dict__["data"].__repr__()
+
+	def __hash__(self):
+		return hash(self.__dict__["type"]) ^ hash(self.__dict__["id"])
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)

@@ -18,5 +18,5 @@ account.delete()
 
 collection.flush()
 
-conn.commit()
+#conn.commit()
 cursor.close()

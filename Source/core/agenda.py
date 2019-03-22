@@ -2,16 +2,21 @@
 
 from .event import *
 from .data import *
+from .dataproperty import *
 
 class Agenda(Data):
+	name = DataProperty("name")
+	user = DataProperty("user")
+	group = DataProperty("group")
+
 	def __init__(self, _id, collection, name, events, linked_agendas, user=None, group=None):
 		super().__init__(_id, collection)
 
-		self.name = name
+		self._name = name
 		self.events = events
 		self.linked_agendas = linked_agendas
-		self.user = user
-		self.group = group
+		self._user = user
+		self._group = group
 
 	def __repr__(self):
 		return self.name
@@ -31,10 +36,14 @@ class Agenda(Data):
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """
 		self.linked_agendas.add(agenda)
+		# Modification d'une relation
+		self.update_relations()
 
 	def unlink_agenda(self, agenda):
 		""" Suppression d'un lien vers un autre agenda. """
 		self.linked_agendas.discard(agenda)
+		# Modification d'une relation
+		self.update_relations()
 
 	@property
 	def all_events(self):

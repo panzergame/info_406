@@ -17,7 +17,8 @@ supported_types = {
 	Agenda : DbAgenda,
 	Event : DbEvent,
 	Group : DbGroup,
-	User : DbUser
+	User : DbUser,
+	Resource : DbResource
 }
 
 class DbCollection(Collection):
@@ -32,6 +33,7 @@ class DbCollection(Collection):
 		# Liste d'attente pour l'écriture et la modification.
 		self.new_queue = set()
 		self.update_queue = set()
+		self.update_relations_queue = set()
 		self.delete_queue = set()
 
 ############### OUTILS ###############
@@ -49,7 +51,7 @@ class DbCollection(Collection):
 		self._run(query)
 		rows = self.cursor.fetchall()
 		fields = list(map(lambda x: x[0], self.cursor.description))
-		return [{fields[i] : self._convert_sql_to_value(row[i]) for i in range(0, len(fields))}
+		return [{fields[i] : row[i] for i in range(0, len(fields))}
 					for row in rows]
 
 	def _run(self, query):
@@ -71,6 +73,9 @@ class DbCollection(Collection):
 			from_attr = from_value
 		"""
 		rows = self._get("SELECT `{}` FROM `{}` WHERE `{}` = {}".format(to_attr, table, from_attr, from_value))
+
+		if len(rows) == 0:
+			return set()
 		return set(map(lambda x: self._convert_sql_id(x[to_attr], _type), rows))
 
 	def _last_id(self):
@@ -80,13 +85,10 @@ class DbCollection(Collection):
 
 	def _convert_sql_id(self, id, _type):
 		""" Conversion d'un numéro issue d'une requête en proxy """
-		return DataProxy(id, _type, self)
+		if type(id) is not int:
+			raise TypeError("SQL id should be int")
 
-	def _convert_sql_to_value(self, sql):
-		""" Conversion d'un resultat sql en python """
-		if sql == -1:
-			return None
-		return sql
+		return DataProxy(id, _type, self)
 
 	def _convert_value_to_sql(self, value):
 		""" Conversion d'une valeur python en format sql """
@@ -99,7 +101,7 @@ class DbCollection(Collection):
 			return str(value)
 		if _type is str:
 			return "\"{}\"".format(value)
-		if _type is type(None):
+		if value is None:
 			return "-1"
 
 		raise (TypeError("Invalid type {}".format(_type.__name__)))
@@ -122,8 +124,7 @@ class DbCollection(Collection):
 	def _delete(self, table, data):
 		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, data.id))
 
-	def _update(self, data, fields):
-		table = data.db_table
+	def _update(self, table, data, fields):
 		# Les attributs à écrire.
 		attr = {name : getattr(data, name) for name in fields}
 		# Liste de pair nom = valeur
@@ -191,6 +192,8 @@ class DbCollection(Collection):
 			   self._list_relation("Group_User", DbGroup, "user", _id, "group"),
 			   self._convert_sql_id(row["account"], DbAccount))
 
+############ Interface Collection ##############
+
 	def new(self, type, *args):
 		_type = self._translate_type(type)
 		data = _type(-1, self, *args)
@@ -204,17 +207,22 @@ class DbCollection(Collection):
 		# Recherche dans le cache
 		category = self._datas[_type]
 		if _id not in category:
-			category[_id] = self._load(_id, _type)
+			data = category[_id] = self._load(_id, _type)
 		return category[_id]
-
-	def update(self, data):
-		self.update_queue.add(data)
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))
 		self.delete_queue.add(data)
 
 		self._datas[_type].pop(data.id)
+
+	def update(self, data):
+		self.update_queue.add(data)
+
+	def update_relations(self, data):
+		self.update_relations_queue.add(data)
+
+##############################################
 
 	def flush(self):
 		""" "Commit" les modifications """
@@ -253,6 +261,9 @@ class DbCollection(Collection):
 
 		for data in self.update_queue:
 			self._delayed_update(data)
+
+		# Il est parfois necessaire de modifier que les relations et non les entitées.
+		for data in self.update_relations_queue:
 			self._delayed_update_relation(data)
 
 		for data in self.delete_queue:

@@ -2,18 +2,26 @@
 
 from .agenda import *
 from .data import *
+from .dataproperty import *
 
 class User(Data):
+	first_name = DataProperty("first_name")
+	last_name = DataProperty("last_name")
+	email = DataProperty("email")
+	tel = DataProperty("tel")
+	agenda = DataProperty("agenda")
+	account = DataProperty("account")
+
 	def __init__(self, _id, collection, first_name, last_name, email, tel, agenda, groups, account=None):
 		super().__init__(_id, collection)
 
-		self.first_name = first_name
-		self.last_name = last_name
-		self.email = email
-		self.tel = tel
+		self._first_name = first_name
+		self._last_name = last_name
+		self._email = email
+		self._tel = tel
 		self._agenda = agenda
 		self.groups = groups
-		self.account = account
+		self._account = account
 
 	def __repr__(self):
 		return "{} {} {} groupes".format(self.first_name, self.last_name, len(self.groups))

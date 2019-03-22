@@ -12,7 +12,8 @@ supported_types = [
 	Agenda,
 	Event,
 	Group,
-	User
+	User,
+	Resource,
 ]
 
 supported_types_name = {type.__name__ : type for type in supported_types}
@@ -23,7 +24,7 @@ class Collection:
 	la collection est appellé pour la charger.
 
 	Ceci est possible depuis une BDD ou par réseau, d'où deux
-	classe fille de la classe Collection.
+	classes filles de la classe Collection.
 	"""
 
 	def load(self, _id, type):
@@ -33,8 +34,11 @@ class Collection:
 	def new(self, data, type):
 		pass
 
-	def delete(self, data, type):
+	def delete(self, data):
 		pass
 
-	def update(self, data, type):
+	def update(self, data):
+		pass
+
+	def update_relations(self, data):
 		pass

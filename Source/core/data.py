@@ -2,24 +2,8 @@
 
 class Data:
 	def __init__(self, _id, collection):
-		self.__dict__["id"] = _id
-		self.__dict__["collection"] = collection
-
-	@property
-	def id(self):
-		return self.__dict__["id"]
-
-	def # TODO setter pour eviter appelle __setattr__ pour id (new insert)
-
-	@property
-	def collection(self):
-		return self.__dict__["collection"]
-
-	def __setattr__(self, name, value):
-		""" Detection du changement d'une valeur """
-		self.update()
-		print(name)
-		self.__dict__[name] = value
+		self.id = _id
+		self.collection = collection
 
 	# Interface CRUD
 
@@ -36,5 +20,17 @@ class Data:
 		self.collection.delete(self)
 
 	def update(self):
-		print("update")
 		self.collection.update(self)
+
+	def update_relations(self):
+		""" Actualisation des relations seulements.
+		Par exemple lors d'ajout d'un utilisateur dans un groupe,
+		d'un administrateur.
+		"""
+		self.collection.update_relations(self)
+
+	def __hash__(self):
+		return hash(type(self)) ^ hash(self.id)
+
+	def __eq__(self, other):
+		return hash(self) == hash(other)

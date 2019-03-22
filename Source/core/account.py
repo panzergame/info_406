@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from .data import *
+from .dataproperty import *
 
 class Account(Data):
+	login = DataProperty("login")
+	mdp = DataProperty("mdp")
+	email = DataProperty("email")
+
 	def __init__(self, _id, collection, users, login, mdp, email):
 		super().__init__(_id, collection)
 
 		self.users = users
-		self.login = login
-		self.mdp = mdp
-		self.email = email
+		self._login = login
+		self._mdp = mdp
+		self._email = email
 
 	def __repr__(self):
 		return "{} [{}]".format(self.login, ", ".join((str(user) for user in self.users)))

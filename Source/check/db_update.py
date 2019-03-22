@@ -12,21 +12,22 @@ cursor = conn.cursor()
 collection = DbCollection(cursor)
 
 account = Account.load(collection, 1)
-print(account.users)
 for user in account.users:
-	print(user.account)
 	user.email = "TOTO@gmail.com"
-	print(user.email, id(user))
-
-	user.update()
 
 user = list(account.users)[0]
+user2 = list(account.users)[1]
 account.remove_user(user)
-user.delete()
 
-account.update()
+group = list(user.groups)[0]
+group.unsubscribe(user)
+
+group2 = list(user2.groups)[0]
+group2.unsubscribe(user2)
+
+#user.delete()
 
 collection.flush()
 
-conn.commit()
+#conn.commit()
 cursor.close()
