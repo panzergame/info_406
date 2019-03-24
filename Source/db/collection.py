@@ -59,9 +59,13 @@ class DbCollection(Collection):
 		print("[query] {}".format(query))
 		self.cursor.execute(query)
 
+	def _get_row_attr(self, attr, value, table, close=""):
+		""" Obtention d'une ligne par un attribut """
+		return self._get("SELECT * FROM `{}` WHERE `{}` = {} {}".format(table, attr, value, close))
+
 	def _get_row(self, _id, table):
 		""" Obtention d'une ligne par son id """
-		return self._get("SELECT * FROM `{}` WHERE id = {}".format(table, _id))
+		return self._get_row_attr("id", _id, table)
 
 	def _list_id(self, _type, attr, _id):
 		""" Obtention d'une colonne (attr) ou id = _id """
@@ -164,15 +168,12 @@ class DbCollection(Collection):
 	def _delayed_delete_relation(self, data):
 		data.db_delete_relations()
 
-	def _load(self, _id, type):
-		row = self._get_row(_id, type.db_table)[0]
-
+	def _load(self, _id, type, row):
 		if type is DbAccount:
 			return DbAccount(_id, self,
 					self._list_id(DbUser, "account", _id), row["login"], row["mdp"], row["email"])
 		if type is DbAgenda:
 			return DbAgenda(_id, self, row["name"],
-					self._list_id(DbEvent, "agenda", _id),
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
 					self._convert_sql_id(row["user"], DbUser), self._convert_sql_id(row["group"], DbGroup))
 		if type is DbEvent:
@@ -207,14 +208,23 @@ class DbCollection(Collection):
 		# Recherche dans le cache
 		category = self._datas[_type]
 		if _id not in category:
-			data = category[_id] = self._load(_id, _type)
+			row = self._get_row(_id, _type.db_table)[0]
+			data = category[_id] = self._load(_id, _type, row)
 		return category[_id]
+
+	def load_batched(self, type, attr, value, close):
+		_type = self._translate_type(type)
+
+		rows = self._get_row_attr(attr, value, _type.db_table, close)
+		return set(self._load(row["id"], _type, row) for row in rows)
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))
 		self.delete_queue.add(data)
 
-		self._datas[_type].pop(data.id)
+		# Désenregistrement de la donnée si elle possède une id.
+		if data.id != -1:
+			self._datas[_type].pop(data.id)
 
 	def update(self, data):
 		self.update_queue.add(data)

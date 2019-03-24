@@ -2,7 +2,7 @@
 
 from core import *
 from db import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import mysql.connector 
 
@@ -12,10 +12,10 @@ cursor = conn.cursor()
 collection = DbCollection(cursor)
 
 account = Account.new(collection, set(), "root", "root", "michel@gmail.com")
-toto_agenda = Agenda.new(collection, "Personnel Toto", set(), set())
-tata_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
-work_agenda = Agenda.new(collection, "Travail", set(), set())
-cheval_agenda = Agenda.new(collection, "Cheval", set(), set())
+toto_agenda = Agenda.new(collection, "Personnel Toto", set())
+tata_agenda = Agenda.new(collection, "Personnel Tata", set())
+work_agenda = Agenda.new(collection, "Travail", set())
+cheval_agenda = Agenda.new(collection, "Cheval", set())
 
 usmb = Group.new(collection, "USMB", set(), set(), set(), set())
 cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())
@@ -71,10 +71,12 @@ def add(ag, start, end, type):
 	ag.add_event(event)
 
 # Création de 4 évenements ajoutés sur chaque agenda
-add(toto_agenda, datetime(2019, 1, 15, 12), datetime(2019, 1, 15, 13), "amis")
-add(tata_agenda, datetime(2019, 5, 15, 12), datetime(2019, 5, 15, 13), "teuufff")
-add(work_agenda, datetime(2019, 10, 5, 20), datetime(2019, 10, 5, 23), "reunion")
-add(cheval_agenda, datetime(2019, 12, 15, 12), datetime(2019, 12, 15, 13), "manif")
+for i in range(200):
+	delta = timedelta(days=i)
+	add(toto_agenda, datetime(2019, 1, 15, 12) + delta, datetime(2019, 1, 15, 13) + delta, "amis")
+	add(tata_agenda, datetime(2019, 5, 15, 12) + delta, datetime(2019, 5, 15, 13) + delta, "teuufff")
+	add(work_agenda, datetime(2019, 10, 5, 20) + delta, datetime(2019, 10, 5, 23) + delta, "reunion")
+	add(cheval_agenda, datetime(2019, 12, 15, 12) + delta, datetime(2019, 12, 15, 13) + delta, "manif")
 
 state("Ajout d'evenements")
 

@@ -20,10 +20,10 @@ class MyCollection(Collection):
 collection = MyCollection()
 
 account = Account.new(collection, set(), "root", "root", "michel@gmail.com")
-toto_agenda = Agenda.new(collection, "Personnel Toto", set(), set())
-tata_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
-work_agenda = Agenda.new(collection, "Travail", set(), set())
-cheval_agenda = Agenda.new(collection, "Cheval", set(), set())
+toto_agenda = Agenda.new(collection, "Personnel Toto", set())
+tata_agenda = Agenda.new(collection, "Personnel Tata", set())
+work_agenda = Agenda.new(collection, "Travail", set())
+cheval_agenda = Agenda.new(collection, "Cheval", set())
 
 usmb = Group.new(collection, "USMB", set(), set(), {work_agenda}, set())
 cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())

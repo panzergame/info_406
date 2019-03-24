@@ -2,6 +2,7 @@
 
 from .data import *
 from .dataproperty import *
+from datetime import *
 
 class Event(Data):
 	start = DataProperty("start")
@@ -9,8 +10,9 @@ class Event(Data):
 	type = DataProperty("type")
 	description = DataProperty("description")
 	agenda = DataProperty("agenda")
+	creation_date = DataProperty("creation_date")
 
-	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None):
+	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=datetime.now()):
 		super().__init__(_id, collection)
 
 		self._start = start
@@ -20,6 +22,13 @@ class Event(Data):
 		self.resources = resources
 		self.users = users
 		self._agenda = agenda
+		self._creation_date = creation_date
+
+	def update(self):
+		# Actualisation de la date de dernière modification.
+		self._creation_date = datetime.now()
+
+		super().update()
 
 	@property
 	def duration(self):
@@ -50,4 +59,7 @@ class Event(Data):
 		self.update_relations()
 
 	def __repr__(self):
-		return "{} {} -> {} ({})".format(self.type, self.start, self.end, self.duration)
+		def datetime_str(date):
+			return date.strftime("%Y-%m-%d %H:%M")
+
+		return "{} {} -> {} ({})".format(self.type, datetime_str(self.start), datetime_str(self.end), self.duration)

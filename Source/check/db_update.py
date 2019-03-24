@@ -2,7 +2,7 @@
 
 from core import *
 from db import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import mysql.connector
 
@@ -24,6 +24,32 @@ group.unsubscribe(user)
 
 group2 = list(user2.groups)[0]
 group2.unsubscribe(user2)
+
+today = datetime.now()
+hour = timedelta(hours=1)
+day = timedelta(days=1)
+
+start = today.replace(hour=0, minute=0)
+end = today + day
+
+agenda = user.agenda
+print(agenda.all_events(start, end))
+
+events = []
+for i in range(4):
+	ev = Event.new(collection, today + i * hour, today + (i + 1) * hour, "", "", set(), set())
+	events.append(ev)
+	agenda.add_event(ev)
+
+print("Events ", start, end)
+print(agenda.all_events(start, end))
+
+for i in range(2):
+	ev = events[i]
+	agenda.remove_event(ev)
+	ev.delete()
+
+print(agenda.all_events(start, end))
 
 #user.delete()
 

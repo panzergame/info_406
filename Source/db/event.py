@@ -4,7 +4,7 @@ from core import *
 from .data import *
 
 class DbEvent(Event, DbData):
-	db_attr_names = ("start", "end", "type", "description", "agenda")
+	db_attr_names = ("start", "end", "type", "description", "agenda", "creation_date")
 	db_table = "Event"
 
 	def __init__(self, *args):

@@ -30,7 +30,10 @@ class Data:
 		self.collection.update_relations(self)
 
 	def __hash__(self):
-		return hash(type(self)) ^ hash(self.id)
+		if self.id != -1:
+			return hash(type(self)) ^ hash(self.id)
+		# Pour une donnée pas encore enregistré (sans id), utilisation du hash de base.
+		return super().__hash__()
 
 	def __eq__(self, other):
 		return hash(self) == hash(other)
