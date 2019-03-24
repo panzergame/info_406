@@ -51,7 +51,7 @@ for i in range(2):
 
 print(agenda.all_events(start, end))
 
-#user.delete()
+user.delete()
 
 collection.flush()
 

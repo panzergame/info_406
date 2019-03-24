@@ -6,16 +6,16 @@ from .dataproperty import *
 
 class Agenda(Data):
 	name = DataProperty("name")
-	user = DataProperty("user")
-	group = DataProperty("group")
+	user = DataWeakProperty("user")
+	group = DataWeakProperty("group")
 
 	def __init__(self, _id, collection, name, linked_agendas, user=None, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.linked_agendas = linked_agendas
-		self._user = user
-		self._group = group
+		self.linked_agendas = WeakRefList(self, linked_agendas)
+		self._user = DataWeakProperty.init(user, self)
+		self._group = DataWeakProperty.init(user, self)
 
 	def __repr__(self):
 		return self.name
@@ -33,16 +33,7 @@ class Agenda(Data):
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """
 		self.linked_agendas.add(agenda)
-		# Modification d'une relation
-		self.update_relations()
 
 	def unlink_agenda(self, agenda):
 		""" Suppression d'un lien vers un autre agenda. """
 		self.linked_agendas.discard(agenda)
-		# Modification d'une relation
-		self.update_relations()
-
-	def delete(self):
-		super().delete()
-
-		# TODO enlever les liens des autres agendas : faire une liste d'agenda utilisateurs de celui ci ?

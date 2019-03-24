@@ -30,10 +30,3 @@ class Account(Data):
 		self.users.discard(user)
 		# Actualisation de son proprétaire.
 		user.account = None
-
-	def delete(self):
-		super().delete()
-
-		# Suppression de tous les utilisateurs.
-		for user in self.users:
-			user.delete()

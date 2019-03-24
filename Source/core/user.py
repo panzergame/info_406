@@ -9,8 +9,7 @@ class User(Data):
 	last_name = DataProperty("last_name")
 	email = DataProperty("email")
 	tel = DataProperty("tel")
-	agenda = DataProperty("agenda")
-	account = DataProperty("account")
+	account = DataWeakProperty("account")
 
 	def __init__(self, _id, collection, first_name, last_name, email, tel, agenda, groups, account=None):
 		super().__init__(_id, collection)
@@ -21,7 +20,7 @@ class User(Data):
 		self._tel = tel
 		self._agenda = agenda
 		self.groups = groups
-		self._account = account
+		self._account = DataWeakProperty.init(account, self)
 
 	def __repr__(self):
 		return "{} {} {} groupes".format(self.first_name, self.last_name, len(self.groups))
@@ -30,7 +29,7 @@ class User(Data):
 	def agenda(self):
 		return self._agenda
 
-	@agenda.setter
+	@agenda.setter # Avec DataProperty
 	def agenda(self, agenda):
 		self._agenda = agenda
 		self._agenda.user = self
@@ -40,9 +39,3 @@ class User(Data):
 
 	def _remove_group(self, group):
 		self.groups.discard(group)
-
-	def delete(self):
-		super().delete()
-
-		# Suppression de son agenda.
-		self.agenda.delete()

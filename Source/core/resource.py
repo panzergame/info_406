@@ -7,7 +7,7 @@ class Resource(Data):
 	name = DataProperty("name")
 	location = DataProperty("location")
 	capacity = DataProperty("capacity")
-	group = DataProperty("group")
+	group = DataWeakProperty("group")
 
 	def __init__(self, _id, collection, name, location, capacity, group):
 		super().__init__(_id, collection)

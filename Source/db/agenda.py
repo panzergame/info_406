@@ -103,5 +103,5 @@ class DbAgenda(Agenda, DbData):
 
 		return events
 
-	def delete(self):
+	def delete(self, owner):
 		pass # TODO events

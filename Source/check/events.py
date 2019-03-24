@@ -9,13 +9,14 @@ class MyCollection(Collection):
 		
 		self.id = 0
 
-	def _new(self, data, type):
+	def new(self, type, *args):
+		data = type(self.id, self, *args)
 		print("[Collection] new", type.__name__, self.id)
-		data.id = self.id
 		self.id += 1
+		return data
 
-	def _delete(self, data, type):
-		print("[Collection] delete", type.__name__, data.id)
+	def delete(self, data):
+		print("[Collection] delete", type(data).__name__, data.id)
 
 collection = MyCollection()
 
@@ -28,8 +29,11 @@ cheval_agenda = Agenda.new(collection, "Cheval", set())
 usmb = Group.new(collection, "USMB", set(), set(), {work_agenda}, set())
 cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())
 
-toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", toto_agenda, set())
-tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656", tata_agenda, set())
+toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", None, set())
+tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656", None, set())
+
+toto.agenda = toto_agenda
+tata.agenda = tata_agenda
 
 def state(op):
 	print("========== {} =========".format(op))
@@ -82,7 +86,7 @@ add(cheval_agenda, datetime(2019, 12, 15, 12), datetime(2019, 12, 15, 13), "mani
 
 state("Ajout d'evenements")
 
-print(toto_agenda, toto_agenda.all_events)
+"""print(toto_agenda, toto_agenda.all_events)
 print(tata_agenda, tata_agenda.all_events)
 print(work_agenda, work_agenda.all_events)
 print(cheval_agenda, cheval_agenda.all_events)
@@ -96,7 +100,7 @@ state("Suppression d'un evenement")
 print(toto_agenda, toto_agenda.all_events)
 print(tata_agenda, tata_agenda.all_events)
 print(work_agenda, work_agenda.all_events)
-print(cheval_agenda, cheval_agenda.all_events)
+print(cheval_agenda, cheval_agenda.all_events)"""
 
 account.delete()
 usmb.delete()

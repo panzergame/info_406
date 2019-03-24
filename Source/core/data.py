@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
-class Data:
+from .dataweak import *
+
+class Data(WeakRefered):
 	def __init__(self, _id, collection):
+		super().__init__()
+
 		self.id = _id
 		self.collection = collection
 
@@ -16,7 +20,9 @@ class Data:
 	def load(cls, collection, _id):
 		return collection.load(_id, cls)
 
-	def delete(self):
+	def delete(self, owner=None):
+		super().delete()
+
 		self.collection.delete(self)
 
 	def update(self):

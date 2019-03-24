@@ -10,8 +10,8 @@ class Group(Data):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.admins = admins
-		self.subscribers = subscribers
+		self.admins = WeakRefList(self, admins)
+		self.subscribers = WeakRefList(self, subscribers)
 		self.agendas = agendas
 		self.resources = resources
 
@@ -36,16 +36,12 @@ class Group(Data):
 		self.subscribers.add(user)
 		# Ajout du groupe dans l'utilisateur.
 		user._add_group(self)
-		# Modification d'une relation
-		self.update_relations()
 
 	def unsubscribe(self, user):
 		""" Desinscription d'un utilisateur. """
 		self.subscribers.discard(user)
 		# Suppression du groupe dans l'utilisateur.
 		user._remove_group(self)
-		# Modification d'une relation
-		self.update_relations()
 
 	def is_admin(self, user):
 		""" Test si un utilisateur est administrateur. """
@@ -54,23 +50,7 @@ class Group(Data):
 	def add_admin(self, user):
 		""" Ajout d'un administrateur. """
 		self.admins.add(user)
-		# Modification d'une relation
-		self.update_relations()
 
 	def remove_admin(self, user):
 		""" Suppression d'un administrateur. """
 		self.admins.discard(user)
-		# Modification d'une relation
-		self.update_relations()
-
-	def delete(self):
-		super().delete()
-
-		# Destruction de tous le agendas.
-		for agenda in self.agendas:
-			agenda.delete()
-
-		# Destruction de toutes les ressources.
-		for resource in self.resources:
-			resource.delete()
-			
