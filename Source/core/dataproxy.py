@@ -1,37 +1,59 @@
 # -*- coding: utf-8 -*-
 
+from .dataweak import *
+
 """ Classe d'une donnée non chargé de la base de donnée
 Chaque proxy est identifié par une id (int) et utilise une collection pour charger
 la donnée identifié lors d'un accèss à un membre de la donnée.
 """
-class DataProxy:
+class DataProxy(WeakRefered):
 	def __init__(self, _id, type, collection):
-		self.__dict__["id"] = _id
-		self.__dict__["type"] = type
-		self.__dict__["collection"] = collection
+		super().__init__()
+
+		self._id = _id
+		self._type = type
+		self._collection = collection
+
+	@property
+	def id(self):
+		return self._id
+
+	@property
+	def type(self):
+		return self._type
+
+	@property
+	def collection(self):
+		return self.collection
 
 	def __getattr__(self, name):
 		# Chargement de la donnée pour la première fois.
-		if "data" not in self.__dict__ or self.__dict__["data"] is None:
-			self.__dict__["data"] = self.__dict__["collection"].load(self.__dict__["id"], self.__dict__["type"])
+		if "_data" not in dir(self):
+			self._data = self._collection.load(self._id, self._type)
+			self._data.proxy = self
 
-		return getattr(self.__dict__["data"], name)
+		return getattr(self._data, name)
 
 	def __setattr__(self, name, value):
-		# Chargement de la donnée pour la première fois.
-		if "data" not in self.__dict__ or self.__dict__["data"] is None:
-			self.__dict__["data"] = self.__dict__["collection"].load(self.__dict__["id"], self.__dict__["type"])
+		# Ne pas prendre en compte les attributs privées.
+		if name[0] == '_':
+			object.__setattr__(self, name, value)
+		else:
+			# Chargement de la donnée pour la première fois.
+			if "_data" not in dir(self):
+				self._data = self._collection.load(self._id, self._type)
+				self._data.proxy = self
 
-		return setattr(self.__dict__["data"], name, value)
+			return setattr(self._data, name, value)
 
 	def __repr__(self):
-		if "data" not in self.__dict__ or self.__dict__["data"] is None:
-				return "[Proxy of {} type {}]".format(self.__dict__["id"], self.__dict__["type"].__name__)
+		if "_data" not in dir(self):
+			return "[Proxy of {} type {}]".format(self._id, self._type.__name__)
 		else:
-			return self.__dict__["data"].__repr__()
+			return self._data.__repr__()
 
 	def __hash__(self):
-		return hash(self.__dict__["type"]) ^ hash(self.__dict__["id"])
+		return hash(self._type) ^ hash(self._id)
 
 	def __eq__(self, other):
 		return hash(self) == hash(other)

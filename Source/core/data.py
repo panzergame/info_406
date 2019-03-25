@@ -8,6 +8,7 @@ class Data(WeakRefered):
 
 		self.id = _id
 		self.collection = collection
+		self.proxy = None
 
 	# Interface CRUD
 
@@ -21,6 +22,10 @@ class Data(WeakRefered):
 		return collection.load(_id, cls)
 
 	def delete(self, owner=None):
+		# Destruction de son proxy aussi.
+		if self.proxy is not None:
+			self.proxy.delete()
+
 		super().delete()
 
 		self.collection.delete(self)

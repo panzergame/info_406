@@ -35,6 +35,7 @@ class DbCollection(Collection):
 		self.update_queue = set()
 		self.update_relations_queue = set()
 		self.delete_queue = set()
+		self.data_proxies = {}
 
 ############### OUTILS ###############
 
@@ -92,7 +93,14 @@ class DbCollection(Collection):
 		if type(id) is not int:
 			raise TypeError("SQL id should be int")
 
-		return DataProxy(id, _type, self)
+		key = (id, _type)
+		proxy = self.data_proxies.get(key, None)
+		if proxy is not None:
+			return proxy
+
+		proxy = DataProxy(id, _type, self)
+		self.data_proxies[key] = proxy
+		return proxy
 
 	def _convert_value_to_sql(self, value):
 		""" Conversion d'une valeur python en format sql """
@@ -193,6 +201,12 @@ class DbCollection(Collection):
 			   self._list_relation("Group_User", DbGroup, "user", _id, "group"),
 			   self._convert_sql_id(row["account"], DbAccount))
 
+	def _load_batched(self, type, attr, value, close):
+		_type = self._translate_type(type)
+
+		rows = self._get_row_attr(attr, value, _type.db_table, close)
+		return set(self._load(row["id"], _type, row) for row in rows)
+
 ############ Interface Collection ##############
 
 	def new(self, type, *args):
@@ -212,11 +226,12 @@ class DbCollection(Collection):
 			data = category[_id] = self._load(_id, _type, row)
 		return category[_id]
 
-	def load_batched(self, type, attr, value, close):
+	def load_batched(self, _id, type, *args):
 		_type = self._translate_type(type)
-
-		rows = self._get_row_attr(attr, value, _type.db_table, close)
-		return set(self._load(row["id"], _type, row) for row in rows)
+		if _type is DbEvent:
+			month_first_day, next_month_first_day = args
+			return self._load_batched(DbEvent, "agenda", _id,
+				"AND (start >= \"{}\" AND start < \"{}\")".format(month_first_day, next_month_first_day))
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))
