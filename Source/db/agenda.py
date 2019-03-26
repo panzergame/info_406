@@ -11,6 +11,11 @@ class DbAgenda(Agenda, DbData):
 	def __init__(self, *args):
 		super().__init__(*args)
 
+	@classmethod
+	def db_delete_proxies(cls, collection, _id):
+		collection._delete_proxies(Event, "agenda", _id)
+		collection._delete_proxies(Notification, "agenda", _id)
+
 	def db_insert_relations(self):
 		col = self.collection
 		col._insert_relation(self.id, self.linked_agendas, "Agenda_Agenda", "agenda1", "agenda2")

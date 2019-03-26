@@ -65,6 +65,9 @@ class DbCollection(Collection):
 		self._data_proxies[_type].pop(proxy.id)
 
 	def _translate_type(self, _type):
+		""" Traduit un type vers un type préfixé par Db
+		autremenet dit un type specialisé pour la BDD.
+		"""
 		if _type in supported_types.keys():
 			return supported_types[_type]
 		elif _type in supported_types.values():
@@ -162,6 +165,23 @@ class DbCollection(Collection):
 
 	def _delete(self, table, _id):
 		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, _id))
+
+	def _delete_proxies(self, _type, attr, _id):
+		""" Détection des proxies qui devrait être supprimé
+		après la suppression d'une donnée parent.
+		Par exemple la suppression d'un Account doit supprimer
+		les proxies User.
+		"""
+
+		_type = self._translate_type(_type)
+
+		rows = self._get("SELECT id FROM `{}` WHERE `{}` = {}".format(_type.db_table, attr, _id))
+
+		category = self._data_proxies[_type]
+		for row in rows:
+			proxy = category.get(row["id"], None)
+			if proxy is not None:
+				proxy.delete()
 
 	def _update(self, table, data, fields):
 		# Les attributs à écrire.
@@ -278,15 +298,18 @@ class DbCollection(Collection):
 	def delete(self, data):
 		_type = self._translate_type(type(data))
 		self.delete_queue.add(data)
-
 		# Désenregistrement de la donnée si elle possède une id.
 		self._unregister_data(data)
+
+		_type.db_delete_proxies(self, data.id)
 
 	def delete_proxy(self, proxy):
 		_type = self._translate_type(proxy.type)
 		self.delete_proxy_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)
+
+		_type.db_delete_proxies(self, proxy.id)
 
 	def update(self, data):
 		self.update_queue.add(data)

@@ -10,6 +10,10 @@ class DbEvent(Event, DbData):
 	def __init__(self, *args):
 		super().__init__(*args)
 
+	@classmethod
+	def db_delete_proxies(cls, collection, _id):
+		collection._delete_proxies(Notification, "event", _id)
+
 	def db_insert_relations(self):
 		col = self.collection
 		col._insert_relation(self.id, self.resources, "Event_Resource", "event", "resource")

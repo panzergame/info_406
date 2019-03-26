@@ -13,6 +13,10 @@ class DbData:
 	def db_delete(cls, collection, _id):
 		collection._delete(cls.db_table, _id)
 
+	@classmethod
+	def db_delete_proxies(cls, collection, _id):
+		pass
+
 	def db_insert_relations(self):
 		pass
 

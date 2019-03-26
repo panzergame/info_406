@@ -9,3 +9,7 @@ class DbAccount(Account, DbData):
 
 	def __init__(self, *args):
 		super().__init__(*args)
+
+	@classmethod
+	def db_delete_proxies(cls, collection, _id):
+		collection._delete_proxies(User, "account", _id)
