@@ -15,7 +15,7 @@ class DbGroup(Group, DbData):
 		col._insert_relation(self.id, self.admins, "Group_Admin", "group", "admin")
 		col._insert_relation(self.id, self.subscribers, "Group_User", "group", "user")
 
-	def db_delete_relations(self):
-		col = self.collection
-		col._delete_relation(self.id, "Group_Admin", "group")
-		col._delete_relation(self.id, "Group_User", "group")
+	@staticmethod
+	def db_delete_relations(collection, id):
+		collection._delete_relation(id, "Group_Admin", "group")
+		collection._delete_relation(id, "Group_User", "group")

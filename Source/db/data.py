@@ -9,11 +9,13 @@ class DbData:
 	def db_update(self):
 		self.collection._update(self.db_table, self, self.db_attr_names)
 
-	def db_delete(self):
-		self.collection._delete(self.db_table, self)
+	@classmethod
+	def db_delete(cls, collection, _id):
+		collection._delete(cls.db_table, _id)
 
 	def db_insert_relations(self):
 		pass
 
-	def db_delete_relations(self):
+	@staticmethod
+	def db_delete_relations(collection, id):
 		pass

@@ -24,7 +24,14 @@ class DataProxy(WeakRefered):
 
 	@property
 	def collection(self):
-		return self.collection
+		return self._collection
+
+	def delete(self, owner=None):
+		super().delete()
+
+		self._collection.delete_proxy(self)
+		if "_data" in dir(self):
+			self._data.delete(owner)
 
 	def __getattr__(self, name):
 		# Chargement de la donnée pour la première fois.

@@ -25,8 +25,10 @@ class DbCollection(Collection):
 	def __init__(self, cursor):
 		super().__init__()
 
-		# Toutes les données existant aussi dans le base et chargé.
+		# Toutes les données existant dynamiquement ou dans le base et chargé.
 		self._datas = {type : {} for type in supported_types.values()}
+		# Tous les proxies de données fournis.
+		self._data_proxies = {type : {} for type in supported_types.values()}
 
 		self.cursor = cursor
 
@@ -35,9 +37,32 @@ class DbCollection(Collection):
 		self.update_queue = set()
 		self.update_relations_queue = set()
 		self.delete_queue = set()
-		self.data_proxies = {}
+		self.delete_proxy_queue = set()
 
 ############### OUTILS ###############
+
+	def _register_data(self, data):
+		_type = self._translate_type(type(data))
+
+		assert(data.id != -1)
+
+		self._datas[_type][data.id] = data
+
+	def _unregister_data(self, data):
+		_type = self._translate_type(type(data))
+
+		if data.id != -1:
+			self._datas[_type].pop(data.id)
+
+	def _register_proxy(self, proxy):
+		_type = self._translate_type(proxy.type)
+
+		self._data_proxies[_type][proxy.id] = proxy
+
+	def _unregister_proxy(self, proxy):
+		_type = self._translate_type(proxy.type)
+
+		self._data_proxies[_type].pop(proxy.id)
 
 	def _translate_type(self, _type):
 		if _type in supported_types.keys():
@@ -93,13 +118,15 @@ class DbCollection(Collection):
 		if type(id) is not int:
 			raise TypeError("SQL id should be int")
 
-		key = (id, _type)
-		proxy = self.data_proxies.get(key, None)
+		# Recherche d'un proxy déjà existant.
+		proxy = self._data_proxies[_type].get(id, None)
 		if proxy is not None:
 			return proxy
 
+		# Création d'un nouveau proxy.
 		proxy = DataProxy(id, _type, self)
-		self.data_proxies[key] = proxy
+		self._data_proxies[_type][id] = proxy
+
 		return proxy
 
 	def _convert_value_to_sql(self, value):
@@ -133,8 +160,8 @@ class DbCollection(Collection):
 
 		data.id = self._last_id()
 
-	def _delete(self, table, data):
-		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, data.id))
+	def _delete(self, table, _id):
+		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, _id))
 
 	def _update(self, table, data, fields):
 		# Les attributs à écrire.
@@ -157,24 +184,25 @@ class DbCollection(Collection):
 		data.db_new()
 
 		# Enregistrement de la donnée par id après sa création
+		self._register_data(data)
 		category = self._datas[type(data)]
 		category[data.id] = data
 
 	def _delayed_update(self, data):
 		data.db_update()
 
-	def _delayed_delete(self, data):
-		data.db_delete()
+	def _delayed_delete(self, _type, _id):
+		_type.db_delete(self, _id)
 
 	def _delayed_new_relation(self, data):
 		data.db_insert_relations()
 
 	def _delayed_update_relation(self, data):
-		data.db_delete_relations()
+		data.db_delete_relations(self, data.id)
 		data.db_insert_relations()
 
-	def _delayed_delete_relation(self, data):
-		data.db_delete_relations()
+	def _delayed_delete_relation(self, _type, _id):
+		_type.db_delete_relations(self, _id)
 
 	def _load(self, _id, type, row):
 		if type is DbAccount:
@@ -205,7 +233,20 @@ class DbCollection(Collection):
 		_type = self._translate_type(type)
 
 		rows = self._get_row_attr(attr, value, _type.db_table, close)
-		return set(self._load(row["id"], _type, row) for row in rows)
+
+		datas = set()
+		category = self._datas[_type]
+		# Conversion de toutes les données.
+		for row in rows:
+			_id = row["id"]
+			data = category.get(_id, None)
+			# On ne converti que les données non chargées.
+			if data is None:
+				data = self._load(row["id"], _type, row)
+
+			datas.add(data)
+
+		return datas;
 
 ############ Interface Collection ##############
 
@@ -224,6 +265,7 @@ class DbCollection(Collection):
 		if _id not in category:
 			row = self._get_row(_id, _type.db_table)[0]
 			data = category[_id] = self._load(_id, _type, row)
+
 		return category[_id]
 
 	def load_batched(self, _id, type, *args):
@@ -238,8 +280,13 @@ class DbCollection(Collection):
 		self.delete_queue.add(data)
 
 		# Désenregistrement de la donnée si elle possède une id.
-		if data.id != -1:
-			self._datas[_type].pop(data.id)
+		self._unregister_data(data)
+
+	def delete_proxy(self, proxy):
+		_type = self._translate_type(proxy.type)
+		self.delete_proxy_queue.add(proxy)
+		# Désenregistrement du proxy.
+		self._unregister_proxy(proxy)
 
 	def update(self, data):
 		self.update_queue.add(data)
@@ -267,6 +314,8 @@ class DbCollection(Collection):
 			if _type is DbEvent:
 				return 4
 
+			raise TypeError()
+
 		""" Ordre :
 		Insert
 		Update
@@ -292,8 +341,12 @@ class DbCollection(Collection):
 			self._delayed_update_relation(data)
 
 		for data in self.delete_queue:
-			self._delayed_delete(data)
-			self._delayed_delete_relation(data)
+			self._delayed_delete(type(data), data.id)
+			self._delayed_delete_relation(type(data), data.id)
+
+		for proxy in self.delete_proxy_queue:
+			self._delayed_delete(proxy.type, proxy.id)
+			self._delayed_delete_relation(proxy.type, proxy.id)
 
 		self.new_queue.clear()
 		self.update_queue.clear()

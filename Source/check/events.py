@@ -15,6 +15,9 @@ class MyCollection(Collection):
 		self.id += 1
 		return data
 
+	def load_batched(self, _id, _type, *args):
+		return set()
+
 	def delete(self, data):
 		print("[Collection] delete", type(data).__name__, data.id)
 

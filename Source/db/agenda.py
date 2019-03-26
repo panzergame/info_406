@@ -15,10 +15,10 @@ class DbAgenda(Agenda, DbData):
 		col = self.collection
 		col._insert_relation(self.id, self.linked_agendas, "Agenda_Agenda", "agenda1", "agenda2")
 
-	def db_delete_relations(self):
-		col = self.collection
-		col._delete_relation(self.id, "Agenda_Agenda", "agenda1")
-		col._delete_relation(self.id, "Agenda_Agenda", "agenda2")
+	@staticmethod
+	def db_delete_relations(collection, id):
+		collection._delete_relation(id, "Agenda_Agenda", "agenda1")
+		collection._delete_relation(id, "Agenda_Agenda", "agenda2")
 
 	def delete(self, owner):
 		pass # TODO events
