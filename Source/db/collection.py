@@ -144,7 +144,7 @@ class DbCollection(Collection):
 		if _type is str:
 			return "\"{}\"".format(value)
 		if value is None:
-			return "-1"
+			return "NULL"
 
 		raise (TypeError("Invalid type {}".format(_type.__name__)))
 
@@ -365,11 +365,9 @@ class DbCollection(Collection):
 
 		for data in self.delete_queue:
 			self._delayed_delete(type(data), data.id)
-			self._delayed_delete_relation(type(data), data.id)
 
 		for proxy in self.delete_proxy_queue:
 			self._delayed_delete(proxy.type, proxy.id)
-			self._delayed_delete_relation(proxy.type, proxy.id)
 
 		self.new_queue.clear()
 		self.update_queue.clear()
