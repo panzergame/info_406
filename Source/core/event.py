@@ -9,7 +9,7 @@ class Event(Data):
 	end = DataProperty("end")
 	type = DataProperty("type")
 	description = DataProperty("description")
-	agenda = DataWeakProperty("agenda")
+	agenda = DataOwnerProperty("agenda")
 	creation_date = DataProperty("creation_date")
 
 	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=datetime.now()):
@@ -19,9 +19,9 @@ class Event(Data):
 		self._end = end
 		self._type = type
 		self._description = description
-		self.resources = WeakRefList(self, resources)
-		self.users = WeakRefList(self, users)
-		self._agenda = DataWeakProperty.init(agenda, self)
+		self.resources = WeakRefSet(self, resources)
+		self.users = WeakRefSet(self, users)
+		self._agenda = DataOwnerProperty.init(agenda, self)
 		self._creation_date = creation_date
 
 	def update(self):

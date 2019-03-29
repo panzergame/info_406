@@ -13,7 +13,7 @@ class DataProperty(property):
 
 		super().__init__(getter, setter)
 
-class DataWeakProperty(property):
+class DataOwnerProperty(property):
 	def __init__(self, attr_name):
 		# Nom privée de l'attribut
 		hide_attr_name = "_" + attr_name
@@ -42,7 +42,7 @@ class DataWeakProperty(property):
 	def init(reffered, refferer):
 		""" Initialise une référence faible
 		Utilisé dans le constructeur sans passer par le setter
-		de DataWeakProperty qui va appeller update()
+		de DataOwnerProperty qui va appeller update()
 		"""
 		if reffered is not None:
 			reffered.new_ref(refferer)

@@ -8,17 +8,17 @@ from dateutil.relativedelta import *
 
 class Agenda(Data):
 	name = DataProperty("name")
-	user = DataWeakProperty("user")
-	group = DataWeakProperty("group")
+	user = DataOwnerProperty("user")
+	group = DataOwnerProperty("group")
 
 	def __init__(self, _id, collection, name, linked_agendas, notifications, user=None, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.linked_agendas = WeakRefList(self, linked_agendas)
-		self.notifications = WeakRefList(self, notifications)
-		self._user = DataWeakProperty.init(user, self)
-		self._group = DataWeakProperty.init(user, self)
+		self.linked_agendas = WeakRefSet(self, linked_agendas)
+		self.notifications = WeakRefSet(self, notifications)
+		self._user = DataOwnerProperty.init(user, self)
+		self._group = DataOwnerProperty.init(user, self)
 
 		# Cache d'événement par block d'un mois.
 		# En réalité par block de tous événements commencant dans le même mois.

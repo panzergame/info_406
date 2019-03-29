@@ -11,7 +11,7 @@ class Account(Data):
 	def __init__(self, _id, collection, users, login, mdp, email):
 		super().__init__(_id, collection)
 
-		self.users = WeakRefList(self, users)
+		self.users = WeakRefSet(self, users)
 		self._login = login
 		self._mdp = mdp
 		self._email = email

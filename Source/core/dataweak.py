@@ -17,7 +17,7 @@ class WeakRefered:
 		for ref in self._weakrefs:
 			ref.delete(self)
 
-class WeakRefList:
+class WeakRefSet:
 	def __init__(self, owner, items):
 		self.owner = owner
 		self._set = set(items)

@@ -9,7 +9,7 @@ class User(Data):
 	last_name = DataProperty("last_name")
 	email = DataProperty("email")
 	tel = DataProperty("tel")
-	account = DataWeakProperty("account")
+	account = DataOwnerProperty("account")
 
 	def __init__(self, _id, collection, first_name, last_name, email, tel, agenda, groups, account=None):
 		super().__init__(_id, collection)
@@ -20,7 +20,7 @@ class User(Data):
 		self._tel = tel
 		self._agenda = agenda
 		self.groups = groups
-		self._account = DataWeakProperty.init(account, self)
+		self._account = DataOwnerProperty.init(account, self)
 
 	def __repr__(self):
 		return "{} {} {} groupes".format(self.first_name, self.last_name, len(self.groups))
