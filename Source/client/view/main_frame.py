@@ -19,9 +19,9 @@ class MyWindow(Gtk.Window):
 
 collection = Collection()
 
-ag = Agenda.new(collection, "Personnel", set(), set())
-work_agenda = Agenda.new(collection, "Personnel", set(), set())
-usmb_agenda = Agenda.new(collection, "L2-MIST", set(), set())
+ag = Agenda.new(collection, "Personnel", set())
+work_agenda = Agenda.new(collection, "Personnel", set())
+usmb_agenda = Agenda.new(collection, "L2-MIST", set())
 dessin_agenda = Agenda.new(collection, "Club Dessin", set(), set())
 
 user = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", ag, set())

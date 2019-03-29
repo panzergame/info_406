@@ -11,11 +11,12 @@ class Agenda(Data):
 	user = DataWeakProperty("user")
 	group = DataWeakProperty("group")
 
-	def __init__(self, _id, collection, name, linked_agendas, user=None, group=None):
+	def __init__(self, _id, collection, name, linked_agendas, notifications, user=None, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
 		self.linked_agendas = WeakRefList(self, linked_agendas)
+		self.notifications = WeakRefList(self, notifications)
 		self._user = DataWeakProperty.init(user, self)
 		self._group = DataWeakProperty.init(user, self)
 
@@ -105,6 +106,14 @@ class Agenda(Data):
 			events |= agenda.all_events(from_date, to_date)
 
 		return events
+
+	def add_notification(self, notification):
+		""" Ajout d'une notification de cet agenda. """
+		self.notifications.add(notification)
+
+	def remove_notification(self, notification):
+		""" Suppression d'une notification de cet agenda. """
+		self.notifications.discard(notification)
 
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """

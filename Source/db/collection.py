@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
 
+"""
+DELIMITER $$
+
+CREATE TRIGGER `delete_User` AFTER DELETE ON `User` FOR EACH ROW
+BEGIN
+  INSERT INTO `Delete` VALUES (OLD.id, "User");
+END $$
+
+DELIMITER ;
+"""
+
 from core import *
 from datetime import datetime
 
@@ -9,6 +20,7 @@ from .agenda import *
 from .event import *
 from .resource import *
 from .account import *
+from .notification import *
 
 # Tous les types supportés.
 
@@ -18,7 +30,8 @@ supported_types = {
 	Event : DbEvent,
 	Group : DbGroup,
 	User : DbUser,
-	Resource : DbResource
+	Resource : DbResource,
+	Notification : DbNotification
 }
 
 class DbCollection(Collection):
@@ -118,7 +131,7 @@ class DbCollection(Collection):
 
 	def _convert_sql_id(self, id, _type):
 		""" Conversion d'un numéro issue d'une requête en proxy """
-		if type(id) is not int:
+		if type(id) not in (int, type(None)):
 			raise TypeError("SQL id should be int")
 
 		# Recherche d'un proxy déjà existant.
@@ -178,10 +191,15 @@ class DbCollection(Collection):
 		rows = self._get("SELECT id FROM `{}` WHERE `{}` = {}".format(_type.db_table, attr, _id))
 
 		category = self._data_proxies[_type]
-		for row in rows:
-			proxy = category.get(row["id"], None)
+		for sub_id in map(lambda row : row["id"], rows):
+			# Recherche d'un proxy existant correspondant à une donnée à supprimer.
+			proxy = category.get(sub_id, None)
+			# Suppression du proxy et en cascade de autre donnée.
 			if proxy is not None:
 				proxy.delete()
+			# Suppression de la donnée en cascade et d'autre proxies de plus bas niveau.
+			else:
+				_type.db_delete_proxies(self, sub_id)
 
 	def _update(self, table, data, fields):
 		# Les attributs à écrire.
@@ -225,12 +243,14 @@ class DbCollection(Collection):
 		_type.db_delete_relations(self, _id)
 
 	def _load(self, _id, type, row):
+		# TODO move DB classmethod
 		if type is DbAccount:
 			return DbAccount(_id, self,
 					self._list_id(DbUser, "account", _id), row["login"], row["mdp"], row["email"])
 		if type is DbAgenda:
 			return DbAgenda(_id, self, row["name"],
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
+					self._list_id(DbNotification, "agenda", _id),
 					self._convert_sql_id(row["user"], DbUser), self._convert_sql_id(row["group"], DbGroup))
 		if type is DbEvent:
 			return DbEvent(_id, self, row["start"], row["end"], row["type"], row["description"],
@@ -248,6 +268,10 @@ class DbCollection(Collection):
 			   list(self._list_id(DbAgenda, "user", _id))[0],
 			   self._list_relation("Group_User", DbGroup, "user", _id, "group"),
 			   self._convert_sql_id(row["account"], DbAccount))
+		if type is DbNotification:
+			return DbNotification(_id, self,
+					self._convert_sql_id(row["event"]),
+					self._convert_sql_id(row["agenda"]))
 
 	def _load_batched(self, type, attr, value, close):
 		_type = self._translate_type(type)
@@ -336,6 +360,8 @@ class DbCollection(Collection):
 				return 3
 			if _type is DbEvent:
 				return 4
+			if _type is DbNotification:
+				return 5
 
 			raise TypeError()
 
