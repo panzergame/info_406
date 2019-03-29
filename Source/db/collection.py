@@ -312,12 +312,14 @@ class DbCollection(Collection):
 
 		return category[_id]
 
-	def load_batched(self, _id, type, *args):
-		_type = self._translate_type(type)
-		if _type is DbEvent:
-			month_first_day, next_month_first_day = args
-			return self._load_batched(DbEvent, "agenda", _id,
-				"AND (start >= \"{}\" AND start < \"{}\")".format(month_first_day, next_month_first_day))
+	def load_events(self, agenda, month_first_day, next_month_first_day):
+		return self._load_batched(DbEvent, "agenda", agenda.id,
+			"AND (start >= \"{}\" AND start < \"{}\")".format(
+				month_first_day, next_month_first_day))
+
+	def load_latest_events(self, agenda, last_sync):
+		return self._load_batched(DbEvent, "agenda", agenda.id,
+			"AND (creation_date >= \"{}\")".format(last_sync))
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))

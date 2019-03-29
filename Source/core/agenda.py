@@ -42,7 +42,7 @@ class Agenda(Data):
 		Tous les événements commencant dans le mois.
 		"""
 		col = self.collection
-		events = col.load_batched(self.id, Event, month_first_day, next_month_first_day)
+		events = col.load_events(self.id, Event, month_first_day, next_month_first_day)
 
 		# Enregistrement de la page en cache.
 		self.chunks[month_first_day] = events

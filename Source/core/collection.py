@@ -31,10 +31,19 @@ class Collection:
 		""" Charge une données selon son type et id. """
 		pass
 
-	def new(self, data, type):
+	def load_events(self, agenda, month_first_day, next_month_first_day):
+		pass
+
+	def load_latest_events(self, agenda, last_sync):
+		pass
+
+	def new(self, type, *args):
 		pass
 
 	def delete(self, data):
+		pass
+
+	def delete_proxy(self, proxy):
 		pass
 
 	def update(self, data):
