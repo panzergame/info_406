@@ -74,9 +74,9 @@ def add(ag, start, end, type):
 for i in range(200):
 	delta = timedelta(days=i)
 	add(toto_agenda, datetime(2019, 1, 15, 12) + delta, datetime(2019, 1, 15, 13) + delta, "amis")
-	add(tata_agenda, datetime(2019, 5, 15, 12) + delta, datetime(2019, 5, 15, 13) + delta, "teuufff")
-	add(work_agenda, datetime(2019, 10, 5, 20) + delta, datetime(2019, 10, 5, 23) + delta, "reunion")
-	add(cheval_agenda, datetime(2019, 12, 15, 12) + delta, datetime(2019, 12, 15, 13) + delta, "manif")
+	add(tata_agenda, datetime(2019, 1, 15, 20) + delta, datetime(2019, 1, 16, 6) + delta, "teuufff")
+	add(work_agenda, datetime(2019, 1, 5, 20) + delta, datetime(2019, 1, 5, 23) + delta, "reunion")
+	add(cheval_agenda, datetime(2019, 1, 15, 16) + delta, datetime(2019, 1, 15, 23) + delta, "manif")
 
 state("Ajout d'evenements")
 
