@@ -92,7 +92,7 @@ class Agenda(Data):
 		""" Obtention des événements propre à l'agenda sur
 		une période
 		"""
-		chunks = self._get__hunks(from_date, to_date)
+		chunks = self._get_chunks(from_date, to_date)
 
 		events = set()
 		for chunk in chunks:
