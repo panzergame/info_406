@@ -35,10 +35,12 @@ class AgendaBox(Gtk.Box):
 class AgendaEvents(Gtk.DrawingArea):
 	#Classe d'affichage des évènement d'un agenda
 	def __init__(self, common):
+		days_displayed=7
 		self.common = common
 		def draw(da, ctx):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés
-			AgendaEvents.drawAllEvents(da, ctx, self.common.user_clicked.agenda.all_events, self.common.day)
+			events = self.common.user_clicked.agenda.all_events(self.common.day, self.common.day+timedelta(days_displayed))
+			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
 			
 		Gtk.DrawingArea.__init__(self)
 		self.connect('draw', draw)
@@ -87,14 +89,34 @@ class AgendaEvents(Gtk.DrawingArea):
 		
 		def getSlotCoords(start, end, firstDay):
 			#Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT
-			x = (start-firstDay).days*(1/daysDisplayed)
-			y = (toDayMinutes(start)/(minutesPerDay))
-			width = (1/daysDisplayed)
-			height = (toDayMinutes(end - start)/(minutesPerDay))
-			return x, y, width, height
+			rectanglesList=[]
+			currentStart = start
+			for i in range(end.day-start.day+1):
+				#On donne les coordoonées du rectangle
+				x = (currentStart-firstDay).days*(1/daysDisplayed)
+				y = (toDayMinutes(currentStart)/(minutesPerDay))
+				width = (1/daysDisplayed)
+				
+				if currentStart.day==end.day:
+					#Si on est le même jour on trace une hauteur qui correspond à la durée de l'évèneme,t
+					height = (toDayMinutes(end - currentStart)/(minutesPerDay))
+				else:
+					#Sinon on trace une hauteur jusqu'à la fin de la journée = complémentaire du temps écoulé depuis le début de la journée
+					height = 1-(toDayMinutes(currentStart)/(minutesPerDay))
 
-		def drawEventInfo(drawingArea, context, event, color):
+				#On ajoute le rectangle à tracer à la liste des rectangles
+				rectanglesList.append([x,y,width,height])
+
+				#Si l'event s'étend sur plusieurs jours, on recommence en avançant la date de départ de 1 jour, en fonction de ce qui a été tracé
+				currentStart=datetime(currentStart.year,currentStart.month,currentStart.day+1)
+			
+
+			return rectanglesList
+
+		def drawEventInfo(drawingArea, context, event_rectangle, color):
 			#Permet de dessiner le résumé des informations d'un event
+			x,y,width,height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
+
 			if(sum(color)>1.5):
 			#Test de si la couleur de l'event est claire ou foncée
 				color = (0,0,0)
@@ -103,6 +125,7 @@ class AgendaEvents(Gtk.DrawingArea):
 
 			context.set_source_rgb(color[0],color[1],color[2])
 
+			#Todo width et height ??
 			x_text = x + 0.1*width
 			y_text = y + 0.5*height
 		
@@ -112,18 +135,19 @@ class AgendaEvents(Gtk.DrawingArea):
 			context.move_to(x_text,y_text+1/48)
 			#Décalage de 1/2 heure vers le bas par rapport au type de l'event
 			context.show_text("{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute))
-			
-			
-		context.set_source_rgb(color[0],color[1],color[2])
 
 		#Affichage d'un rectangle de couleur pour l'event
-		x, y, width, height = getSlotCoords(event.start, event.end, firstDay)
-		context.rectangle(x, y, width, height)
-		context.fill()
-
-		#Affichage des infos de l'event sur ce rectangle
-		drawEventInfo(drawingArea, context, event, color)
-		context.fill()
+		for event_rectangle in getSlotCoords(event.start, event.end, firstDay):
+			x = event_rectangle[0]
+			y = event_rectangle[1]
+			width = event_rectangle[2]
+			height = event_rectangle[3]
+			context.set_source_rgb(color[0],color[1],color[2])
+			context.rectangle(x, y, width, height)
+			context.fill()
+			#Affichage des infos de l'event sur ce rectangle
+			drawEventInfo(drawingArea, context, event_rectangle, color)
+			context.fill()
 		
 		
 
