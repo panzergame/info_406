@@ -100,5 +100,5 @@ print(cheval_agenda, cheval_agenda.all_events)
 usmb.delete()
 cheval.delete()"""
 collection.flush()
-#conn.commit()
+conn.commit()
 cursor.close()
