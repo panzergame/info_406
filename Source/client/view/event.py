@@ -3,39 +3,49 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from datetime import *
+
 class EventBox(Gtk.Box):
 	#Boîte d'affichage détaillé d'un évènement
 	def __init__(self, common):
 		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
-		self.loadSubElements(common.event_clicked)
+		self.initSubElements()
+		self.set_opacity(0)
 		common.add_observer(self)
 
-	def loadSubElements(self, event):
+	def initSubElements(self):
+		#Initialise les sous éléments avec des valeurs par défauts
 		#Nom de l'évènement
-		self.name = EventTitleBox(event.type,event.start, event.end)
+		self.name = EventTitleBox("default_type",datetime(1,1,1),datetime(1,1,1))
 		self.add(self.name)
 
  		#Description       
-		self.description = EventDescriptionScrollable(event.description)
+		self.description = EventDescriptionScrollable("default_description")
 		self.add(Gtk.Label("Description"))
 		self.add(self.description)
 
  		#Ressources utilisées       
-		self.resources = EventResourcesScrollable(event.resources)
+		self.resources = EventResourcesScrollable([])
 		self.add(Gtk.Label("Ressources"))
 		self.add(self.resources)
 
 		#Utilisateurs inscrits        
-		self.users = EventUsersScrollable(event.users)
+		self.users = EventUsersScrollable([])
 		self.add(Gtk.Label("Participants"))
 		self.add(self.users)
 
 	def update(self, common):
 		#Mis à jour des éléments du widget en fonction du modele
-		self.name.update(common.event_clicked.type, common.event_clicked.start, common.event_clicked.end)
-		self.description.update(common.event_clicked.description)
-		self.resources.update(common.event_clicked.resources)
-		self.users.update(common.event_clicked.users)
+		if(common.event_clicked==None):
+			self.set_opacity(0)
+		else:
+			#Si on change d'évènement, on mets à jour les sous éléments
+			self.set_opacity(1)
+			self.name.update(common.event_clicked.type, common.event_clicked.start, common.event_clicked.end)
+			self.description.update(common.event_clicked.description)
+			self.resources.update(common.event_clicked.resources)
+			self.users.update(common.event_clicked.users)
+
 
 
 class EventTitleBox(Gtk.Box):
@@ -51,7 +61,10 @@ class EventTitleBox(Gtk.Box):
 
 	def update(self, eventType, eventStart, eventEnd):
 		self.type.set_text(eventType)
-		self.slot.set_text("{:02d}:{:02d} - {:02d}:{:02d}".format(eventStart.hour, eventStart.minute, eventEnd.hour, eventEnd.minute))
+		if(eventStart.day==eventEnd.day):
+			self.slot.set_text("{:02d}:{:02d} - {:02d}:{:02d}".format(eventStart.hour, eventStart.minute, eventEnd.hour, eventEnd.minute))
+		else:
+			self.slot.set_text("{:02d}/{:02d} {:02d}:{:02d} - {:02d}/{:02d} {:02d}:{:02d}".format(eventStart.day, eventStart.month ,eventStart.hour, eventStart.minute, eventEnd.day, eventEnd.month, eventEnd.hour, eventEnd.minute))
 
 class EventDescriptionScrollable(Gtk.ScrolledWindow):
 	#Fenêtre défilable, contient la description d'un évènement

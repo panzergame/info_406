@@ -32,19 +32,22 @@ class AgendaClickListener():
 		click_datetime = datetime(click_year, click_month, click_day, click_hour, click_minutes)
 		return click_datetime
 
-	def manageClick(self, widget, event):
+	def manageClick(self, widget, clickEvent):
 		#Gestionnaire du click sur un agenda
 		days_displayed = 7
 		hours_displayed = 24
-		raw_x, raw_y = event.get_coords()
+		raw_x, raw_y = clickEvent.get_coords()
 		width, height = widget.get_allocation().width, widget.get_allocation().height
 		x, y = (raw_x/width), (raw_y/height)
 
 		clicked_time = AgendaClickListener.getDatetimeFromRelativeCoords(x, y, self.common.day, days_displayed, hours_displayed)
 
+		self.common.event_clicked=None
 		for event in self.common.user_clicked.agenda.all_events(self.common.day, self.common.day+timedelta(days_displayed)):
 			if event.start < clicked_time < event.end:
 				self.common.event_clicked = event
+				break
+
 		
 
 		
