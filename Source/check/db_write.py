@@ -12,10 +12,10 @@ cursor = conn.cursor()
 collection = DbCollection(cursor)
 
 account = Account.new(collection, set(), "root", "root", "michel@gmail.com")
-toto_agenda = Agenda.new(collection, "Personnel Toto", set())
-tata_agenda = Agenda.new(collection, "Personnel Tata", set())
-work_agenda = Agenda.new(collection, "Travail", set())
-cheval_agenda = Agenda.new(collection, "Cheval", set())
+toto_agenda = Agenda.new(collection, "Personnel Toto", set(), set())
+tata_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
+work_agenda = Agenda.new(collection, "Travail", set(), set())
+cheval_agenda = Agenda.new(collection, "Cheval", set(), set())
 
 usmb = Group.new(collection, "USMB", set(), set(), set(), set())
 cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())
@@ -28,7 +28,7 @@ tata.agenda = tata_agenda
 usmb.add_agenda(work_agenda)
 
 def state(op):
-	print("========== {} =========".format(op))
+	print("========== {} ==========".format(op))
 	print(account)
 	print(usmb)
 	print(cheval)
@@ -100,5 +100,5 @@ print(cheval_agenda, cheval_agenda.all_events)
 usmb.delete()
 cheval.delete()"""
 collection.flush()
-conn.commit()
+#conn.commit()
 cursor.close()

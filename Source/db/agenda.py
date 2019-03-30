@@ -5,7 +5,7 @@ from .data import *
 from .event import *
 
 class DbAgenda(Agenda, DbData):
-	db_attr_names = ("name", "group", "user")
+	db_attr_names = ("name", "group", "user", "last_sync")
 	db_table = "Agenda"
 
 	def __init__(self, *args):

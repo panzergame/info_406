@@ -18,12 +18,16 @@ class WeakRefered:
 			ref.delete(self)
 
 class WeakRefSet:
-	def __init__(self, owner, items):
+	def __init__(self, items, owner=None):
 		self.owner = owner
 		self._set = set(items)
 		
 		for item in self._set:
 			item.new_ref(self)
+
+	def _update_owner(self):
+		if self.owner is not None:
+			self.owner.update_relations()
 
 	def __iter__(self):
 		return self._set.__iter__()
@@ -35,11 +39,11 @@ class WeakRefSet:
 		return self._set.__len__()
 
 	def delete(self, refered):
-		self.owner.update_relations()
+		self._update_owner()
 		return self.discard(refered)
 
 	def discard(self, item):
-		self.owner.update_relations()
+		self._update_owner()
 		return self._set.discard(item)
 
 	def add(self, item):

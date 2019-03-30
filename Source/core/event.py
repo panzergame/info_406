@@ -19,8 +19,8 @@ class Event(Data):
 		self._end = end
 		self._type = type
 		self._description = description
-		self.resources = WeakRefSet(self, resources)
-		self.users = WeakRefSet(self, users)
+		self.resources = WeakRefSet(resources, self)
+		self.users = WeakRefSet(users, self)
 		self._agenda = DataOwnerProperty.init(agenda, self)
 		self._creation_date = creation_date
 

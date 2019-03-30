@@ -10,8 +10,8 @@ class Group(Data):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.admins = WeakRefSet(self, admins)
-		self.subscribers = WeakRefSet(self, subscribers)
+		self.admins = WeakRefSet(admins, self)
+		self.subscribers = WeakRefSet(subscribers, self)
 		self.agendas = agendas
 		self.resources = resources
 

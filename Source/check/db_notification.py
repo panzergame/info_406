@@ -16,7 +16,7 @@ jean = User.new(collection, "Jean", "Michel", "jean.michel@gmail.com", "00", Non
 
 account.add_user(jean)
 
-perso_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
+perso_agenda = Agenda.new(collection, "Personnel Tata", set(), set(), datetime(2000, 1, 1))
 l2_agenda = Agenda.new(collection, "L2-INFO", set(), set())
 
 group = Group.new(collection, "USMB", set(), set(), set(), set())
@@ -35,10 +35,14 @@ cafe = Event.new(collection, today, today + hour, "Cafe", "", set(), set())
 l2_agenda.add_event(math104)
 perso_agenda.add_event(cafe)
 
-notif = Notification.new(collection, math104, perso_agenda)
+perso_agenda.sync_notifications()
+for agenda in perso_agenda.linked_agendas:
+	print(agenda.events)
+
+print(perso_agenda.notifications)
 
 collection.flush()
 
-conn.commit()
+#conn.commit()
 
 cursor.close()

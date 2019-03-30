@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .event import *
+from .notification import *
 from .data import *
 from .dataproperty import *
 from datetime import *
@@ -8,21 +9,23 @@ from dateutil.relativedelta import *
 
 class Agenda(Data):
 	name = DataProperty("name")
+	last_sync = DataProperty("last_sync")
 	user = DataOwnerProperty("user")
 	group = DataOwnerProperty("group")
 
-	def __init__(self, _id, collection, name, linked_agendas, notifications, user=None, group=None):
+	def __init__(self, _id, collection, name, linked_agendas, notifications, last_sync=datetime.now(), user=None, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.linked_agendas = WeakRefSet(self, linked_agendas)
-		self.notifications = WeakRefSet(self, notifications)
+		self._last_sync = last_sync
+		self.linked_agendas = WeakRefSet(linked_agendas, self)
+		self.notifications = WeakRefSet(notifications)
 		self._user = DataOwnerProperty.init(user, self)
 		self._group = DataOwnerProperty.init(user, self)
 
 		# Cache d'événement par block d'un mois.
 		# En réalité par block de tous événements commencant dans le même mois.
-		self.chunks = {}
+		self._chunks = {}
 
 	def __repr__(self):
 		return self.name
@@ -34,7 +37,7 @@ class Agenda(Data):
 		"""
 
 		# Vérification dans le cache.
-		chunk = self.chunks.get(month_first_day, None)
+		chunk = self._chunks.get(month_first_day, None)
 		if chunk is not None:
 			return chunk
 
@@ -42,10 +45,10 @@ class Agenda(Data):
 		Tous les événements commencant dans le mois.
 		"""
 		col = self.collection
-		events = col.load_events(self.id, Event, month_first_day, next_month_first_day)
+		events = col.load_events(self, month_first_day, next_month_first_day)
 
 		# Enregistrement de la page en cache.
-		self.chunks[month_first_day] = events
+		self._chunks[month_first_day] = WeakRefSet(events)
 
 		return events
 
@@ -89,7 +92,7 @@ class Agenda(Data):
 		""" Obtention des événements propre à l'agenda sur
 		une période
 		"""
-		chunks = self._get_chunks(from_date, to_date)
+		chunks = self._get__hunks(from_date, to_date)
 
 		events = set()
 		for chunk in chunks:
@@ -106,6 +109,21 @@ class Agenda(Data):
 			events |= agenda.all_events(from_date, to_date)
 
 		return events
+
+	def sync_notifications(self):
+		""" Créer des notifications pour les nouveau événements extérieurs. """
+
+		# Récupération des derniers événements.
+		last_events = set()
+		for agenda in self.linked_agendas:
+			last_events |= self.collection.load_latest_events(agenda, self.last_sync)
+
+		# Création des notifications.
+		for event in last_events:
+			notification = Notification.new(self.collection, event, self)
+			self.notifications.add(notification)
+
+		#self.last_sync = datetime.now()
 
 	def add_notification(self, notification):
 		""" Ajout d'une notification de cet agenda. """

@@ -251,6 +251,7 @@ class DbCollection(Collection):
 			return DbAgenda(_id, self, row["name"],
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
 					self._list_id(DbNotification, "agenda", _id),
+					row["last_sync"],
 					self._convert_sql_id(row["user"], DbUser), self._convert_sql_id(row["group"], DbGroup))
 		if type is DbEvent:
 			return DbEvent(_id, self, row["start"], row["end"], row["type"], row["description"],
