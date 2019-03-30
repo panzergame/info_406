@@ -10,7 +10,7 @@ common = Common()
 ## TEMP
 account = Account.load(collection, 1)
 common.account = account
-common.event_clicked = Event.load(collection, 1) # HUMMM
+common.event_clicked = None
 common.day = datetime(2019, 2, 18)
 ## TEMP
 

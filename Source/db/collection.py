@@ -322,6 +322,9 @@ class DbCollection(Collection):
 		return self._load_batched(DbEvent, "agenda", agenda.id,
 			"AND (creation_date >= \"{}\")".format(last_sync))
 
+	def load_groups(self, prefix):
+		return self._get("SELECT * FROM `group` WHERE (name REGEXP '({})+')".format(prefix))
+
 	def delete(self, data):
 		_type = self._translate_type(type(data))
 		self.delete_queue.add(data)
