@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from core import *
-from datetime import datetime
-from db import *
-
-import mysql.connector
-
-conn = mysql.connector.connect(host="localhost", user="root", password="root", database="info_406")
-cursor = conn.cursor()
-
-collection = DbCollection(cursor)
+from .db_open import *
 
 account = Account.new(collection, set(), "jean", "root", "jean.michel@gmail.com")
 jean = User.new(collection, "Jean", "Michel", "jean.michel@gmail.com", "00", None, account)
