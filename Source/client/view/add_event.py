@@ -94,6 +94,5 @@ class AddEventButton(Gtk.Button):
 			agenda = self.common.user_clicked.agenda
 			event = Event.new(agenda.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 			agenda.add_event(event)
-			print(agenda.events)
 			self.common.event_clicked = event
 		dia.destroy()

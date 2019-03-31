@@ -21,7 +21,7 @@ class Agenda(Data):
 		self.linked_agendas = WeakRefSet(linked_agendas, self)
 		self.notifications = WeakRefSet(notifications)
 		self._user = DataOwnerProperty.init(user, self)
-		self._group = DataOwnerProperty.init(user, self)
+		self._group = DataOwnerProperty.init(group, self)
 
 		# Cache d'événement par block d'un mois.
 		# En réalité par block de tous événements commencant dans le même mois.
