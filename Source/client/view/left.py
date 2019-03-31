@@ -15,6 +15,6 @@ class LeftBox(Gtk.Box):
 		self.set_border_width(10)
 		self.add(AccountBox(self.common))
 		self.add(GroupBox(self.common))
-		self.add(SearchBox())
+		self.add(SearchBox(self.common))
 		self.add(SearchResultsBox(self.common))
 		self.show_all()

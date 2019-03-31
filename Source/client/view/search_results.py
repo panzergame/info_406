@@ -9,13 +9,13 @@ class SearchResultsBox(Gtk.Box):
 	def __init__(self, common):
 		Gtk.Box.__init__(self)
 		self.common=common
-
+		common.add_observer(self)
 		#TODO meilleur accès à collection ?
+		#TODO Empêcher la recherche vide ?
 		results = common.account.collection.load_groups(common.current_search_text)
-		print(results)
-
 		#Boîte avec défilement, qui contiendra les résultats d'une recherche
-		self.inner_box = Gtk.Box()
+		self.inner_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		self.inner_box.set_property("expand","true")
 		scroll = Gtk.ScrolledWindow()
 		scroll.add(self.inner_box)
 		self.add(scroll)
@@ -23,28 +23,33 @@ class SearchResultsBox(Gtk.Box):
 
 	def show_results(self, results):
 		for group in results:
-			self.inner_box.add(SingleSearchResultBox(self.common, group))
+			self.inner_box.add(SingleSearchResultFrame(self.common, group))
 
-	def update(self, results):
+	def update(self, common):
 		for child in self.inner_box.get_children():
 			child.destroy()
+		results = common.account.collection.load_groups(common.current_search_text)
 		self.show_results(results)
+		self.show_all()
 
 
 
-class SingleSearchResultBox(Gtk.Box):
+class SingleSearchResultFrame(Gtk.Frame):
 	def __init__(self, common, group):
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
-		self.add(Gtk.Label(group.name))
-		self.add(SelectGroupButton(common, group))
-
-class SelectGroupButton(Gtk.Button):
-
-	def __init__(self, common, group):
-		Gtk.Button.__init__(self, label="Rechercher")
-		self.group=group
-		self.common=common
-		self.connect("clicked", self.update_common)
+		Gtk.Frame.__init__(self)
+		#Contenu du du résultat de la recherche
+		result_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		result_box.add(Gtk.Label(group.name))
+		
+		#Boîte permettant de récupérer l'évènement de clic
+		event_catcher = Gtk.EventBox()
+		event_catcher.add(result_box)
+		
+		#Assemblement
+		self.add(event_catcher)
+		self.connect("button_press_event", self.update_main_view, group, common)
 	
-	def update_common(self):
-		print("slt !!!")
+	def update_main_view(self, widget, clickEvent, group, common):
+		pass
+		#TODO Changer common ?
+		# Remplacé probablement par une nouvelle classe controller

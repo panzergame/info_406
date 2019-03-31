@@ -125,7 +125,6 @@ class AgendaEvents(Gtk.DrawingArea):
 
 			context.set_source_rgb(color[0],color[1],color[2])
 
-			#Todo width et height ??
 			x_text = x + 0.1*width
 			y_text = y + 0.5*height
 		
