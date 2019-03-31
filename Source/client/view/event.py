@@ -14,6 +14,7 @@ class EventBox(Gtk.Box):
 		common.add_observer(self)
 
 	def initSubElements(self):
+		
 		#Initialise les sous éléments avec des valeurs par défauts
 		#Nom de l'évènement
 		self.name = EventTitleBox("default_type",datetime(1,1,1),datetime(1,1,1))

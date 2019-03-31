@@ -68,12 +68,12 @@ class DbCollection(Collection):
 			self._datas[_type].pop(data.id)
 
 	def _register_proxy(self, proxy):
-		_type = self._translate_type(proxy.type)
+		_type = self._translate_type(proxy.data_type)
 
 		self._data_proxies[_type][proxy.id] = proxy
 
 	def _unregister_proxy(self, proxy):
-		_type = self._translate_type(proxy.type)
+		_type = self._translate_type(proxy.data_type)
 
 		self._data_proxies[_type].pop(proxy.id)
 
@@ -140,6 +140,9 @@ class DbCollection(Collection):
 		return self.cursor.fetchone()[0]
 
 	def _convert_sql_id(self, id, _type):
+		if id is None:
+			return None
+
 		""" Conversion d'un numéro issue d'une requête en proxy """
 		if type(id) not in (int, type(None)):
 			raise TypeError("SQL id should be int")
@@ -286,8 +289,8 @@ class DbCollection(Collection):
 			   self._convert_sql_id(row["account"], DbAccount))
 		if type is DbNotification:
 			return DbNotification(_id, self,
-					self._convert_sql_id(row["event"]),
-					self._convert_sql_id(row["agenda"]))
+					self._convert_sql_id(row["event"], DbEvent),
+					self._convert_sql_id(row["agenda"], DbAgenda))
 
 	def _load_batched(self, type, attr, value, close):
 		_type = self._translate_type(type)
@@ -352,7 +355,7 @@ class DbCollection(Collection):
 		_type.db_delete_proxies(self, data.id)
 
 	def delete_proxy(self, proxy):
-		_type = self._translate_type(proxy.type)
+		_type = self._translate_type(proxy.data_type)
 		self.delete_proxy_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)
@@ -417,7 +420,7 @@ class DbCollection(Collection):
 			self._delayed_delete(type(data), data.id)
 
 		for proxy in self.delete_proxy_queue:
-			self._delayed_delete(proxy.type, proxy.id)
+			self._delayed_delete(proxy.data_type, proxy.id)
 
 		self.new_queue.clear()
 		self.update_queue.clear()
