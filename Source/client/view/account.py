@@ -4,8 +4,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
-from client.model.common import *
 
+from .group import *
 
 class AccountBox(Gtk.VBox):
 
@@ -34,7 +34,11 @@ class AccountBox(Gtk.VBox):
 		select = view.get_selection()
 		select.connect("changed", self.on_user_changed)
 
+		self.group_list = GroupList(self.common)
+
 		self.add(view)
+		self.add(Gtk.Label("Groupes", xalign=0))
+		self.add(self.group_list)
 
 		for user in common.account.users:
 			self.list.append((user.first_name, user.last_name, user))
@@ -45,3 +49,7 @@ class AccountBox(Gtk.VBox):
 			user = model[iter][2]
 			self.common.user_clicked = user
 			self.common.agenda_displayed = user.agenda
+			self.group_list.set_groups(user.groups)
+
+	def update(self, common):
+		self.group_list.set_groups(self.common.user_clicked.groups)

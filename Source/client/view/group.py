@@ -1,43 +1,72 @@
+# -*- coding: utf-8 -*-
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from core import *
 
-class GroupBox(Gtk.Box):
+class GroupList(Gtk.VBox):
 	def __init__(self, common):
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
-		self.title = Gtk.Label("\tGroupes : ", xalign=0)
-		self.add(self.title)
-		self._create(common)
-		common.add_observer(self)
+		super().__init__()
+		self.common = common
 
-	def _create(self, common):
-		self.groupList = self.put_groups(common)
-		self.add(self.groupList)
+		self.tree = Gtk.TreeStore(str, bool, object)
 
-	def update(self, common):
-		self.remove(self.groupList)
-		self._create(common)
-		self.show_all()
+		view = Gtk.TreeView(self.tree)
+		render_agenda = Gtk.CellRendererText()
+		agenda_column = Gtk.TreeViewColumn("", render_agenda, text=0)
 
-	def put_groups(self, common):
-		user = common.user_clicked
-		groupList = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
-		groups = user.groups
+		render_subscribe = Gtk.CellRendererToggle()
+		subscribe_column = Gtk.TreeViewColumn("S'inscrire", render_subscribe, active=1)
+
+		render_subscribe.connect("toggled", self.on_toggled)
+
+		view.append_column(agenda_column)
+		view.append_column(subscribe_column)
+
+		select = view.get_selection()
+		select.connect("changed", self.on_agenda_changed)
+
+		self.add(view)
+
+	def on_toggled(self, widget, path):
+		name, current_value, item = self.tree[path]
+		user = self.common.user_clicked
+
+		if len(path) == 1:
+			if not current_value:
+				item.subscribe(user)
+			else:
+				item.unsubscribe(user)
+			self.tree[path][1] = not self.tree[path][1]
+
+		elif len(path) == 3:
+			if item.group in user.groups:
+				agenda = user.agenda
+				if item in agenda.linked_agendas:
+					agenda.unlink_agenda(item)
+				else:
+					agenda.link_agenda(item)
+
+				print(agenda.linked_agendas)
+				self.common._notify()
+
+				self.tree[path][1] = not self.tree[path][1]
+
+
+	def on_agenda_changed(self, selection):
+		model, iter = selection.get_selected()
+		if iter is not None:
+			item = model[iter][2]
+			if isinstance(item, Group):
+				self.common.group_clicked = item
+			elif isinstance(item, Agenda):
+				self.common.agenda_displayed = item
+
+	def set_groups(self, groups):
+		self.tree.clear()
+
 		for group in groups:
-			groupLine = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-			color = Gtk.ColorButton()
-			name = Gtk.Label(group.name, xalign=0)
-			agendasList = self.put_agendas(group, common)
-			groupLine.pack_start(color, False, True, 0)
-			groupLine.pack_start(name, False, True, 0)
-			groupLine.pack_start(agendasList, False, True, 0)
-			groupList.add(groupLine)
-		return groupList
-
-	def put_agendas(self, group, common):
-		agendasList = Gtk.ListBox()
-		agendas = group.agendas
-		for agenda in agendas:
-			name = Gtk.Label(agenda.name, xalign=0)
-			agendasList.add(name)
-		return agendasList
+			iter = self.tree.append(None, (group.name, (group in self.common.user_clicked.groups), group))
+			for agenda in group.agendas:
+				self.tree.append(iter, (agenda.name, (agenda in self.common.agenda_displayed.linked_agendas), agenda))
