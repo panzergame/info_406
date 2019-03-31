@@ -15,8 +15,6 @@ class AgendaBox(Gtk.Box):
 	def __init__(self, common):
 		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 		eventBox = Gtk.EventBox()
-		self.common = common
-		common.add_observer(self)
 
 
 		self.overlay = Gtk.Overlay()
@@ -29,8 +27,6 @@ class AgendaBox(Gtk.Box):
 		self.overlay.add_overlay(self.agenda_events)
 		#Ajout des évènements de l'agenda
 		
-		self.link_button = None
-		self.manage_link_button()
 
 		eventBox.add(self.overlay)
 		self.add(eventBox)
@@ -39,22 +35,6 @@ class AgendaBox(Gtk.Box):
 		listener = AgendaClickListener(common)
 		self.connect("button_press_event",listener.manageClick)
 	
-	## Bouton disponible sur l'agenda
-	def manage_link_button(self):
-		if(self.link_button!=None):
-			self.link_button.destroy()
-		if(self.common.user_clicked.agenda != self.common.agenda_displayed):
-			self.link_button = LinkButton(self.common)
-			self.link_button.set_halign(Gtk.Align.END)
-			self.link_button.set_valign(Gtk.Align.END)
-			self.link_button.set_property("expand", "False")
-			self.overlay.add_overlay(self.link_button)
-			self.link_button.update()
-
-		
-	def update(self, common):
-		self.manage_link_button()
-		self.show_all()
 
 class AgendaEvents(Gtk.DrawingArea):
 	#Classe d'affichage des évènement d'un agenda
