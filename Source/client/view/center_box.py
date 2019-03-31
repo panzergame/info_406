@@ -8,6 +8,7 @@ from client.model import common
 from .agenda_title import AgendaTitleBox
 from .agenda import AgendaBox
 from .add_event import AddEventButton
+from .link_button import LinkButton
 
 class CenterBox(Gtk.Box):
 	"""Boîte contenant tout ce qui est affiché à l'écran"""

@@ -1,7 +1,6 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-from .link_button import Link_Button
 
 class GroupBox(Gtk.Box):
 	def __init__(self, common):
@@ -40,15 +39,5 @@ class GroupBox(Gtk.Box):
 		agendas = group.agendas
 		for agenda in agendas:
 			name = Gtk.Label(agenda.name, xalign=0)
-			liaison = Link_Button(agenda, common)
-			liaison.connect("clicked", self.set_link, common)
 			agendasList.add(name)
-			agendasList.add(liaison)
 		return agendasList
-
-	def set_link(self, liaison, common):
-		current_user_agenda = common.user_clicked._agenda
-		if (liaison.is_linked(current_user_agenda)):
-			current_user_agenda.unlink_agenda(current_user_agenda)
-		else:
-			current_user_agenda.link_agenda(current_user_agenda)

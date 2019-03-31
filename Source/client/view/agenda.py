@@ -8,29 +8,53 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from client.controller.agenda import *
+from client.view.link_button import LinkButton
 
 class AgendaBox(Gtk.Box):
 	#Affichage d'une semaine d'un agenda, en commençant par le jour passé au constructeur
 	def __init__(self, common):
 		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
 		eventBox = Gtk.EventBox()
-	
-		overlay = Gtk.Overlay()
+		self.common = common
+		common.add_observer(self)
+
+
+		self.overlay = Gtk.Overlay()
 		#Widget permettant de superposer d'autres widget
 		
-		overlay.add(AgendaTimeAnnotations(common.day))
+		self.overlay.add(AgendaTimeAnnotations(common.day))
 		#Ajout du fond de l'agenda, séparateurs de jours et d'heures
 
 		self.agenda_events = AgendaEvents(common)
-		overlay.add_overlay(self.agenda_events)
+		self.overlay.add_overlay(self.agenda_events)
 		#Ajout des évènements de l'agenda
 		
-		eventBox.add(overlay)
+		self.link_button = None
+		self.manage_link_button()
+
+		eventBox.add(self.overlay)
 		self.add(eventBox)
 
 		#Prise en charge des évènements
 		listener = AgendaClickListener(common)
 		self.connect("button_press_event",listener.manageClick)
+	
+	## Bouton disponible sur l'agenda
+	def manage_link_button(self):
+		if(self.link_button!=None):
+			self.link_button.destroy()
+		if(self.common.user_clicked.agenda != self.common.agenda_displayed):
+			self.link_button = LinkButton(self.common)
+			self.link_button.set_halign(Gtk.Align.END)
+			self.link_button.set_valign(Gtk.Align.END)
+			self.link_button.set_property("expand", "False")
+			self.overlay.add_overlay(self.link_button)
+			self.link_button.update()
+
+		
+	def update(self, common):
+		self.manage_link_button()
+		self.show_all()
 
 class AgendaEvents(Gtk.DrawingArea):
 	#Classe d'affichage des évènement d'un agenda

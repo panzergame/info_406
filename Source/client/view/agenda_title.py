@@ -10,9 +10,13 @@ class AgendaTitleBox(Gtk.Box):
 		self.common = common
 		self.title = Gtk.Label()
 		self.setTitleString()
-		frame.add(self.title)
-		self.add(frame)
 
+		container = Gtk.Box()
+		container.set_border_width(5)
+		container.add(self.title)
+		frame.add(container)
+
+		self.add(frame)
 		common.add_observer(self)
 	
 	def setTitleString(self):
