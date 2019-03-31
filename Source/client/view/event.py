@@ -5,35 +5,53 @@ from gi.repository import Gtk
 
 from datetime import *
 
-class EventBox(Gtk.Box):
+class EventBox(Gtk.ListBox):
 	#Boîte d'affichage détaillé d'un évènement
 	def __init__(self, common):
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+		super().__init__()
 		self.initSubElements()
 		self.set_opacity(0)
 		common.add_observer(self)
 
 	def initSubElements(self):
-		
 		#Initialise les sous éléments avec des valeurs par défauts
 		#Nom de l'évènement
-		self.name = EventTitleBox("default_type",datetime(1,1,1),datetime(1,1,1))
-		self.add(self.name)
 
+		self.name = EventTitleBox("default_type",datetime(1,1,1),datetime(1,1,1))
  		#Description       
 		self.description = EventDescriptionScrollable("default_description")
-		self.add(Gtk.Label("Description"))
-		self.add(self.description)
-
  		#Ressources utilisées       
 		self.resources = EventResourcesScrollable([])
-		self.add(Gtk.Label("Ressources"))
-		self.add(self.resources)
-
-		#Utilisateurs inscrits        
+		#Utilisateurs inscrits
 		self.users = EventUsersScrollable([])
-		self.add(Gtk.Label("Participants"))
-		self.add(self.users)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Type", xalign=0))
+		box.add(self.name)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Description", xalign=0))
+		box.add(self.description)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Ressources", xalign=0))
+		box.add(self.resources)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Participants", xalign=0))
+		box.add(self.users)
+		row.add(box)
+		self.add(row)
 
 	def update(self, common):
 		#Mis à jour des éléments du widget en fonction du modele
