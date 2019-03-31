@@ -12,3 +12,6 @@ class Notification(Data):
 
 		self._event = DataOwnerProperty.init(event, self)
 		self._agenda = DataOwnerProperty.init(agenda, self)
+
+	def __repr__(self):
+		return "({}, {})".format(self.event, self.agenda)

@@ -144,6 +144,11 @@ class DbCollection(Collection):
 		if type(id) not in (int, type(None)):
 			raise TypeError("SQL id should be int")
 
+		# Recherche d'une donnée déjà existante.
+		data = self._datas[_type].get(id, None)
+		if data is not None:
+			return data
+
 		# Recherche d'un proxy déjà existant.
 		proxy = self._data_proxies[_type].get(id, None)
 		if proxy is not None:
@@ -323,14 +328,16 @@ class DbCollection(Collection):
 
 		return category[_id]
 
-	def load_events(self, agenda, month_first_day, next_month_first_day):
+	def load_events(self, agenda, from_date, to_date):
+		""" Charge les événements débutant entre deux dates. """
 		return self._load_batched(DbEvent, "agenda", agenda.id,
 			"AND (start >= \"{}\" AND start < \"{}\")".format(
-				month_first_day, next_month_first_day))
+				from_date, to_date))
 
-	def load_latest_events(self, agenda, last_sync):
+	def load_last_events(self, agenda, from_date, to_date):
+		""" Charge les événements créés ou midifiés entre deux dates. """
 		return self._load_batched(DbEvent, "agenda", agenda.id,
-			"AND (creation_date >= \"{}\")".format(last_sync))
+			"AND (creation_date >= \"{}\" AND creation_date < \"{}\")".format(from_date, to_date))
 
 	def load_groups(self, sub_name):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """

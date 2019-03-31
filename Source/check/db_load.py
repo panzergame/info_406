@@ -25,4 +25,6 @@ for user in account.users:
 groups = collection.load_groups("SMB")
 print(groups)
 
+collection.flush()
+
 cursor.close()

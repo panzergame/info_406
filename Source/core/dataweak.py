@@ -18,7 +18,7 @@ class WeakRefered:
 			ref.delete(self)
 
 class WeakRefSet:
-	def __init__(self, items, owner=None):
+	def __init__(self, items=set(), owner=None):
 		self.owner = owner
 		self._set = set(items)
 		
@@ -37,6 +37,16 @@ class WeakRefSet:
 
 	def __len__(self):
 		return self._set.__len__()
+
+	def __ior__(self, other):
+		if type(other) == set:
+			self._set |= other
+		elif type(other) == WeakRefSet:
+			self._set |= other._set
+		else:
+			raise TypeError()
+
+		return self
 
 	def delete(self, refered):
 		self._update_owner()

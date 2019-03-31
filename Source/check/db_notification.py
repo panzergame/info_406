@@ -34,6 +34,6 @@ print(perso_agenda.notifications)
 
 collection.flush()
 
-#conn.commit()
+conn.commit()
 
 cursor.close()

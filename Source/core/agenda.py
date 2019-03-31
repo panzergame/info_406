@@ -27,6 +27,10 @@ class Agenda(Data):
 		# En réalité par block de tous événements commencant dans le même mois.
 		self._chunks = {}
 
+		# Cache des événements récents.
+		self._last_events = WeakRefSet()
+		self._last_events_date = None
+
 	def __repr__(self):
 		return self.name
 
@@ -79,6 +83,9 @@ class Agenda(Data):
 		chunk = self._get_chunks(event.start, event.start)[0]
 		chunk.add(event)
 
+		# Ajout d'un événement récent
+		self._last_events.add(event)
+
 	def remove_event(self, event):
 		""" Suppression d'un evenement. """
 		# Actualisation de son propriétaire.
@@ -110,20 +117,33 @@ class Agenda(Data):
 
 		return events
 
+	def last_events(self, last_date):
+		# Chargement de plus d'événements récent.
+		if self._last_events_date is None or last_date < self._last_events_date:
+			self._last_events |= self.collection.load_last_events(self, last_date, self._last_events_date)
+			self._last_events_date = last_date
+	
+		last_events = set()
+		for event in self._last_events:
+			if event.creation_date >= last_date:
+				last_events.add(event)
+
+		return last_events
+
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
 
 		# Récupération des derniers événements.
 		last_events = set()
 		for agenda in self.linked_agendas:
-			last_events |= self.collection.load_latest_events(agenda, self.last_sync)
+			last_events |= agenda.last_events(self.last_sync)
 
 		# Création des notifications.
 		for event in last_events:
 			notification = Notification.new(self.collection, event, self)
 			self.notifications.add(notification)
 
-		#self.last_sync = datetime.now()
+		self.last_sync = datetime.now()
 
 	def add_notification(self, notification):
 		""" Ajout d'une notification de cet agenda. """
