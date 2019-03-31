@@ -19,12 +19,16 @@ class DataProxy(WeakRefered):
 		return self._id
 
 	@property
-	def type(self):
+	def data_type(self):
 		return self._type
 
 	@property
 	def collection(self):
 		return self._collection
+
+	@property
+	def is_none(self):
+		return self._id is None
 
 	def delete(self, owner=None):
 		super().delete()
