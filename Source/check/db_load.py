@@ -22,4 +22,7 @@ for user in account.users:
 	for group in user.groups:
 		print("Group:", group.name)
 
+groups = collection.load_groups("SMB")
+print(groups)
+
 cursor.close()

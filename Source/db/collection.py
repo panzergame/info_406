@@ -109,16 +109,26 @@ class DbCollection(Collection):
 		""" Obtention d'une ligne par son id """
 		return self._get_row_attr("id", _id, table)
 
-	def _list_id(self, _type, attr, _id):
-		""" Obtention d'une colonne (attr) ou id = _id """
+	def _list_id(self, _type, attr, value):
+		""" Obtention de l'id ou attr = value """
 		table = _type.db_table
-		return self._list_relation(table, _type, attr, _id, "id")
+		return self._list_relation(table, _type, attr, value, "id")
+
+	def _list_id_close(self, _type, close):
+		""" Obtention de l'id ou close est vrai """
+		table = _type.db_table
+		return self._list_relation_close(table, _type, close, "id")
 
 	def _list_relation(self, table, _type, from_attr, from_value, to_attr):
 		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la contrainte
 			from_attr = from_value
 		"""
-		rows = self._get("SELECT `{}` FROM `{}` WHERE `{}` = {}".format(to_attr, table, from_attr, from_value))
+		close = "`{}` = {}".format(from_attr, from_value)
+		return self._list_relation_close(table, _type, close, to_attr)
+
+	def _list_relation_close(self, table, _type, close, to_attr):
+		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la close """
+		rows = self._get("SELECT `{}` FROM `{}` WHERE {}".format(to_attr, table, close))
 
 		if len(rows) == 0:
 			return set()
@@ -291,7 +301,7 @@ class DbCollection(Collection):
 
 			datas.add(data)
 
-		return datas;
+		return datas
 
 ############ Interface Collection ##############
 
@@ -322,8 +332,9 @@ class DbCollection(Collection):
 		return self._load_batched(DbEvent, "agenda", agenda.id,
 			"AND (creation_date >= \"{}\")".format(last_sync))
 
-	def load_groups(self, prefix):
-		return self._get("SELECT * FROM `group` WHERE (name REGEXP '({})+')".format(prefix))
+	def load_groups(self, sub_name):
+		""" Obtention des groups avec sub_name inclus dans leur nom. """
+		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))
