@@ -26,6 +26,10 @@ class DataProxy(WeakRefered):
 	def collection(self):
 		return self._collection
 
+	@property
+	def __class__(self):
+		return self._type
+
 	def delete(self, owner=None):
 		super().delete()
 

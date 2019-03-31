@@ -5,7 +5,7 @@ from client.model import *
 from core import *
 
 collection = ClientCollection()
-common = Common()
+common = Common(collection)
 
 ## TEMP
 account = Account.load(collection, 1)

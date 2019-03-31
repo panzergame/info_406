@@ -3,30 +3,63 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from core import *
 
-
-class SearchBox(Gtk.Box):
+class SearchBox(Gtk.VBox):
 	def __init__(self, common):
-		Gtk.Box.__init__(self,orientation=Gtk.Orientation.VERTICAL, spacing=6)
+		super().__init__()
 		self.common = common
 
-		self.set_border_width(10)
+		self.tree = Gtk.TreeStore(str, bool, object)
 
-		title = Gtk.Label("Rechercher un groupe")
+		view = Gtk.TreeView(self.tree)
+		render_agenda = Gtk.CellRendererText()
+		agenda_column = Gtk.TreeViewColumn("", render_agenda, text=0)
 
-		self.entry = Gtk.Entry()
-		self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, "system-search-symbolic")
+		render_subscribe = Gtk.CellRendererToggle()
+		subscribe_column = Gtk.TreeViewColumn("S'inscrire", render_subscribe, active=1)
 
-		buttonSearch = Gtk.Button(label="Rechercher")
-		buttonSearch.connect("clicked", self.on_button_search_clicked)
+		render_subscribe.connect("toggled", self.on_toggled)
 
-		searchZone = Gtk.Box(spacing=6)
+		view.append_column(agenda_column)
+		view.append_column(subscribe_column)
 
-		searchZone.pack_start(self.entry, True, True, 0)
-		searchZone.pack_start(buttonSearch, False, False, 0)
+		select = view.get_selection()
+		select.connect("changed", self.on_agenda_changed)
 
-		self.pack_start(title, True, True, 0)
-		self.pack_start(searchZone, True, True, 0)
+		#"Rechercher un groupe"
+		self.entry = Gtk.SearchEntry()
+		self.entry.connect("search-changed", self.on_search_changed)
 
-	def on_button_search_clicked(self, widget):
-		self.common.current_search_text = self.entry.get_text()
+		self.add(self.entry)
+		self.add(view)
+
+	def on_toggled(self, widget, path):
+		name, current_value, item = self.tree[path]
+		if len(path) == 1:
+			if not current_value:
+				item.subscribe(self.common.user_clicked)
+			else:
+				item.unsubscribe(self.common.user_clicked)
+
+			self.tree[path][1] = not self.tree[path][1]
+
+
+	def on_agenda_changed(self, selection):
+		model, iter = selection.get_selected()
+		if iter is not None:
+			item = model[iter][2]
+			if isinstance(item, Group):
+				self.common.group_clicked = item
+			elif isinstance(item, Agenda):
+				self.common.agenda_displayed = item
+
+	def on_search_changed(self, widget):
+		self.tree.clear()
+		sub = self.entry.get_text()
+		groups = self.common.collection.load_groups(sub)
+
+		for group in groups:
+			iter = self.tree.append(None, (group.name, (group in self.common.user_clicked.groups), group))
+			for agenda in group.agendas:
+				self.tree.append(iter, (agenda.name, (agenda in self.common.agenda_displayed.linked_agendas), agenda))

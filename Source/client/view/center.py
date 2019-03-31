@@ -20,4 +20,4 @@ class CenterBox(Gtk.Box):
 		self.add(AgendaBox(self.common))
 		self.add(AddEventButton(None, self.common))
 
-		self.show_all()
+        self.show_all()
