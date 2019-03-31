@@ -9,6 +9,7 @@ class Common:
 		self._account = None
 		self._day = datetime.now()
 		self._event_clicked = None
+		self._current_search_text=""
 		self.observers = set()
 
 	def add_observer(self, observer):
@@ -52,4 +53,13 @@ class Common:
 	@day.setter
 	def day(self, day):
 		self._day = day
+		self._notify()
+
+	@property
+	def current_search_text(self):
+		return self._current_search_text
+
+	@current_search_text.setter
+	def current_search_text(self, current_search_text):
+		self._current_search_text = current_search_text
 		self._notify()

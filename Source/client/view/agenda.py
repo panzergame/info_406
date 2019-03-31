@@ -108,7 +108,7 @@ class AgendaEvents(Gtk.DrawingArea):
 				rectanglesList.append([x,y,width,height])
 
 				#Si l'event s'étend sur plusieurs jours, on recommence en avançant la date de départ de 1 jour, en fonction de ce qui a été tracé
-				currentStart=datetime(currentStart.year,currentStart.month,currentStart.day+1)
+				currentStart=datetime(currentStart.year,currentStart.month,currentStart.day)+timedelta(1)
 			
 
 			return rectanglesList
