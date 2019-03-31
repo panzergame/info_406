@@ -10,11 +10,9 @@ from datetime import *
 def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
-class NotificationBox(Gtk.Frame):
+class NotificationBox(Gtk.ListBox):
 	def __init__(self):
 		super().__init__()
-
-		box = Gtk.VBox()
 
 		self.title = Gtk.Label()
 		self.description = Gtk.Label()
@@ -24,15 +22,34 @@ class NotificationBox(Gtk.Frame):
 		scroll = Gtk.ScrolledWindow()
 		scroll.add(self.description)
 
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Type", xalign=0))
 		box.add(self.title)
-		box.add(Gtk.Label("Description"))
-		box.add(scroll)
-		box.add(Gtk.Label("Crée le"))
-		box.add(self.creation)
-		box.add(Gtk.Label("Agenda parent"))
-		box.add(self.agenda)
+		row.add(box)
+		self.add(row)
 
-		self.add(box)
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Description", xalign=0))
+		box.add(scroll)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Crée le", xalign=0))
+		box.add(self.creation)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Agenda parent", xalign=0))
+		box.add(self.agenda)
+		row.add(box)
+		self.add(row)
+
 		self.show_all()
 
 	def update(self, notification):
@@ -40,11 +57,14 @@ class NotificationBox(Gtk.Frame):
 		if notification is not None:
 			event = notification.event
 			agenda = notification.agenda
-			print(notification)
+
 			self.title.set_text(event.type)
 			self.description.set_text(event.description)
 			self.creation.set_text(datetime_str(event.creation_date))
 			self.agenda.set_text(agenda.name)
+			self.set_opacity(1)
+		else:
+			self.set_opacity(0)
 
 class NotificationListBox(Gtk.Box):
 	def __init__(self, common):
