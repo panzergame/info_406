@@ -43,7 +43,7 @@ class AgendaClickListener():
 		clicked_time = AgendaClickListener.getDatetimeFromRelativeCoords(x, y, self.common.day, days_displayed, hours_displayed)
 
 		self.common.event_clicked=None
-		for event in self.common.user_clicked.agenda.all_events(self.common.day, self.common.day+timedelta(days_displayed)):
+		for event in self.common.agenda_displayed.all_events(self.common.day, self.common.day+timedelta(days_displayed)):
 			if event.start < clicked_time < event.end:
 				self.common.event_clicked = event
 				break

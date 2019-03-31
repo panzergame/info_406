@@ -39,7 +39,7 @@ class AgendaEvents(Gtk.DrawingArea):
 		self.common = common
 		def draw(da, ctx):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés
-			events = self.common.user_clicked.agenda.all_events(self.common.day, self.common.day+timedelta(days_displayed))
+			events = self.common.agenda_displayed.all_events(self.common.day, self.common.day+timedelta(days_displayed))
 			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
 			
 		Gtk.DrawingArea.__init__(self)

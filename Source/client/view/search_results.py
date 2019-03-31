@@ -14,7 +14,7 @@ class SearchResultsBox(Gtk.Box):
 		#TODO Empêcher la recherche vide ?
 		results = common.account.collection.load_groups(common.current_search_text)
 		#Boîte avec défilement, qui contiendra les résultats d'une recherche
-		self.inner_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+		self.inner_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
 		self.inner_box.set_property("expand","true")
 		scroll = Gtk.ScrolledWindow()
 		scroll.add(self.inner_box)
@@ -40,16 +40,27 @@ class SingleSearchResultFrame(Gtk.Frame):
 		#Contenu du du résultat de la recherche
 		result_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
 		result_box.add(Gtk.Label(group.name))
-		
+		result_box.add(AllAgendasFromResultBox(common, group))
+		self.add(result_box)
+
+class AllAgendasFromResultBox(Gtk.Box):
+	def __init__(self, common, group):
+		Gtk.Box.__init__(self, orientation=Gtk.Orientation.HORIZONTAL)
+		self.set_homogeneous(True)
+		for agenda in group.agendas:
+			self.add(SingleAgendaFromResultBox(common, agenda))
+
+class SingleAgendaFromResultBox(Gtk.Box):
+	def __init__(self, common, agenda):
+		Gtk.Box.__init__(self)
+
 		#Boîte permettant de récupérer l'évènement de clic
 		event_catcher = Gtk.EventBox()
-		event_catcher.add(result_box)
-		
+		event_catcher.add(Gtk.Label(agenda.name))
+
 		#Assemblement
 		self.add(event_catcher)
-		self.connect("button_press_event", self.update_main_view, group, common)
-	
-	def update_main_view(self, widget, clickEvent, group, common):
-		pass
-		#TODO Changer common ?
-		# Remplacé probablement par une nouvelle classe controller
+		self.connect("button_press_event", self.update_main_view, agenda, common)
+		
+	def update_main_view(self, widget, clickEvent, agenda, common):
+		common.agenda_displayed = agenda
