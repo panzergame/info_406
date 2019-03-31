@@ -6,6 +6,7 @@ from datetime import datetime
 class Common:
 	def __init__(self, collection):
 		self._user_clicked = None
+		self._group_clicked = None
 		self._agenda_displayed = None
 		self._account = None
 		self._day = datetime.now()
@@ -37,6 +38,15 @@ class Common:
 	@user_clicked.setter
 	def user_clicked(self, user):
 		self._user_clicked = user
+		self._notify()
+
+	@property
+	def group_clicked(self):
+		return self._group_clicked
+
+	@user_clicked.setter
+	def group_clicked(self, user):
+		self._group_clicked = user
 		self._notify()
 
 	@property
