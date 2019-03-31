@@ -6,10 +6,8 @@ from gi.repository import Gtk
 
 from .left import LeftBox
 from .right import RightBox
-from .center_box import CenterBox
+from .center import CenterBox
 from .agenda import AgendaBox
-from client.model import common
-
 
 class MainBox(Gtk.Box):
     """Boîte contenant tout ce qui est affiché à l'écran"""

@@ -12,8 +12,8 @@ def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self, parent):
-		Gtk.Dialog.__init__(self, "Ajouter un événement", parent, 0,
+	def __init__(self):
+		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
@@ -80,19 +80,18 @@ class AddEventDialog(Gtk.Dialog):
 		return self.description_entry.get_text()
 
 class AddEventButton(Gtk.Button):
-	def __init__(self, parent, common):
+	def __init__(self, common):
 		Gtk.Button.__init__(self, "Ajouter")
 		self.connect("clicked", self.on_clicked)
 
 		self.common = common
-		self.parent = parent
 
 	def on_clicked(self, button):
-		dia = AddEventDialog(self.parent)
+		dia = AddEventDialog()
 
 		if dia.run() == Gtk.ResponseType.OK:
 			agenda = self.common.user_clicked.agenda
-			event = Event.new(agenda.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
+			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 			agenda.add_event(event)
 			self.common.event_clicked = event
 		dia.destroy()

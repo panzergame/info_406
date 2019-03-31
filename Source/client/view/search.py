@@ -4,29 +4,17 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-
 class SearchBox(Gtk.Box):
 	def __init__(self, common):
-		Gtk.Box.__init__(self,orientation=Gtk.Orientation.VERTICAL, spacing=6)
+		super().__init__()
+
 		self.common = common
 
-		self.set_border_width(10)
+		#"Rechercher un groupe"
+		self.entry = Gtk.SearchEntry()
+		self.entry.connect("search-changed", self.on_search_changed)
 
-		title = Gtk.Label("Rechercher un groupe")
+		self.add(self.entry)
 
-		self.entry = Gtk.Entry()
-		self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.PRIMARY, "system-search-symbolic")
-
-		buttonSearch = Gtk.Button(label="Rechercher")
-		buttonSearch.connect("clicked", self.on_button_search_clicked)
-
-		searchZone = Gtk.Box(spacing=6)
-
-		searchZone.pack_start(self.entry, True, True, 0)
-		searchZone.pack_start(buttonSearch, False, False, 0)
-
-		self.pack_start(title, True, True, 0)
-		self.pack_start(searchZone, True, True, 0)
-
-	def on_button_search_clicked(self, widget):
-		self.common.current_search_text = self.entry.get_text()
+	def on_search_changed(self, widget):
+		print(self.entry.get_text())

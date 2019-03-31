@@ -4,13 +4,14 @@ from core import user
 from datetime import datetime
 
 class Common:
-	def __init__(self):
+	def __init__(self, collection):
 		self._user_clicked = None
 		self._agenda_displayed = None
 		self._account = None
 		self._day = datetime.now()
 		self._event_clicked = None
 		self._current_search_text=""
+		self.collection = collection
 		self.observers = set()
 
 	def add_observer(self, observer):
