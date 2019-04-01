@@ -29,7 +29,7 @@ class AddGroupDialog(Gtk.Dialog):
 
 class AddGroupButton(Gtk.Button):
 	def __init__(self, common):
-		Gtk.Button.__init__(self, "Ajouter")
+		Gtk.Button.__init__(self, "Ajouter un groupe")
 		self.connect("clicked", self.on_clicked)
 
 		self.common = common

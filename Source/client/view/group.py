@@ -24,8 +24,7 @@ class GroupList(Gtk.VBox):
 		view.append_column(agenda_column)
 		view.append_column(subscribe_column)
 
-		select = view.get_selection()
-		select.connect("changed", self.on_agenda_changed)
+		view.connect("row-activated", self.on_agenda_changed)
 
 		self.add(view)
 
@@ -53,15 +52,14 @@ class GroupList(Gtk.VBox):
 
 				self.tree[path][1] = not self.tree[path][1]
 
+		self.common._notify()
 
-	def on_agenda_changed(self, selection):
-		model, iter = selection.get_selected()
-		if iter is not None:
-			item = model[iter][2]
-			if isinstance(item, Group):
-				self.common.group_clicked = item
-			elif isinstance(item, Agenda):
-				self.common.agenda_displayed = item
+	def on_agenda_changed(self, model, path, column):
+		item = self.tree[path][2]
+		if isinstance(item, Group):
+			self.common.group_clicked = item
+		elif isinstance(item, Agenda):
+			self.common.agenda_displayed = item
 
 	def set_groups(self, groups):
 		self.tree.clear()

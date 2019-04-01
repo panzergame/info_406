@@ -14,7 +14,6 @@ class LeftBox(Gtk.Box):
 		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
 		self.set_border_width(10)
 		self.add(AccountBox(self.common))
-		#self.add(GroupBox(self.common))
 		self.add(AddGroupButton(self.common))
 		self.add(SearchBox(self.common))
 		self.show_all()

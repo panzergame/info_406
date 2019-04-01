@@ -7,7 +7,7 @@ from gi.repository import Gtk
 from .event import EventBox
 from .notification import NotificationListBox
 
-class RightBox(Gtk.Frame):
+class RightBox(Gtk.VBox):
 	def __init__(self, common):
 		super().__init__()
 

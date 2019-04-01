@@ -11,6 +11,7 @@ class SearchBox(Gtk.VBox):
 	def __init__(self, common):
 		super().__init__()
 		self.common = common
+		self.common.add_observer(self)
 
 		#"Rechercher un groupe"
 		self.entry = Gtk.SearchEntry()
@@ -26,3 +27,6 @@ class SearchBox(Gtk.VBox):
 		groups = self.common.collection.load_groups(sub)
 
 		self.list.set_groups(groups)
+
+	def update(self, common):
+		pass # TODO
