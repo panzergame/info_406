@@ -63,6 +63,9 @@ class Event(Data):
 		"""Suppression d'une ressource pour un event"""
 		self.resources.discard(resource)
 
+	def intersect(self, event):
+		return False # TODO
+
 	def __repr__(self):
 		"""affiche l'event"""
 		def datetime_str(date):

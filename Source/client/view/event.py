@@ -11,6 +11,7 @@ class EventBox(Gtk.ListBox):
 		super().__init__()
 		self.initSubElements()
 		self.set_opacity(0)
+		self.common = common
 		common.add_observer(self)
 
 	def initSubElements(self):
@@ -52,6 +53,14 @@ class EventBox(Gtk.ListBox):
 		box.add(self.users)
 		row.add(box)
 		self.add(row)
+
+		button = Gtk.Button("Supprimer")
+		button.connect("clicked", self.on_delete_clicked)
+		self.add(button)
+
+	def on_delete_clicked(self, button):
+		self.common.event_clicked.delete()
+		self.common.event_clicked = None
 
 	def update(self, common):
 		#Mis à jour des éléments du widget en fonction du modele

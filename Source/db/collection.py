@@ -291,7 +291,8 @@ class DbCollection(Collection):
 		if type is DbNotification:
 			return DbNotification(_id, self,
 					self._convert_sql_id(row["event"], DbEvent),
-					self._convert_sql_id(row["agenda"], DbAgenda))
+					self._convert_sql_id(row["agenda"], DbAgenda),
+					row["status"])
 
 	def _load_batched(self, type, attr, value, close):
 		_type = self._translate_type(type)
