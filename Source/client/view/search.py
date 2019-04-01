@@ -23,10 +23,9 @@ class SearchBox(Gtk.VBox):
 		self.add(self.list)
 
 	def on_search_changed(self, widget):
-		sub = self.entry.get_text()
-		groups = self.common.collection.load_groups(sub)
-
-		self.list.set_groups(groups)
+		self.sub = self.entry.get_text()
+		self.update(self.common)
 
 	def update(self, common):
-		pass # TODO
+		groups = self.common.collection.load_groups(self.sub)
+		self.list.set_groups(groups)

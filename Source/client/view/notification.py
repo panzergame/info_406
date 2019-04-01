@@ -84,12 +84,11 @@ class NotificationBox(Gtk.ListBox):
 
 		if notification is not None:
 			event = notification.event
-			agenda = notification.agenda
 
 			self.title.set_text(event.type)
 			self.description.set_text(event.description)
 			self.creation.set_text(datetime_str(event.creation_date))
-			self.agenda.set_text(agenda.name)
+			self.agenda.set_text(event.agenda.name)
 			self.set_opacity(1)
 		else:
 			self.set_opacity(0)
@@ -135,8 +134,7 @@ class NotificationListBox(Gtk.Box):
 		self.list.clear()
 		for notification in common.agenda_displayed.notifications:
 			event = notification.event
-			agenda = notification.agenda
-			self.list.append([event.type, agenda.name, datetime_str(event.creation_date), notification])
+			self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification])
 
 		self.notification.update(None)
 

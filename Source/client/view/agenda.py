@@ -44,7 +44,7 @@ class AgendaEvents(Gtk.DrawingArea):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés
 			now = self.common.day
 			start = now - timedelta(days=now.weekday())
-			end = now + timedelta(days=6)
+			end = now + timedelta(days=7)
 			events = self.common.agenda_displayed.all_events(start, end)
 			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
 			
