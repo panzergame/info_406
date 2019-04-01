@@ -17,8 +17,8 @@ class AddEventDialog(Gtk.Dialog):
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
-		self.start = datetime.now()
-		self.end = datetime.now()
+		self.start = datetime.now().replace(minute=0)
+		self.end = datetime.now().replace(minute=0)
 
 		self.name_entry = Gtk.Entry()
 		self.name_entry.set_text("nom")
@@ -50,7 +50,8 @@ class AddEventDialog(Gtk.Dialog):
 		self.show_all()
 
 	def on_start_clicked(self, button):
-		date = DateTimeDialog(self)
+		now = datetime.now()
+		date = DateTimeDialog(self, now.hour)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
@@ -59,7 +60,8 @@ class AddEventDialog(Gtk.Dialog):
 		date.destroy()
 
 	def on_end_clicked(self, button):
-		date = DateTimeDialog(self)
+		now = datetime.now()
+		date = DateTimeDialog(self, now.hour)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
@@ -90,7 +92,7 @@ class AddEventButton(Gtk.Button):
 		dia = AddEventDialog()
 
 		if dia.run() == Gtk.ResponseType.OK:
-			agenda = self.common.user_clicked.agenda
+			agenda = self.common.agenda_displayed ### TODO TODO TODO : choisir pour les groupes
 			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 			agenda.add_event(event)
 			self.common.event_clicked = event

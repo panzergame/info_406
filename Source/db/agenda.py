@@ -19,11 +19,13 @@ class DbAgenda(Agenda, DbData):
 	def db_insert_relations(self):
 		col = self.collection
 		col._insert_relation(self.id, self.linked_agendas, "Agenda_Agenda", "agenda1", "agenda2")
+		col._insert_relation(self.id, self.ignored_events, "Agenda_Ignore_Event", "agenda", "event")
 
 	@staticmethod
 	def db_delete_relations(collection, id):
 		collection._delete_relation(id, "Agenda_Agenda", "agenda1")
 		collection._delete_relation(id, "Agenda_Agenda", "agenda2")
+		collection._delete_relation(id, "Agenda_Ignore_Event", "agenda")
 
 	def delete(self, owner):
 		pass # TODO events

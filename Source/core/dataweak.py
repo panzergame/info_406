@@ -48,6 +48,14 @@ class WeakRefSet:
 
 		return self
 
+	def __rsub__(self, other):
+		if type(other) == set:
+			return other - self._set
+		elif type(other) == WeakRefSet:
+			return other._set - self._set
+		else:
+			raise TypeError()
+
 	def delete(self, refered):
 		self._update_owner()
 		return self.discard(refered)

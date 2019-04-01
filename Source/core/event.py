@@ -12,7 +12,7 @@ class Event(Data):
 	agenda = DataOwnerProperty("agenda")
 	creation_date = DataProperty("creation_date")
 
-	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=datetime.now()):
+	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=None):
 		super().__init__(_id, collection)
 
 		self._start = start
@@ -22,7 +22,10 @@ class Event(Data):
 		self.resources = WeakRefSet(resources, self)
 		self.users = WeakRefSet(users, self)
 		self._agenda = DataOwnerProperty.init(agenda, self)
-		self._creation_date = creation_date
+		if creation_date is None:
+			self._creation_date = datetime.now()
+		else:
+			self._creation_date = creation_date
 
 	def update(self):
 		# Actualisation de la date de dernière modification.

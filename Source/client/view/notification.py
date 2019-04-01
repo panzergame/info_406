@@ -11,8 +11,10 @@ def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class NotificationBox(Gtk.ListBox):
-	def __init__(self):
+	def __init__(self, common):
 		super().__init__()
+
+		self.common = common
 
 		self.title = Gtk.Label()
 		self.description = Gtk.Label()
@@ -50,9 +52,35 @@ class NotificationBox(Gtk.ListBox):
 		row.add(box)
 		self.add(row)
 
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+
+		accept = Gtk.Button("Accepter")
+		accept.connect("clicked", self.on_accept_clicked)
+
+		deny = Gtk.Button("Refuser")
+		deny.connect("clicked", self.on_deny_clicked)
+		
+		box.add(accept)
+		box.add(deny)
+
+		row.add(box)
+		self.add(row)
+
 		self.show_all()
 
+	def on_accept_clicked(self, button):
+		agenda = self.notification.agenda # TODO depuis notification.accept() ?
+		agenda.remove_notification(self.notification, False)
+		self.common._notify()
+
+	def on_deny_clicked(self, button):
+		agenda = self.notification.agenda # TODO depuis notification.accept() ?
+		agenda.remove_notification(self.notification, True)
+		self.common._notify()
+
 	def update(self, notification):
+		self.notification = notification
 
 		if notification is not None:
 			event = notification.event
@@ -72,7 +100,7 @@ class NotificationListBox(Gtk.Box):
 
 		self.common = common
 		self.common.add_observer(self)
-		self.notification = NotificationBox()
+		self.notification = NotificationBox(self.common)
 
 		self.list = Gtk.ListStore(str, str, str, object)
 
@@ -122,4 +150,5 @@ class NotificationListBox(Gtk.Box):
 
 	def on_sync_clicked(self, button):
 		self.common.agenda_displayed.sync_notifications()
+		self.common._notify() # TODO
 

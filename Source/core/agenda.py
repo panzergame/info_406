@@ -13,15 +13,20 @@ class Agenda(Data):
 	user = DataOwnerProperty("user")
 	group = DataOwnerProperty("group")
 
-	def __init__(self, _id, collection, name, linked_agendas, notifications, last_sync=datetime.now(), user=None, group=None):
+	def __init__(self, _id, collection, name, linked_agendas, notifications, ignored_events,
+			  last_sync=None, user=None, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self._last_sync = last_sync
 		self.linked_agendas = WeakRefSet(linked_agendas, self)
 		self.notifications = WeakRefSet(notifications)
+		self.ignored_events = WeakRefSet(ignored_events, self)
 		self._user = DataOwnerProperty.init(user, self)
 		self._group = DataOwnerProperty.init(group, self)
+		if last_sync is None:
+			self._last_sync = datetime.now()
+		else:
+			self._last_sync = last_sync
 
 		# Cache d'événement par block d'un mois.
 		# En réalité par block de tous événements commencant dans le même mois.
@@ -115,7 +120,7 @@ class Agenda(Data):
 		for agenda in self.linked_agendas:
 			events |= agenda.all_events(from_date, to_date)
 
-		return events
+		return (events - self.ignored_events)
 
 	def last_events(self, last_date):
 		# Chargement de plus d'événements récent.
@@ -133,8 +138,9 @@ class Agenda(Data):
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
 
-		# Récupération des derniers événements.
+		# Les derniers événements des agendas liée.
 		last_events = set()
+		# Récupération des derniers événements.
 		for agenda in self.linked_agendas:
 			last_events |= agenda.last_events(self.last_sync)
 
@@ -149,9 +155,11 @@ class Agenda(Data):
 		""" Ajout d'une notification de cet agenda. """
 		self.notifications.add(notification)
 
-	def remove_notification(self, notification):
+	def remove_notification(self, notification, ignore):
 		""" Suppression d'une notification de cet agenda. """
 		self.notifications.discard(notification)
+		if ignore:
+			self.ignored_events.add(notification.event)
 
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """

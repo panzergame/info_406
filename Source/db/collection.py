@@ -269,6 +269,7 @@ class DbCollection(Collection):
 			return DbAgenda(_id, self, row["name"],
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
 					self._list_id(DbNotification, "agenda", _id),
+					self._list_relation("Agenda_Ignore_Event", DbEvent, "agenda", _id, "event"),
 					row["last_sync"],
 					self._convert_sql_id(row["user"], DbUser), self._convert_sql_id(row["group"], DbGroup))
 		if type is DbEvent:

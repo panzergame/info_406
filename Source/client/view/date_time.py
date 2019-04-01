@@ -6,9 +6,9 @@ from gi.repository import Gtk
 
 class DateTimeDialog(Gtk.Dialog):
 
-    def __init__(self, parent):
+    def __init__(self, parent, hour):
         Gtk.Dialog.__init__(self, "Date & Time", parent, 0, (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK))
-        self.time_box = TimeBox()
+        self.time_box = TimeBox(hour)
 
         self.set_default_size(200, 200)
         self.calendar = Gtk.Calendar()
@@ -45,7 +45,7 @@ class DateTimeDialog(Gtk.Dialog):
 
 class TimeBox(Gtk.Box):
 
-    def __init__(self):
+    def __init__(self, hour):
         Gtk.Box.__init__(self ,spacing = 10)
         self.set_border_width(10)
 
@@ -54,6 +54,7 @@ class TimeBox(Gtk.Box):
         adjustment_hour = Gtk.Adjustment(0,0, 23, 1, 10, 0)
         self.spin_hour = Gtk.SpinButton()
         self.spin_hour.set_adjustment(adjustment_hour)
+        self.spin_hour.set_value(hour)
 
         adjustment_minute = Gtk.Adjustment(0,0, 59, 1 , 10, 0)
         self.spin_minute = Gtk.SpinButton()

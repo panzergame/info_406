@@ -39,11 +39,13 @@ class AgendaBox(Gtk.Box):
 class AgendaEvents(Gtk.DrawingArea):
 	#Classe d'affichage des évènement d'un agenda
 	def __init__(self, common):
-		days_displayed=7
 		self.common = common
 		def draw(da, ctx):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés
-			events = self.common.agenda_displayed.all_events(self.common.day, self.common.day+timedelta(days_displayed))
+			now = self.common.day
+			start = now - timedelta(days=now.weekday())
+			end = now + timedelta(days=6)
+			events = self.common.agenda_displayed.all_events(start, end)
 			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
 			
 		Gtk.DrawingArea.__init__(self)
