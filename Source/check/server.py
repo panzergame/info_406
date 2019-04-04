@@ -4,9 +4,7 @@ from xmlrpc.server import SimpleXMLRPCServer
 from xmlrpc.server import SimpleXMLRPCRequestHandler
 from server import *
 from core import *
-from .collection import MyCollection
-
-collection = MyCollection()
+from .db_open import *
 
 with SimpleXMLRPCServer(('localhost', 8000)) as server:
     server.register_instance(Server(collection))
