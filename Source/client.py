@@ -8,7 +8,7 @@ collection = ClientCollection()
 common = Common(collection)
 
 ## TEMP
-account = Account.load(collection, 1)
+account = collection.load_account("root", "root")
 common.account = account
 common.user_clicked = list(common.account.users)[0]
 common.agenda_displayed = common.user_clicked.agenda

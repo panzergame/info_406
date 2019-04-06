@@ -12,7 +12,7 @@ class Event(Data):
 	agenda = DataOwnerProperty("agenda")
 	creation_date = DataProperty("creation_date")
 
-	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=None):
+	def __init__(self, _id, collection, start, end, type, description, resources=set(), users=set(), agenda=None, creation_date=None):
 		"""Création d'un évènement
 			@param collection : la collection à passer (dans le fichier common).
 			...

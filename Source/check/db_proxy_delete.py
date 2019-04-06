@@ -2,14 +2,17 @@
 
 from .db_open import *
 
-account = Account.load(collection, 1)
-group = Group.load(collection, 1)
+account = collection.load_account("root", "root")
 
-print(group.subscribers)
+for group in collection.load_groups("USMB"):
 
-account.delete()
+	print(group.subscribers)
 
-print(group.subscribers)
+	account.delete()
+
+	print(group.subscribers)
+
+	break
 
 collection.flush()
 

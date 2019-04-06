@@ -64,8 +64,9 @@ class DbCollection(Collection):
 		print(data)
 		_type = self._translate_type(data.data_type)
 
-		if data.id != -1:
-			self._datas[_type].pop(data.id)
+		assert(data.id != -1)
+
+		self._datas[_type].pop(data.id)
 
 	def _register_proxy(self, proxy):
 		_type = self._translate_type(proxy.data_type)
@@ -197,14 +198,17 @@ class DbCollection(Collection):
 	def _delete(self, table, _id):
 		self._run("DELETE FROM `{}` WHERE `id` = {}".format(table, _id))
 
-	def _delete_proxies(self, _type, attr, _id):
+	def _euthanasy_proxies(self, _type, attr, _id):
 		""" Détection des proxies qui devrait être supprimé
 		après la suppression d'une donnée parent.
 		Par exemple la suppression d'un Account doit supprimer
-		les proxies User.
+		les proxies User obtenus par les groupes.
 		"""
 
 		_type = self._translate_type(_type)
+
+		# Les proxies à supprimer.
+		proxies = set()
 
 		rows = self._get("SELECT id FROM `{}` WHERE `{}` = {}".format(_type.db_table, attr, _id))
 
@@ -212,12 +216,19 @@ class DbCollection(Collection):
 		for sub_id in map(lambda row : row["id"], rows):
 			# Recherche d'un proxy existant correspondant à une donnée à supprimer.
 			proxy = category.get(sub_id, None)
-			# Suppression du proxy et en cascade de autre donnée.
+
 			if proxy is not None:
-				proxy.delete()
-			# Suppression de la donnée en cascade et d'autre proxies de plus bas niveau.
+				proxies.add(proxy)
+
+			# Recherche en cascade d'autres proxies de plus bas niveau.
 			else:
-				_type.db_delete_proxies(self, sub_id)
+				proxies |= _type.db_delete_proxies(self, sub_id)
+
+		return proxies
+
+	def _delete_proxies(self, proxies):
+		for proxy in proxies:
+			proxy.delete()
 
 	def _update(self, table, data, fields):
 		# Les attributs à écrire.
@@ -261,7 +272,8 @@ class DbCollection(Collection):
 	def _load(self, _id, type, row):
 		if type is DbAccount:
 			return DbAccount(_id, self,
-					self._list_id(DbUser, "account", _id), row["login"], row["mdp"], row["email"])
+					row["login"], row["mdp"], row["email"],
+					self._list_id(DbUser, "account", _id))
 		if type is DbAgenda:
 			return DbAgenda(_id, self, row["name"],
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
@@ -320,16 +332,19 @@ class DbCollection(Collection):
 
 		return data
 
-	def load(self, _id, type):
-		_type = self._translate_type(type)
+	def load(self, proxy):
+		_type = self._translate_type(proxy.data_type)
+		_id = proxy.id
 
 		# Recherche dans le cache
 		category = self._datas[_type]
-		if _id not in category:
+		data = category.get(_id, None)
+
+		if data is None:
 			row = self._get_row(_id, _type.db_table)[0]
 			data = category[_id] = self._load(_id, _type, row)
 
-		return category[_id]
+		proxy._data = data
 
 	def load_events(self, agenda, from_date, to_date):
 		""" Charge les événements débutant entre deux dates. """
@@ -342,25 +357,56 @@ class DbCollection(Collection):
 		return self._load_batched(DbEvent, "agenda", agenda.id,
 			"AND (creation_date >= \"{}\" AND creation_date < \"{}\")".format(from_date, to_date))
 
+	def load_account(self, login, mdp):
+		rows = self._get("SELECT * FROM Account WHERE `login` = \"{}\" AND `mdp` = \"{}\"".format(login, mdp))
+
+		if len(rows) == 0:
+			raise ValueError("Invalid account")
+
+		# Premier compte.
+		row = rows[0]
+
+		_id = row["id"]
+
+		category = self._datas[DbAccount]
+		data = category.get(_id, None)
+
+		if data is None:
+			data = category[_id] = self._load(row["id"], DbAccount, row)
+
+		return data
+
 	def load_groups(self, sub_name):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """
 		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
-	def delete(self, data):
+	def delete(self, data, delete_proxies):
 		_type = self._translate_type(data.data_type)
 		self.delete_queue.add(data)
-		# Désenregistrement de la donnée si elle possède une id.
-		self._unregister_data(data)
 
-		_type.db_delete_proxies(self, data.id)
+		if data.id != -1:
+			# Désenregistrement de la donnée.
+			self._unregister_data(data)
 
-	def delete_proxy(self, proxy):
+			if delete_proxies:
+				proxies = _type.db_delete_proxies(self, data.id)
+				self._delete_proxies(proxies)
+
+				return proxies
+
+		return set()
+
+	def delete_proxy(self, proxy, delete_proxies):
 		_type = self._translate_type(proxy.data_type)
 		self.delete_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)
 
-		_type.db_delete_proxies(self, proxy.id)
+		if delete_proxies:
+			proxies = _type.db_delete_proxies(self, proxy.id)
+			self._delete_proxies(proxies)
+
+			return proxies
 
 	def update(self, data):
 		self.update_queue.add(data)

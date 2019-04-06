@@ -30,18 +30,18 @@ class DataProxy(WeakRefered):
 	def __class__(self):
 		return self._type
 
-	def delete(self, owner=None, destruct_data=True):
+	def delete(self, owner=None, destruct_data=True, delete_proxies=True):
 		super().delete()
 
 		if destruct_data and "_data" in dir(self):
 			self._data.delete(owner, destruct_proxy=False)
 
-		self._collection.delete_proxy(self)
+		self._collection.delete_proxy(self, delete_proxies)
 
 	def __getattr__(self, name):
 		# Chargement de la donnée pour la première fois.
 		if "_data" not in dir(self):
-			self._data = self._collection.load(self._id, self._type)
+			self._collection.load(self)
 			self._data.proxy = self
 
 		return getattr(self._data, name)
@@ -53,7 +53,7 @@ class DataProxy(WeakRefered):
 		else:
 			# Chargement de la donnée pour la première fois.
 			if "_data" not in dir(self):
-				self._data = self._collection.load(self._id, self._type)
+				self._collection.load(self)
 				self._data.proxy = self
 
 			return setattr(self._data, name, value)

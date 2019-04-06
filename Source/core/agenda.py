@@ -13,7 +13,7 @@ class Agenda(Data):
 	user = DataOwnerProperty("user")
 	group = DataOwnerProperty("group")
 
-	def __init__(self, _id, collection, name, linked_agendas, notifications, ignored_events,
+	def __init__(self, _id, collection, name, linked_agendas=set(), notifications=set(), ignored_events=set(),
 			  last_sync=None, user=None, group=None):
 		"""Création d'un agenda.
 			@param collection : la collection a passer (dans le fichier common).

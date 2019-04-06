@@ -32,7 +32,7 @@ class XMLConverter:
 		if isinstance(data, Account):
 			attrs = ("id", "users", "login", "mdp", "email")
 		elif isinstance(data, Agenda):
-			attrs = ()
+			attrs = ("id", "name", "linked_agendas", "notifications", "ignored_events", "last_sync", "user", "group")
 		elif isinstance(data, User):
 			attrs = ("id", "first_name", "last_name", "email", "tel", "agenda", "groups", "account")
 		elif isinstance(data, Event):

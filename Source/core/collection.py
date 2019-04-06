@@ -27,14 +27,12 @@ class Collection:
 	classes filles de la classe Collection.
 	"""
 
-	def load(self, _id, type):
-		""" Charge une données selon son type et id. """
+	def load(self, proxy):
+		""" Charge une données d'un proxy """
 		pass
 
-	def load_events(self, agenda, month_first_day, next_month_first_day):
-		pass
-
-	def load_latest_events(self, agenda, last_sync):
+	def load_events(self, agenda, from_date, to_date):
+		""" Charge des événements débutant entre deux dates """
 		pass
 
 	def new(self, type, *args):

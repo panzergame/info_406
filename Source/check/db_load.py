@@ -2,7 +2,7 @@
 
 from .db_open import *
 
-account = Account.load(collection, 1)
+account = collection.load_account("root", "root")
 print("Account:", account)
 
 def print_period(agenda, from_date, to_date):

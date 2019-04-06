@@ -9,7 +9,7 @@ class ClientCollection(Collection):
 		self.converter = XMLConverter(self)
 		self.server = server
 
-	def load(self, _id, _type):
+	def load(self, proxy):
 		xml = self.server.load(_id, _type.__name__)
 		print(xml, _type)
 		return self.converter.to_data(_type, xml)
