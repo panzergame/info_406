@@ -210,7 +210,7 @@ class DbCollection(Collection):
 		# Les proxies à supprimer.
 		proxies = set()
 
-		rows = self._get("SELECT id FROM `{}` WHERE `{}` = {}".format(_type.db_table, attr, _id))
+		rows = self._get("SELECT `id` FROM `{}` WHERE `{}` = {}".format(_type.db_table, attr, _id))
 
 		category = self._data_proxies[_type]
 		for sub_id in map(lambda row : row["id"], rows):

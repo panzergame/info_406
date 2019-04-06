@@ -8,7 +8,7 @@ for group in collection.load_groups("USMB"):
 
 	print(group.subscribers)
 
-	account.delete()
+	print(account.delete())
 
 	print(group.subscribers)
 

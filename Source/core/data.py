@@ -31,7 +31,7 @@ class Data(WeakRefered):
 
 		super().delete()
 
-		self.collection.delete(self, delete_proxies)
+		return self.collection.delete(self, delete_proxies)
 
 	def update(self):
 		self.collection.update(self)
