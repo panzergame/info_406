@@ -15,7 +15,16 @@ class Agenda(Data):
 
 	def __init__(self, _id, collection, name, linked_agendas, notifications, ignored_events,
 			  last_sync=None, user=None, group=None):
+
 		super().__init__(_id, collection)
+			  """Création d'un agenda.
+			  	 @param _id : auto?
+				 @param collection : la collection a passer (dans le fichier common).
+			     @param name : nom de l'agenda
+				 @param linked_agendas : liste des agendas associés à l'agenda
+				 @param notifications : liste des notifications liés à  l'agenda.
+				 @param notifications : les évènements ni en attentes ?
+				 """
 
 		self._name = name
 		self.linked_agendas = WeakRefSet(linked_agendas, self)
@@ -37,6 +46,7 @@ class Agenda(Data):
 		self._last_events_date = None
 
 	def __repr__(self):
+		"""affiche l'agenda"""
 		return self.name
 
 	def _get_chunk(self, month_first_day, next_month_first_day):
@@ -123,11 +133,11 @@ class Agenda(Data):
 		return (events - self.ignored_events)
 
 	def last_events(self, last_date):
-		# Chargement de plus d'événements récent.
+		""" Chargement de plus d'événements récent """
 		if self._last_events_date is None or last_date < self._last_events_date:
 			self._last_events |= self.collection.load_last_events(self, last_date, self._last_events_date)
 			self._last_events_date = last_date
-	
+
 		last_events = set()
 		for event in self._last_events:
 			if event.creation_date >= last_date:

@@ -13,6 +13,15 @@ class Event(Data):
 	creation_date = DataProperty("creation_date")
 
 	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=None):
+			"""Création d'un évènement
+			 	Création d'un compte.
+		 		   @param _id : Auto ?
+		 		   @param collection : la collection à passer (dans le fichier common).
+				   ...
+
+		 		   """
+
+
 		super().__init__(_id, collection)
 
 		self._start = start
@@ -28,32 +37,34 @@ class Event(Data):
 			self._creation_date = creation_date
 
 	def update(self):
-		# Actualisation de la date de dernière modification.
+		""" Actualisation de la date de dernière modification."""
 		self._creation_date = datetime.now()
 
 		super().update()
 
 	@property
 	def duration(self):
+		"""return la durée de l'évènement """
 		return self.end - self.start
 
 	def add_user(self, user):
-		# Ajout d'un utilisateur
+		"""Ajout d'un utilisateur sur un event"""
 		self.users.add(user)
 
 	def remove_user(self, user):
-		# Suppression d'un utilisateur
+		"""suppression de la participation d'un utilisateur à un évènement"""
 		self.users.discard(user)
 
 	def add_resource(self, resource):
-		# Ajout d'une ressource
+		"""Ajout d'une ressource pour un event"""
 		self.resources.add(resource)
 
 	def remove_resource(self, resource):
-		# Suppression d'une ressource
+		"""Suppression d'une ressource pour un event"""
 		self.resources.discard(resource)
 
 	def __repr__(self):
+		"""affiche l'event"""
 		def datetime_str(date):
 			return date.strftime("%Y-%m-%d %H:%M")
 
