@@ -42,3 +42,4 @@ class Account(Data):
 		self.users.discard(user)
 		# Actualisation de son proprétaire.
 		user.account = None
+		print("Suppresion de {} éffectuée avec succès".format(user.first_name))

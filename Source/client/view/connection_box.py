@@ -3,6 +3,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from .link_as_button import *
 
 
 
@@ -23,7 +24,10 @@ class ConnectionBox(Gtk.Grid):
 		passwordE = Gtk.Entry()
 		memory = Gtk.CheckButton("Se souvenir de moi")
 		connection = Gtk.Button("Se connecter")
-		noAccount = Gtk.LinkButton.new_with_label("Par encore de compte? Inscrivez-vous ici...")
+		connection.connect("clicked", self.connection)
+		noAccount = LinkAsButton("", "Par encore de compte? Inscrivez-vous ici...")
+		noAccount.connect("activate_link", self.go_to_registration)
+
 
 		self.attach(title, 0, 0, 4, 1)
 		self.attach(nameL, 0, 1, 2, 1)
@@ -34,4 +38,8 @@ class ConnectionBox(Gtk.Grid):
 		self.attach(connection, 1, 4, 2, 1)
 		self.attach(noAccount, 0, 5, 4, 1)
 
+	def go_to_registration(self, button):
+		print("go_to_registration")
 
+	def connection(self, link):
+		print("connection")
