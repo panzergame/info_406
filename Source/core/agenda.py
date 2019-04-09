@@ -15,16 +15,16 @@ class Agenda(Data):
 
 	def __init__(self, _id, collection, name, linked_agendas, notifications, ignored_events,
 			  last_sync=None, user=None, group=None):
+		"""Création d'un agenda.
+			@param _id : auto?
+			@param collection : la collection a passer (dans le fichier common).
+			@param name : nom de l'agenda
+			@param linked_agendas : liste des agendas associés à l'agenda
+			@param notifications : liste des notifications liés à  l'agenda.
+			@param notifications : les évènements ni en attentes ?
+			"""
 
 		super().__init__(_id, collection)
-			  """Création d'un agenda.
-			  	 @param _id : auto?
-				 @param collection : la collection a passer (dans le fichier common).
-			     @param name : nom de l'agenda
-				 @param linked_agendas : liste des agendas associés à l'agenda
-				 @param notifications : liste des notifications liés à  l'agenda.
-				 @param notifications : les évènements ni en attentes ?
-				 """
 
 		self._name = name
 		self.linked_agendas = WeakRefSet(linked_agendas, self)
