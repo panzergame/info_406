@@ -10,8 +10,7 @@ class Account(Data):
 
 	def __init__(self, _id, collection, users, login, mdp, email):
 		"""Création d'un compte.
-		   @param _id : Auto ?
-		   @param colloction : la collection à passer (dans le fichier common).
+		   @param collection : la collection à passer (dans le fichier common).
 		   @param users : liste des users sur le compte
 		   @param login : login du compte
 		   @param mdp : mdp du compte

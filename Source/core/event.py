@@ -14,13 +14,10 @@ class Event(Data):
 
 	def __init__(self, _id, collection, start, end, type, description, resources, users, agenda=None, creation_date=None):
 		"""Création d'un évènement
-			Création d'un compte.
-				@param _id : Auto ?
-				@param collection : la collection à passer (dans le fichier common).
-				...
+			@param collection : la collection à passer (dans le fichier common).
+			...
 
-				"""
-
+		"""
 
 		super().__init__(_id, collection)
 
