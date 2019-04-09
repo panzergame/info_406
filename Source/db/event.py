@@ -12,7 +12,8 @@ class DbEvent(Event, DbData):
 
 	@classmethod
 	def db_delete_proxies(cls, collection, _id):
-		return collection._euthanasy_proxies(Notification, "event", _id)
+		from .notification import DbNotification
+		return collection._euthanasy_proxies(DbNotification, "event", _id)
 
 	def db_insert_relations(self):
 		col = self.collection

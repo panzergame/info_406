@@ -13,8 +13,10 @@ class DbAgenda(Agenda, DbData):
 
 	@classmethod
 	def db_delete_proxies(cls, collection, _id):
-		return collection._euthanasy_proxies(Event, "agenda", _id) | \
-		collection._euthanasy_proxies(Notification, "agenda", _id)
+		from .event import DbEvent
+		from .notification import DbNotification
+		return collection._euthanasy_proxies(DbEvent, "agenda", _id) | \
+		collection._euthanasy_proxies(DbNotification, "agenda", _id)
 
 	def db_insert_relations(self):
 		col = self.collection

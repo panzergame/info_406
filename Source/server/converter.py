@@ -36,13 +36,15 @@ class XMLConverter:
 		elif isinstance(data, User):
 			attrs = ("id", "first_name", "last_name", "email", "tel", "agenda", "groups", "account")
 		elif isinstance(data, Event):
-			attrs = ()
+			attrs = ("start", "end", "type", "description", "agenda", "creation_date", "users", "resources")
 		elif isinstance(data, Notification):
-			attrs = ()
+			attrs = ("event", "agenda", "status")
 		elif isinstance(data, Agenda):
-			attrs = ()
+			attrs = ("name", "last_sync", "user", "group", "linked_agendas", "notifications", "ignored_events")
 		elif isinstance(data, Group):
-			attrs = ()
+			attrs = ("name", "admins", "subscribers", "agendas", "resources")
+		elif isinstance(data, Resource):
+			attrs = ("name", "location", "capacity", "group")
 		else:
 			raise TypeError("Invalid data type to XML conversion")
 
@@ -54,15 +56,49 @@ class XMLConverter:
 	def _ids_to_proxies(self, ids, _type):
 		return {self._id_to_proxy(_id, _type) for _id in ids}
 
+	def to_datas(self, _type, xml):
+		return {self.to_data(_type, subxml) for subxml in xml}
+
 	def to_data(self, _type, xml):
-		if _type is Account:
-			return Account(xml["id"], self.collection,
-				self._ids_to_proxies(xml["users"], User),
-				xml["login"], xml["mdp"], xml["email"])
-		elif _type is User:
-			return User(xml["id"], self.collection,
+		_id = xml["id"]
+		if issubclass(_type, Account):
+			return _type(_id, self.collection,
+				xml["login"], xml["mdp"], xml["email"],
+				self._ids_to_proxies(xml["users"], User))
+		if issubclass(_type, User):
+			return _type(_id, self.collection,
 				xml["first_name"], xml["last_name"],
 				xml["email"], xml["tel"],
 				self._id_to_proxy(xml["agenda"], Agenda),
 				self._ids_to_proxies(xml["groups"], Group),
 				self._id_to_proxy(xml["account"], Account))
+		if issubclass(_type, Group):
+			return _type(_id, self.collection,
+				xml["name"],
+				self._ids_to_proxies(xml["admins"], User),
+				self._ids_to_proxies(xml["subscribers"], User),
+				self._ids_to_proxies(xml["agendas"], Agenda),
+				self._ids_to_proxies(xml["resources"], Resource))
+		if issubclass(_type, Agenda):
+			return _type(_id, self.collection,
+				xml["name"],
+				self._ids_to_proxies(xml["linked_agendas"], Agenda),
+				self._ids_to_proxies(xml["notifications"], Notification),
+				self._ids_to_proxies(xml["ignored_events"], Event))
+		if issubclass(_type, Event):
+			return _type(_id, self.collection,
+				xml["start"], xml["end"], xml["type"],
+				xml["description"],
+				self._ids_to_proxies(xml["resources"], Resource),
+				self._ids_to_proxies(xml["users"], User),
+				self._id_to_proxy(xml["agenda"], Agenda))
+		if issubclass(_type, Notification):
+			return _type(_id, self.collection,
+				self._id_to_proxy(xml["event"], Event),
+				self._id_to_proxy(xml["agenda"], Agenda),
+				xml["status"])
+		if issubclass(_type, Resource):
+			return _type(_id, self.collection,
+				xml["name"], xml["location"], xml["capacity"],
+				self._id_to_proxy(xml["group"], Group))
+

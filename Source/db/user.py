@@ -12,4 +12,5 @@ class DbUser(User, DbData):
 
 	@classmethod
 	def db_delete_proxies(cls, collection, _id):
-		return collection._euthanasy_proxies(Agenda, "user", _id)
+		from .agenda import DbAgenda
+		return collection._euthanasy_proxies(DbAgenda, "user", _id)

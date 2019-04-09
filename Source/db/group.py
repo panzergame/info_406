@@ -12,7 +12,8 @@ class DbGroup(Group, DbData):
 
 	@classmethod
 	def db_delete_proxies(cls, collection, _id):
-		return collection._euthanasy_proxies(Agenda, "group", _id)
+		from .agenda import DbAgenda
+		return collection._euthanasy_proxies(DbAgenda, "group", _id)
 
 	def db_insert_relations(self):
 		col = self.collection

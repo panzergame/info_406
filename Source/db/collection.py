@@ -1,16 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-DELIMITER $$
-
-CREATE TRIGGER `delete_User` AFTER DELETE ON `User` FOR EACH ROW
-BEGIN
-  INSERT INTO `Delete` VALUES (OLD.id, "User");
-END $$
-
-DELIMITER ;
-"""
-
 from core import *
 from datetime import datetime
 
@@ -22,72 +11,25 @@ from .resource import *
 from .account import *
 from .notification import *
 
-# Tous les types supportés.
-
-supported_types = {
-	Account : DbAccount,
-	Agenda : DbAgenda,
-	Event : DbEvent,
-	Group : DbGroup,
-	User : DbUser,
-	Resource : DbResource,
-	Notification : DbNotification
-}
 
 class DbCollection(Collection):
+	# Tous les types supportés.
+	supported_types = [
+		DbAccount,
+		DbAgenda,
+		DbEvent,
+		DbGroup,
+		DbUser,
+		DbResource,
+		DbNotification
+	]
+
 	def __init__(self, cursor):
 		super().__init__()
 
-		# Toutes les données existant dynamiquement ou dans le base et chargé.
-		self._datas = {type : {} for type in supported_types.values()}
-		# Tous les proxies de données fournis.
-		self._data_proxies = {type : {} for type in supported_types.values()}
-
 		self.cursor = cursor
 
-		# Liste d'attente pour l'écriture et la modification.
-		self.new_queue = set()
-		self.update_queue = set()
-		self.update_relations_queue = set()
-		self.delete_queue = set()
-
 ############### OUTILS ###############
-
-	def _register_data(self, data):
-		_type = self._translate_type(data.data_type)
-
-		assert(data.id != -1)
-
-		self._datas[_type][data.id] = data
-
-	def _unregister_data(self, data):
-		print(data)
-		_type = self._translate_type(data.data_type)
-
-		assert(data.id != -1)
-
-		self._datas[_type].pop(data.id)
-
-	def _register_proxy(self, proxy):
-		_type = self._translate_type(proxy.data_type)
-
-		self._data_proxies[_type][proxy.id] = proxy
-
-	def _unregister_proxy(self, proxy):
-		_type = self._translate_type(proxy.data_type)
-
-		self._data_proxies[_type].pop(proxy.id)
-
-	def _translate_type(self, _type):
-		""" Traduit un type vers un type préfixé par Db
-		autremenet dit un type specialisé pour la BDD.
-		"""
-		if _type in supported_types.keys():
-			return supported_types[_type]
-		elif _type in supported_types.values():
-			return _type
-
-		return None
 
 	def _get(self, query):
 		""" Execution d'un requête et récupération du résultat sous la forme d'un tableau de dictionnaire """
@@ -133,36 +75,12 @@ class DbCollection(Collection):
 
 		if len(rows) == 0:
 			return set()
-		return set(map(lambda x: self._convert_sql_id(x[to_attr], _type), rows))
+		return set(map(lambda x: self._data_or_proxy(x[to_attr], _type), rows))
 
 	def _last_id(self):
 		""" Récupère l'id de la dernière ligne insérée """
 		self._run("SELECT LAST_INSERT_ID()")
 		return self.cursor.fetchone()[0]
-
-	def _convert_sql_id(self, id, _type):
-		if id is None:
-			return None
-
-		""" Conversion d'un numéro issue d'une requête en proxy """
-		if type(id) not in (int, type(None)):
-			raise TypeError("SQL id should be int")
-
-		# Recherche d'une donnée déjà existante.
-		data = self._datas[_type].get(id, None)
-		if data is not None:
-			return data
-
-		# Recherche d'un proxy déjà existant.
-		proxy = self._data_proxies[_type].get(id, None)
-		if proxy is not None:
-			return proxy
-
-		# Création d'un nouveau proxy.
-		proxy = DataProxy(id, _type, self)
-		self._data_proxies[_type][id] = proxy
-
-		return proxy
 
 	def _convert_value_to_sql(self, value):
 		""" Conversion d'une valeur python en format sql """
@@ -205,8 +123,6 @@ class DbCollection(Collection):
 		les proxies User obtenus par les groupes.
 		"""
 
-		_type = self._translate_type(_type)
-
 		# Les proxies à supprimer.
 		proxies = set()
 
@@ -225,10 +141,6 @@ class DbCollection(Collection):
 				proxies |= _type.db_delete_proxies(self, sub_id)
 
 		return proxies
-
-	def _delete_proxies(self, proxies):
-		for proxy in proxies:
-			proxy.delete()
 
 	def _update(self, table, data, fields):
 		# Les attributs à écrire.
@@ -270,46 +182,48 @@ class DbCollection(Collection):
 		_type.db_delete_relations(self, _id)
 
 	def _load(self, _id, type, row):
-		if type is DbAccount:
+		if issubclass(type, DbAccount):
 			return DbAccount(_id, self,
 					row["login"], row["mdp"], row["email"],
 					self._list_id(DbUser, "account", _id))
-		if type is DbAgenda:
+		if issubclass(type, DbAgenda):
 			return DbAgenda(_id, self, row["name"],
 					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
 					self._list_id(DbNotification, "agenda", _id),
 					self._list_relation("Agenda_Ignore_Event", DbEvent, "agenda", _id, "event"),
 					row["last_sync"],
-					self._convert_sql_id(row["user"], DbUser), self._convert_sql_id(row["group"], DbGroup))
-		if type is DbEvent:
+					self._data_or_proxy(row["user"], DbUser), self._data_or_proxy(row["group"], DbGroup))
+		if issubclass(type, DbEvent):
 			return DbEvent(_id, self, row["start"], row["end"], row["type"], row["description"],
 					self._list_relation("Event_Resource", DbResource, "event", _id, "resource"),
 					self._list_relation("Event_User", DbUser, "event", _id, "user"),
-					self._convert_sql_id(row["agenda"], DbAgenda))
-		if type is DbGroup:
+					self._data_or_proxy(row["agenda"], DbAgenda))
+		if issubclass(type, DbGroup):
 			return DbGroup(_id, self, row["name"],
 					self._list_relation("Group_Admin", DbUser, "group", _id, "admin"),
 					self._list_relation("Group_User", DbUser, "group", _id, "user"),
 					self._list_id(DbAgenda, "group", _id),
 					self._list_id(DbResource, "group", _id))
-		if type is DbUser:
+		if issubclass(type, DbUser):
 			return DbUser(_id, self, row["first_name"], row["last_name"], row["email"], row["tel"],
 			   list(self._list_id(DbAgenda, "user", _id))[0],
 			   self._list_relation("Group_User", DbGroup, "user", _id, "group"),
-			   self._convert_sql_id(row["account"], DbAccount))
-		if type is DbNotification:
+			   self._data_or_proxy(row["account"], DbAccount))
+		if issubclass(type, DbNotification):
 			return DbNotification(_id, self,
-					self._convert_sql_id(row["event"], DbEvent),
-					self._convert_sql_id(row["agenda"], DbAgenda),
+					self._data_or_proxy(row["event"], DbEvent),
+					self._data_or_proxy(row["agenda"], DbAgenda),
 					row["status"])
+		if issubclass(type, DbResource):
+			return DbResource(_id, self, row["name"], row["location"],
+					row["capacity"], self._data_or_proxy(row["group"]))
 
-	def _load_batched(self, type, attr, value, close):
-		_type = self._translate_type(type)
+	def _load_batched(self, _type, attr, value, close):
+		datas = set()
 
+		_type, category = self._datas.get(_type)
 		rows = self._get_row_attr(attr, value, _type.db_table, close)
 
-		datas = set()
-		category = self._datas[_type]
 		# Conversion de toutes les données.
 		for row in rows:
 			_id = row["id"]
@@ -325,26 +239,16 @@ class DbCollection(Collection):
 
 ############ Interface Collection ##############
 
-	def new(self, type, *args):
-		_type = self._translate_type(type)
-		data = _type(-1, self, *args)
-		self.new_queue.add(data)
-
-		return data
-
-	def load(self, proxy):
-		_type = self._translate_type(proxy.data_type)
-		_id = proxy.id
-
+	def load(self, _id, _type):
 		# Recherche dans le cache
-		category = self._datas[_type]
+		_type, category = self._datas.get(_type)
 		data = category.get(_id, None)
 
 		if data is None:
 			row = self._get_row(_id, _type.db_table)[0]
 			data = category[_id] = self._load(_id, _type, row)
 
-		proxy._data = data
+		return data
 
 	def load_events(self, agenda, from_date, to_date):
 		""" Charge les événements débutant entre deux dates. """
@@ -380,39 +284,8 @@ class DbCollection(Collection):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """
 		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
-	def delete(self, data, delete_proxies):
-		_type = self._translate_type(data.data_type)
-		self.delete_queue.add(data)
-
-		if data.id != -1:
-			# Désenregistrement de la donnée.
-			self._unregister_data(data)
-
-			if delete_proxies:
-				proxies = _type.db_delete_proxies(self, data.id)
-				self._delete_proxies(proxies)
-
-				return proxies
-
-		return set()
-
-	def delete_proxy(self, proxy, delete_proxies):
-		_type = self._translate_type(proxy.data_type)
-		self.delete_queue.add(proxy)
-		# Désenregistrement du proxy.
-		self._unregister_proxy(proxy)
-
-		if delete_proxies:
-			proxies = _type.db_delete_proxies(self, proxy.id)
-			self._delete_proxies(proxies)
-
-			return proxies
-
-	def update(self, data):
-		self.update_queue.add(data)
-
-	def update_relations(self, data):
-		self.update_relations_queue.add(data)
+	def find_proxies(self, _type, _id):
+		return _type.db_delete_proxies(self, _id)
 
 ##############################################
 
