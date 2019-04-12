@@ -62,6 +62,7 @@ class DbCollection(Collection):
 		self._datas[_type][data.id] = data
 
 	def _unregister_data(self, data):
+		print(data)
 		_type = self._translate_type(type(data))
 
 		if data.id != -1:
@@ -117,7 +118,7 @@ class DbCollection(Collection):
 	def _list_id_close(self, _type, close):
 		""" Obtention de l'id ou close est vrai """
 		table = _type.db_table
-		return self._list_relation_close(table, _type, close, "id")
+		return self._list_relation_close(table, _type, close, "id") # TODO enregister proxy
 
 	def _list_relation(self, table, _type, from_attr, from_value, to_attr):
 		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la contrainte
@@ -307,7 +308,8 @@ class DbCollection(Collection):
 			data = category.get(_id, None)
 			# On ne converti que les données non chargées.
 			if data is None:
-				data = self._load(row["id"], _type, row)
+				data = self._load(_id, _type, row)
+				category[_id] = data
 
 			datas.add(data)
 

@@ -26,6 +26,3 @@ class DbAgenda(Agenda, DbData):
 		collection._delete_relation(id, "Agenda_Agenda", "agenda1")
 		collection._delete_relation(id, "Agenda_Agenda", "agenda2")
 		collection._delete_relation(id, "Agenda_Ignore_Event", "agenda")
-
-	def delete(self, owner):
-		pass # TODO events

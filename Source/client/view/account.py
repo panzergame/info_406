@@ -30,7 +30,7 @@ class AccountBox(Gtk.VBox):
 
 		selected = Gtk.CellRendererToggle()
 		selected.connect("toggled", self.on_selected)
-		select_column = Gtk.TreeViewColumn("Sélectionné(s)", selected, active=0)
+		select_column = Gtk.TreeViewColumn("Sélectionné(s)", selected, active=2)
 
 		name_column = Gtk.TreeViewColumn("Nom")
 		name_column.pack_start(first_name, True)
@@ -56,8 +56,7 @@ class AccountBox(Gtk.VBox):
 		self.add(Gtk.Label("Mes groupes", xalign=0))
 		self.add(self.group_list)
 
-		for user in common.account.users:
-			self.list.append((user.first_name, user.last_name, False, user))
+		self.update(self.common)
 
 	def on_user_changed(self, model, path, column):
 		user = self.list[path][3]
@@ -70,6 +69,7 @@ class AccountBox(Gtk.VBox):
 
 
 	def on_del_user_clicked(self, widget):
+		print("delete user")
 		nb_users = len(self.list)
 		nb_selected = 0
 		for row in self.list:
@@ -78,7 +78,8 @@ class AccountBox(Gtk.VBox):
 		if(not(nb_users == nb_selected)):
 			for row in self.list:
 				if (row[2]):
-					self.common._account.remove_user(row[3])
+					row[3].delete()
+					print(self.common.account)
 		self.common._notify()
 
 
@@ -93,3 +94,7 @@ class AccountBox(Gtk.VBox):
 
 	def update(self, common):
 		self.group_list.set_groups(self.common.user_clicked.groups)
+
+		self.list.clear()
+		for user in common.account.users:
+			self.list.append((user.first_name, user.last_name, False, user))

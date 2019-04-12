@@ -16,6 +16,7 @@ class SearchBox(Gtk.VBox):
 		#"Rechercher un groupe"
 		self.entry = Gtk.SearchEntry()
 		self.entry.connect("search-changed", self.on_search_changed)
+		self.sub = self.entry.get_text()
 
 		self.list = GroupList(self.common)
 
