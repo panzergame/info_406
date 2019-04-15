@@ -21,34 +21,66 @@ class XMLConverter:
 			return value
 		elif isinstance(value, int):
 			return value
+		elif value is None:
+			return value
 		else:
-			raise TypeError("Unsupported type ", type(value))
+			raise TypeError("Unsupported type {}".format(type(value)))
 
 	def _attrs_to_xml(self, attrs, data):
 		""" Conversion d'un liste d'attribut d'une classe en XML """
 		return {attr : self._attr_to_xml(getattr(data, attr)) for attr in attrs}
 
 	def to_xml(self, data):
-		if isinstance(data, Account):
-			attrs = ("id", "users", "login", "mdp", "email")
-		elif isinstance(data, Agenda):
-			attrs = ("id", "name", "linked_agendas", "notifications", "ignored_events", "last_sync", "user", "group")
-		elif isinstance(data, User):
-			attrs = ("id", "first_name", "last_name", "email", "tel", "agenda", "groups", "account")
-		elif isinstance(data, Event):
-			attrs = ("start", "end", "type", "description", "agenda", "creation_date", "users", "resources")
-		elif isinstance(data, Notification):
-			attrs = ("event", "agenda", "status")
-		elif isinstance(data, Agenda):
-			attrs = ("name", "last_sync", "user", "group", "linked_agendas", "notifications", "ignored_events")
-		elif isinstance(data, Group):
-			attrs = ("name", "admins", "subscribers", "agendas", "resources")
-		elif isinstance(data, Resource):
-			attrs = ("name", "location", "capacity", "group")
+		if isinstance(data, set) or isinstance(data, list):
+			return [self.to_xml(item) for item in data]
 		else:
-			raise TypeError("Invalid data type to XML conversion")
+			if isinstance(data, Account):
+				attrs = ("users", "login", "mdp", "email")
+			elif isinstance(data, Agenda):
+				attrs = ("name", "linked_agendas", "notifications", "ignored_events", "last_sync", "user", "group")
+			elif isinstance(data, User):
+				attrs = ("first_name", "last_name", "email", "tel", "agenda", "groups", "account")
+			elif isinstance(data, Event):
+				attrs = ("start", "end", "type", "description", "agenda", "creation_date", "users", "resources")
+			elif isinstance(data, Notification):
+				attrs = ("event", "agenda", "status")
+			elif isinstance(data, Agenda):
+				attrs = ("name", "last_sync", "user", "group", "linked_agendas", "notifications", "ignored_events")
+			elif isinstance(data, Group):
+				attrs = ("name", "admins", "subscribers", "agendas", "resources")
+			elif isinstance(data, Resource):
+				attrs = ("name", "location", "capacity", "group")
+			else:
+				raise TypeError("Invalid data type to XML conversion {}".format(type(data)))
 
-		return self._attrs_to_xml(attrs, data)
+			# Attributs communs.
+			common_attrs = ("id", )
+
+			return self._attrs_to_xml(attrs + common_attrs, data)
+
+	def queue_to_xml(self, queue):
+		xml = {}
+
+		for data in queue:
+			# Convertion d'un élément en XML.
+			data_xml = self.to_xml(data)
+
+			# Association dans une categorie par type.
+			type_name = type(data).__name__
+			if type_name in xml:
+				xml[type_name].append(data_xml)
+			else:
+				xml[type_name] = [data_xml]
+
+		return xml
+
+	def xml_to_queue(self, xml):
+		queue = set()
+		for type_name, xml_datas in xml.items():
+			_type = self.collection.supported_types_name[type_name]
+			queue |= self.to_datas(_type, xml_datas)
+
+		return queue
 
 	def _id_to_proxy(self, _id, _type):
 		return DataProxy(_id, _type, self.collection)

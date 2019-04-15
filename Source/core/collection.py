@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .dataproxy import *
 from .account import *
 from .agenda import *
 from .user import *
@@ -76,7 +77,7 @@ class Collection:
 		groups = set()
 
 		regex = re.compile(".*{}.*".format(sub_name))
-		for group in self._datas[Group]:
+		for group in self._datas[Group].values():
 			if regex.match(group.name):
 				groups.add(group)
 
@@ -106,6 +107,7 @@ class Collection:
 
 		# Création d'un nouveau proxy.
 		proxy = DataProxy(id, _type, self)
+		# Enregistrement du proxy.
 		self._data_proxies[_type][id] = proxy
 
 		return proxy

@@ -3,6 +3,9 @@
 from core import *
 from .converter import *
 
+def log_net(*args):
+	print("[net]", *args)
+
 class Server:
 	def __init__(self, collection):
 		self.collection = collection
@@ -26,34 +29,36 @@ class Server:
 		return proxy_dict
 
 	def load(self, _id, type_name):
-		print("load", _id, type_name)
-		type = supported_types_name[type_name]
+		log_net("load", _id, type_name)
+		type = self.supported_types_name[type_name]
 
 		return self._function_to_xml(self.collection.load, _id, type)
 
 	def load_account(self, login, mdp):
-		print("load account", login)
+		log_net("load account", login)
 		return self._function_to_xml(self.collection.load_account, login, mdp)
 
 	def load_events(self, agenda_id, from_date, to_date):
-		print("load events")
+		log_net("load events")
 
 		agenda = self.collection.load(agenda_id, Agenda)
 		return self._function_to_xml(self.collection.load_events,
 				agenda, from_date, to_date)
 
 	def load_last_events(self, agenda_id, from_date, to_date):
-		print("load last events")
+		log_net("load last events")
 
 		agenda = self.collection.load(agenda_id, Agenda)
 		return self._function_to_xml(self.collection.load_last_events,
 				agenda, from_date, to_date)
 
 	def load_groups(self, sub_name):
-		print("load groups")
+		log_net("load groups")
 		return self._function_to_xml(self.collection.load_groups, sub_name)
 
-	def flush(self, new_datas, update_datas, delete_datas):
-		print("New", new_datas)
-		print("Update", update_datas)
-		print("Delete", delete_datas)
+	def flush(self, new_datas, update_datas, update_relation_datas, delete_datas, delete_proxies):
+		log_net("New", new_datas)
+		log_net("Update", update_datas)
+		log_net("Update relations", update_relation_datas)
+		log_net("Delete", delete_datas)
+		log_net("Delete proxies", delete_proxies)

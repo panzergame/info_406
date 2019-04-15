@@ -60,7 +60,7 @@ class DbCollection(Collection):
 	def _list_id_close(self, _type, close):
 		""" Obtention de l'id ou close est vrai """
 		table = _type.db_table
-		return self._list_relation_close(table, _type, close, "id") # TODO enregister proxy
+		return self._list_relation_close(table, _type, close, "id")
 
 	def _list_relation(self, table, _type, from_attr, from_value, to_attr):
 		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la contrainte
@@ -282,7 +282,8 @@ class DbCollection(Collection):
 
 	def load_groups(self, sub_name):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """
-		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
+		return super().load_groups(sub_name) | \
+			self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
 	def find_proxies(self, _type, _id):
 		return _type.db_delete_proxies(self, _id)
