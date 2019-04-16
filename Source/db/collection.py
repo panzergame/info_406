@@ -50,12 +50,11 @@ class DbCollection(Collection):
 		self.update_queue = set()
 		self.update_relations_queue = set()
 		self.delete_queue = set()
-		self.delete_proxy_queue = set()
 
 ############### OUTILS ###############
 
 	def _register_data(self, data):
-		_type = self._translate_type(type(data))
+		_type = self._translate_type(data.data_type)
 
 		assert(data.id != -1)
 
@@ -63,7 +62,7 @@ class DbCollection(Collection):
 
 	def _unregister_data(self, data):
 		print(data)
-		_type = self._translate_type(type(data))
+		_type = self._translate_type(data.data_type)
 
 		if data.id != -1:
 			self._datas[_type].pop(data.id)
@@ -241,9 +240,7 @@ class DbCollection(Collection):
 		data.db_new()
 
 		# Enregistrement de la donnée par id après sa création
-		self._register_data(data)
-		category = self._datas[type(data)]
-		category[data.id] = data
+		self._register_data(data) # TODO enregistrer même avec -1 ?
 
 	def _delayed_update(self, data):
 		data.db_update()
@@ -262,7 +259,6 @@ class DbCollection(Collection):
 		_type.db_delete_relations(self, _id)
 
 	def _load(self, _id, type, row):
-		# TODO move DB classmethod
 		if type is DbAccount:
 			return DbAccount(_id, self,
 					self._list_id(DbUser, "account", _id), row["login"], row["mdp"], row["email"])
@@ -351,7 +347,7 @@ class DbCollection(Collection):
 		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
 	def delete(self, data):
-		_type = self._translate_type(type(data))
+		_type = self._translate_type(data.data_type)
 		self.delete_queue.add(data)
 		# Désenregistrement de la donnée si elle possède une id.
 		self._unregister_data(data)
@@ -360,7 +356,7 @@ class DbCollection(Collection):
 
 	def delete_proxy(self, proxy):
 		_type = self._translate_type(proxy.data_type)
-		self.delete_proxy_queue.add(proxy)
+		self.delete_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)
 
@@ -405,7 +401,7 @@ class DbCollection(Collection):
 		"""
 
 		# Tri par dépendance.
-		new_queue = sorted(self.new_queue, key=lambda item: priority(type(item)))
+		new_queue = sorted(self.new_queue, key=lambda item: priority(item.data_type))
 		for data in new_queue:
 			self._delayed_new(data)
 
@@ -421,10 +417,7 @@ class DbCollection(Collection):
 			self._delayed_update_relation(data)
 
 		for data in self.delete_queue:
-			self._delayed_delete(type(data), data.id)
-
-		for proxy in self.delete_proxy_queue:
-			self._delayed_delete(proxy.data_type, proxy.id)
+			self._delayed_delete(data.data_type, data.id)
 
 		self.new_queue.clear()
 		self.update_queue.clear()

@@ -10,6 +10,10 @@ class Data(WeakRefered):
 		self.collection = collection
 		self.proxy = None
 
+	@property
+	def data_type(self):
+		return type(self)
+
 	# Interface CRUD
 
 	@classmethod
