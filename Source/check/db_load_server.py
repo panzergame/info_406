@@ -9,7 +9,7 @@ from core import *
 
 s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
 
-collection = ClientCollection(s)
+collection = ServerClientCollection(s)
 
 account = collection.load_account("root", "root")
 print("Account:", account)

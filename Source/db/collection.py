@@ -24,13 +24,14 @@ class DbCollection(Collection):
 		DbNotification
 	]
 
-	def __init__(self, cursor):
+	def __init__(self, conn):
 		super().__init__()
 
 		# Liste des noms des types supportés et leur association.
 		self.supported_types_name = {type.db_table : type for type in self.supported_types}
 
-		self.cursor = cursor
+		self.conn = conn
+		self.cursor = self.conn.cursor()
 
 ############### OUTILS ###############
 

@@ -2,13 +2,16 @@
 
 from .converter import *
 
-class ClientCollection(Collection):
+class ServerClientCollection(Collection):
 	def __init__(self, server):
 		super().__init__()
 
 		self.converter = XMLConverter(self)
 		self.server = server
 		self.supported_types_name = {type.__name__ : type for type in self.supported_types}
+
+		# Obtention du numéro de session.
+		self.session = self.server.new_session()
 
 	def _convert_to_data(self, _type, xml):
 		""" Essaye de convertir un tableau XML en donnée
@@ -30,17 +33,17 @@ class ClientCollection(Collection):
 		return data
 
 	def _function_to_data(self, func, _type, *args):
-		xml = func(*args)
+		xml = func(self.session, *args)
 
 		return self._convert_to_data(_type, xml)
 
 	def _function_to_datas(self, func, _type, *args):
-		xml = func(*args)
+		xml = func(self.session, *args)
 
 		return {self._convert_to_data(_type, sub_xml) for sub_xml in xml}
 
 	def find_proxies(self, _type, _id):
-		xml = self.server.find_proxies(_type.__name__, _id)
+		xml = self.server.find_proxies(self.session, _type.__name__, _id)
 		proxies = set()
 		for type_name, category in xml.items():
 			_sub_type = self.supported_types_name[type_name]
@@ -84,4 +87,4 @@ class ClientCollection(Collection):
 		delete_queue = self.converter.queue_to_xml(self.delete_queue)
 
 		# Envoie les files d'attentes de création/modification/suppression au serveur.
-		self.server.flush(new_queue, update_queue, update_relations_queue, delete_queue)
+		self.server.flush(self.session, new_queue, update_queue, update_relations_queue, delete_queue)

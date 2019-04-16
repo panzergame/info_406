@@ -1,16 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from client import *
-from core import *
-from server import *
 
-import xmlrpc.client
-
-s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
-
-collection = ClientCollection(s)
-
-#collection = ClientCollection()
+collection = ClientCollection()
 common = Common(collection)
 
 ## TEMP
@@ -24,5 +16,3 @@ common.day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
 win = Window(common)
 win.main()
-
-collection.close()
