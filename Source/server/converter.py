@@ -123,7 +123,10 @@ class XMLConverter:
 				xml["name"],
 				self._ids_to_proxies(xml["linked_agendas"], Agenda),
 				self._ids_to_proxies(xml["notifications"], Notification),
-				self._ids_to_proxies(xml["ignored_events"], Event))
+				self._ids_to_proxies(xml["ignored_events"], Event),
+				xml["last_sync"],
+				self._id_to_proxy(xml["user"], User),
+				self._id_to_proxy(xml["group"], Group))
 		if issubclass(_type, Event):
 			return _type(_id, self.collection,
 				xml["start"], xml["end"], xml["type"],

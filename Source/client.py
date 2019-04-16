@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from client.view import *
-from client.model import *
+from client import *
 from core import *
+from server import *
 
-collection = ClientCollection()
+import xmlrpc.client
+
+s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
+
+collection = ClientCollection(s)
+
+#collection = ClientCollection()
 common = Common(collection)
 
 ## TEMP

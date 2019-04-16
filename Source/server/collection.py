@@ -83,5 +83,5 @@ class ClientCollection(Collection):
 		update_relations_queue = self.converter.queue_to_xml(self.update_relations_queue)
 		delete_queue = self.converter.queue_to_xml(self.delete_queue)
 
-		# Envoie des file d'attente de création/modification/suppression au serveur.
+		# Envoie les files d'attentes de création/modification/suppression au serveur.
 		self.server.flush(new_queue, update_queue, update_relations_queue, delete_queue)
