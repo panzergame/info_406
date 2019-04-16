@@ -10,33 +10,39 @@ class ClientCollection(Collection):
 		self.server = server
 		self.supported_types_name = {type.__name__ : type for type in self.supported_types}
 
+	def _convert_to_data(self, _type, xml):
+		""" Essaye de convertir un tableau XML en donnée
+		Si l'id correspond à une donné déjà existante, il n'y a pas de conversion.
+		"""
+
+		# Sécurité pour éviter les rechargements.
+		_id = xml["id"]
+		data = self._datas[_type].get(_id, None)
+
+		if data is None:
+			data = self.converter.to_data(_type, xml)
+			# Enregistrement de la nouvelle donnée.
+			self._register_data(data)
+
+		return data
+
 	def _function_to_data(self, func, _type, *args):
 		xml = func(*args)
 
-		# Sécurité pour éviter les rechargements. # TODO le faire du côté du serveur ?
-		_id = xml["id"]
-		if _id in self._datas[_type]:
-			return self._datas[_type][_id]
-
-		data = self.converter.to_data(_type, xml)
-		# Enregistrement de la donnée.
-		self._register_data(data)
-
-		return data
+		return self._convert_to_data(_type, xml)
 
 	def _function_to_datas(self, func, _type, *args):
 		xml = func(*args)
 
-		datas = self.converter.to_datas(_type, xml)
+		return {self._convert_to_data(_type, sub_xml) for sub_xml in xml}
 
 	def find_proxies(self, _type, _id):
 		xml = self.server.find_proxies(_type.__name__, _id)
-
 		proxies = set()
-		for type_name, category in xml:
+		for type_name, category in xml.items():
 			_sub_type = self.supported_types_name[type_name]
 			for _id in category:
-				data = self.data_or_proxy(_id, _sub_type)
+				data = self._data_or_proxy(_id, _sub_type)
 				proxies.add(data)
 
 		return proxies
@@ -50,7 +56,6 @@ class ClientCollection(Collection):
 				Account, login, mdp)
 
 	def load_events(self, agenda, from_date, to_date):
-		print("load events", from_date, to_date)
 		if agenda.id == -1:
 			return set()
 

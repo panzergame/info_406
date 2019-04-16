@@ -6,6 +6,7 @@ from .agenda import *
 from .user import *
 from .resource import *
 from .group import *
+from .notification import *
 from .typedict import *
 
 import re
@@ -27,6 +28,7 @@ class Collection:
 		Group,
 		User,
 		Resource,
+		Notification
 	]
 
 	def __init__(self):
@@ -113,6 +115,12 @@ class Collection:
 		return proxy
 
 	def find_proxies(self, _type, _id):
+		""" Détection des proxies qui devrait être supprimé
+		après la suppression d'une donnée parent.
+		Par exemple la suppression d'un Account doit supprimer
+		les proxies User obtenus par les groupes.
+		"""
+
 		raise NotImplementedError
 
 	def delete(self, data, delete_proxies):
@@ -131,6 +139,7 @@ class Collection:
 		return set()
 
 	def delete_proxy(self, proxy, delete_proxies):
+		print("delete proxy", proxy)
 		self.delete_proxy_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)

@@ -83,7 +83,7 @@ class XMLConverter:
 		return queue
 
 	def _id_to_proxy(self, _id, _type):
-		return DataProxy(_id, _type, self.collection)
+		return self.collection._data_or_proxy(_id, _type)
 
 	def _ids_to_proxies(self, ids, _type):
 		return {self._id_to_proxy(_id, _type) for _id in ids}

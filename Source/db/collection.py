@@ -243,12 +243,14 @@ class DbCollection(Collection):
 		# Recherche dans le cache
 		_type, category = self._datas.get(_type)
 		data = category.get(_id, None)
+		created = False
 
 		if data is None:
 			row = self._get_row(_id, _type.db_table)[0]
 			data = category[_id] = self._load(_id, _type, row)
+			created = True
 
-		return data
+		return data, created
 
 	def load_events(self, agenda, from_date, to_date):
 		""" Charge les événements débutant entre deux dates. """
