@@ -15,14 +15,17 @@ class ClientCollection(Collection):
 		Si l'id correspond à une donné déjà existante, il n'y a pas de conversion.
 		"""
 
-		# Sécurité pour éviter les rechargements.
-		_id = xml["id"]
-		data = self._datas[_type].get(_id, None)
+		data = self.converter.to_data(_type, xml)
 
-		if data is None:
-			data = self.converter.to_data(_type, xml)
-			# Enregistrement de la nouvelle donnée.
-			self._register_data(data)
+		# Sécurité pour éviter les rechargements.
+
+		if not isinstance(data, DataProxy):
+			exiting_data = self._datas[_type].get(data.id, None)
+			if exiting_data is None:
+				# Enregistrement de la nouvelle donnée.
+				self._register_data(data)
+			else:
+				data = exiting_data
 
 		return data
 
@@ -79,6 +82,6 @@ class ClientCollection(Collection):
 		update_queue = self.converter.queue_to_xml(self.update_queue)
 		update_relations_queue = self.converter.queue_to_xml(self.update_relations_queue)
 		delete_queue = self.converter.queue_to_xml(self.delete_queue)
-		delete_proxy_queue = self.converter.queue_to_xml(self.delete_proxy_queue)
 
-		self.server.flush(new_queue, update_queue, update_relations_queue, delete_queue, delete_proxy_queue)
+		# Envoie des file d'attente de création/modification/suppression au serveur.
+		self.server.flush(new_queue, update_queue, update_relations_queue, delete_queue)

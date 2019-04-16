@@ -18,9 +18,6 @@ class Server:
 		self.collection = collection
 		self.converter = XMLConverter(self.collection)
 
-		# Liste des noms des types supportés et leur association.
-		self.supported_types_name = {type.db_table : type for type in self.collection.supported_types}
-
 	def _function_to_xml(self, func, *args):
 		data = func(*args)
 
@@ -28,7 +25,7 @@ class Server:
 
 	@log_net_func
 	def find_proxies(self, type_name, _id):
-		_type = self.supported_types_name[type_name]
+		_type = self.collection.supported_types_name[type_name]
 
 		proxies = self.collection.find_proxies(_type, _id)
 		proxy_dict = {type.db_table : set() for type in self.collection.supported_types}
@@ -42,7 +39,7 @@ class Server:
 
 	@log_net_func
 	def load(self, _id, type_name):
-		type = self.supported_types_name[type_name]
+		type = self.collection.supported_types_name[type_name]
 
 		return self._function_to_xml(self.collection.load, _id, type)
 
@@ -67,9 +64,16 @@ class Server:
 		return self._function_to_xml(self.collection.load_groups, sub_name)
 
 	@log_net_func
-	def flush(self, new_datas, update_datas, update_relation_datas, delete_datas, delete_proxies):
+	def flush(self, new_datas, update_datas, update_relation_datas, delete_datas):
 		log_net("New", new_datas)
 		log_net("Update", update_datas)
 		log_net("Update relations", update_relation_datas)
 		log_net("Delete", delete_datas)
-		log_net("Delete proxies", delete_proxies)
+
+		# Copie des files d'attentes
+		self.collection.new_queue |= self.converter.xml_to_queue(new_datas)
+		self.collection.update_queue |= self.converter.xml_to_queue(update_datas)
+		self.collection.update_relations_queue |= self.converter.xml_to_queue(update_relation_datas)
+		self.collection.delete_queue |= self.converter.xml_to_queue(delete_datas)
+
+		self.collection.flush()

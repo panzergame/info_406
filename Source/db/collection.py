@@ -27,6 +27,9 @@ class DbCollection(Collection):
 	def __init__(self, cursor):
 		super().__init__()
 
+		# Liste des noms des types supportés et leur association.
+		self.supported_types_name = {type.db_table : type for type in self.supported_types}
+
 		self.cursor = cursor
 
 ############### OUTILS ###############
@@ -250,7 +253,7 @@ class DbCollection(Collection):
 			data = category[_id] = self._load(_id, _type, row)
 			created = True
 
-		return data, created
+		return data
 
 	def load_events(self, agenda, from_date, to_date):
 		""" Charge les événements débutant entre deux dates. """
@@ -343,4 +346,5 @@ class DbCollection(Collection):
 
 		self.new_queue.clear()
 		self.update_queue.clear()
+		self.update_relations_queue.clear()
 		self.delete_queue.clear()

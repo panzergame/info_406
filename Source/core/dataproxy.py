@@ -42,7 +42,7 @@ class DataProxy(WeakRefered):
 	def __getattr__(self, name):
 		# Chargement de la donnée pour la première fois.
 		if "_data" not in dir(self):
-			data, created = self._collection.load(self._id, self._type)
+			data = self._collection.load(self._id, self._type)
 			self._data = data
 			self._data.proxy = self
 
@@ -55,7 +55,7 @@ class DataProxy(WeakRefered):
 		else:
 			# Chargement de la donnée pour la première fois.
 			if "_data" not in dir(self):
-				data, created = self._collection.load(self._id, self._type)
+				data = self._collection.load(self._id, self._type)
 				self._data = data
 				self._data.proxy = self
 

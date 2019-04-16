@@ -53,6 +53,7 @@ class XMLConverter:
 			elif isinstance(data, Resource):
 				attrs = ("name", "location", "capacity", "group")
 			else:
+				print(data)
 				raise TypeError("Invalid data type to XML conversion {}".format(type(data)))
 
 			# Attributs communs.
@@ -68,7 +69,7 @@ class XMLConverter:
 			data_xml = self.to_xml(data)
 
 			# Association dans une categorie par type.
-			type_name = type(data).__name__
+			type_name = data.data_type.__name__
 			if type_name in xml:
 				xml[type_name].append(data_xml)
 			else:
@@ -96,7 +97,7 @@ class XMLConverter:
 	def to_data(self, _type, xml):
 		# Support des proxies.
 		if isinstance(xml, int):
-			return self.collection._data_or_proxy(xml)
+			return self.collection._data_or_proxy(xml, _type)
 
 		_id = xml["id"]
 		if issubclass(_type, Account):

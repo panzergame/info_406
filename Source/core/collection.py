@@ -42,17 +42,16 @@ class Collection:
 		self.update_queue = set()
 		self.update_relations_queue = set()
 		self.delete_queue = set()
-		self.delete_proxy_queue = set()
 
 	def _register_data(self, data):
 		assert(data.id != -1)
 
-		self._datas[type(data)][data.id] = data
+		self._datas[data.data_type][data.id] = data
 
 	def _unregister_data(self, data):
 		assert(data.id != -1)
 
-		self._datas[type(data)].pop(data.id)
+		self._datas[data.data_type].pop(data.id)
 
 	def _register_proxy(self, proxy):
 		self._data_proxies[proxy.data_type][proxy.id] = proxy
@@ -115,7 +114,7 @@ class Collection:
 		return proxy
 
 	def find_proxies(self, _type, _id):
-		""" Détection des proxies qui devrait être supprimé
+		""" Détection des proxies qui devrait être supprimés
 		après la suppression d'une donnée parent.
 		Par exemple la suppression d'un Account doit supprimer
 		les proxies User obtenus par les groupes.
@@ -131,7 +130,7 @@ class Collection:
 			self._unregister_data(data)
 
 			if delete_proxies:
-				proxies = self.find_proxies(type(data), data.id)
+				proxies = self.find_proxies(data.data_type, data.id)
 				self._delete_proxies(proxies)
 
 				return proxies
@@ -139,8 +138,7 @@ class Collection:
 		return set()
 
 	def delete_proxy(self, proxy, delete_proxies):
-		print("delete proxy", proxy)
-		self.delete_proxy_queue.add(proxy)
+		self.delete_queue.add(proxy)
 		# Désenregistrement du proxy.
 		self._unregister_proxy(proxy)
 
