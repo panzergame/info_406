@@ -33,6 +33,8 @@ class XMLConverter:
 	def to_xml(self, data):
 		if isinstance(data, set) or isinstance(data, list):
 			return [self.to_xml(item) for item in data]
+		elif isinstance(data, DataProxy):
+			return data.id
 		else:
 			if isinstance(data, Account):
 				attrs = ("users", "login", "mdp", "email")
@@ -92,6 +94,10 @@ class XMLConverter:
 		return {self.to_data(_type, subxml) for subxml in xml}
 
 	def to_data(self, _type, xml):
+		# Support des proxies.
+		if isinstance(xml, int):
+			return self.collection._data_or_proxy(xml)
+
 		_id = xml["id"]
 		if issubclass(_type, Account):
 			return _type(_id, self.collection,
