@@ -56,8 +56,8 @@ class SessionServer:
 			func = getattr(server, name)
 			return func(*func_args)
 
-with SimpleXMLRPCServer(('localhost', 8000), allow_none=True, use_builtin_types=True) as server:
-    server.register_instance(SessionServer())
+server = SimpleXMLRPCServer(('localhost', 8000), allow_none=True, use_builtin_types=True)
+server.register_instance(SessionServer())
 
-    # Run the server's main loop
-    server.serve_forever()
+# Run the server's main loop
+server.serve_forever()
