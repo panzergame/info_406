@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from server import *
+from db import *
 
-import xmlrpc.client
+import mysql.connector
 
 # TEMP
 import xml.etree.ElementTree as ET
@@ -12,12 +12,18 @@ root = tree.getroot()
 
 login = root.find("login").text
 password = root.find("password").text
-server = root.find("server").text
+database = root.find("database").text
 # TEMP
 
-class ClientCollection(ServerClientCollection):
+class ClientCollection(DbCollection):
 	def __init__(self):
-		s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
+		self.conn = mysql.connector.connect(host="localhost", user=login, password=password, database=database)
 
-		super().__init__(s)
+		super().__init__(self.conn)
+
+	def flush(self):
+		self.conn.commit()
+
+	def close(self):
+		self.cursor.close()
 	
