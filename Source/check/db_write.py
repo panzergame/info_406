@@ -3,17 +3,17 @@
 from datetime import timedelta
 from .db_open import *
 
-account = Account.new(collection, set(), "root", "root", "michel@gmail.com")
-toto_agenda = Agenda.new(collection, "Personnel Toto", set(), set())
-tata_agenda = Agenda.new(collection, "Personnel Tata", set(), set())
-work_agenda = Agenda.new(collection, "Travail", set(), set())
-cheval_agenda = Agenda.new(collection, "Cheval", set(), set())
+account = Account.new(collection, "root", "root", "michel@gmail.com")
+toto_agenda = Agenda.new(collection, "Personnel Toto")
+tata_agenda = Agenda.new(collection, "Personnel Tata")
+work_agenda = Agenda.new(collection, "Travail")
+cheval_agenda = Agenda.new(collection, "Cheval")
 
-usmb = Group.new(collection, "USMB", set(), set(), set(), set())
-cheval = Group.new(collection, "Le cheval c'est trop génial !", set(), set(), set(), set())
+usmb = Group.new(collection, "USMB")
+cheval = Group.new(collection, "Le cheval c'est trop génial !")
 
-toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656", set(), set())
-tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656", set(), set())
+toto = User.new(collection, "Toto", "Dupont", "toto@mail.com", "0656565656")
+tata = User.new(collection, "Tata", "Du…", "toto@mail.com", "0656565656")
 
 toto.agenda = toto_agenda
 tata.agenda = tata_agenda

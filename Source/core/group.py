@@ -6,14 +6,14 @@ from .dataproperty import *
 class Group(Data):
 	name = DataProperty("name")
 
-	def __init__(self, _id, collection, name, admins, subscribers, agendas, resources):
+	def __init__(self, _id, collection, name, admins=set(), subscribers=set(), agendas=set(), resources=set()):
 		super().__init__(_id, collection)
 
 		self._name = name
 		self.admins = WeakRefSet(admins, self)
 		self.subscribers = WeakRefSet(subscribers, self)
 		self.agendas = agendas
-		self.resources = resources
+		self.resources = WeakRefSet(resources, self)
 
 	def __repr__(self):
 		return "{}, {} agendas, {} admins, {} subscribers".format(\

@@ -1,6 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from .db_open import *
+from server import *
+
+import xmlrpc.client
+
+from client import *
+from core import *
+
+s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
+
+collection = ServerClientCollection(s)
 
 account = collection.load_account("root", "root")
 print("Account:", account)
@@ -26,5 +35,3 @@ groups = collection.load_groups("SMB")
 print(groups)
 
 collection.flush()
-
-cursor.close()

@@ -2,11 +2,12 @@
 
 from .dataweak import *
 
-""" Classe d'une donnée non chargé de la base de donnée
-Chaque proxy est identifié par une id (int) et utilise une collection pour charger
-la donnée identifié lors d'un accèss à un membre de la donnée.
-"""
 class DataProxy(WeakRefered):
+	""" Classe d'une donnée non chargé de la base de donnée
+	Chaque proxy est identifié par une id (int) et utilise une collection pour charger
+	la donnée identifié lors d'un accèss à un membre de la donnée.
+	"""
+
 	def __init__(self, _id, type, collection):
 		super().__init__()
 
@@ -30,18 +31,19 @@ class DataProxy(WeakRefered):
 	def __class__(self):
 		return self._type
 
-	def delete(self, owner=None, destruct_data=True):
+	def delete(self, owner=None, destruct_data=True, delete_proxies=True):
 		super().delete()
 
 		if destruct_data and "_data" in dir(self):
 			self._data.delete(owner, destruct_proxy=False)
 
-		self._collection.delete_proxy(self)
+		self._collection.delete_proxy(self, delete_proxies)
 
 	def __getattr__(self, name):
 		# Chargement de la donnée pour la première fois.
 		if "_data" not in dir(self):
-			self._data = self._collection.load(self._id, self._type)
+			data = self._collection.load(self._id, self._type)
+			self._data = data
 			self._data.proxy = self
 
 		return getattr(self._data, name)
@@ -53,14 +55,15 @@ class DataProxy(WeakRefered):
 		else:
 			# Chargement de la donnée pour la première fois.
 			if "_data" not in dir(self):
-				self._data = self._collection.load(self._id, self._type)
+				data = self._collection.load(self._id, self._type)
+				self._data = data
 				self._data.proxy = self
 
 			return setattr(self._data, name, value)
 
 	def __repr__(self):
 		if "_data" not in dir(self):
-			return "[Proxy of {} type {}]".format(self._id, self._type.__name__)
+			return "[Proxy of {} type {}, {}]".format(self._id, self._type.__name__, hex(id(self)))
 		else:
 			return self._data.__repr__()
 

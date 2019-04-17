@@ -15,7 +15,7 @@ class WeakRefered:
 	def delete(self):
 		#print("delete refs")
 		for ref in self._weakrefs:
-			ref.delete(self)
+			ref.delete(owner=self, delete_proxies=False)
 
 class WeakRefSet:
 	def __init__(self, items=set(), owner=None):
@@ -56,9 +56,9 @@ class WeakRefSet:
 		else:
 			raise TypeError()
 
-	def delete(self, refered):
+	def delete(self, owner=None, delete_proxies=False):
 		self._update_owner()
-		return self.discard(refered)
+		return self.discard(owner)
 
 	def discard(self, item):
 		self._update_owner()

@@ -11,7 +11,7 @@ class User(Data):
 	tel = DataProperty("tel")
 	account = DataOwnerProperty("account")
 
-	def __init__(self, _id, collection, first_name, last_name, email, tel, agenda, groups, account=None):
+	def __init__(self, _id, collection, first_name, last_name, email, tel, agenda=None, groups=set(), account=None):
 		""" création d'un utilisateur"""
 
 		super().__init__(_id, collection)
@@ -21,7 +21,7 @@ class User(Data):
 		self._email = email
 		self._tel = tel
 		self._agenda = agenda
-		self.groups = groups
+		self.groups = WeakRefSet(groups)
 		self._account = DataOwnerProperty.init(account, self)
 
 	def __repr__(self):

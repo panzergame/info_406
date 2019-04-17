@@ -8,7 +8,7 @@ class Account(Data):
 	mdp = DataProperty("mdp")
 	email = DataProperty("email")
 
-	def __init__(self, _id, collection, users, login, mdp, email):
+	def __init__(self, _id, collection, login, mdp, email, users=set()):
 		"""Création d'un compte.
 		   @param collection : la collection à passer (dans le fichier common).
 		   @param users : liste des users sur le compte
