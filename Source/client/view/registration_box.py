@@ -8,15 +8,17 @@ from .link_as_button import *
 
 class RegistrationBox(Gtk.Grid):
 
-	def __init__(self):
+	def __init__(self, common):
 
 		Gtk.Grid.__init__(self)
 		self.set_border_width(20)
 		self.set_column_spacing(10)
 		self.set_row_spacing(10)
 
+		self.common = common
+
 		title = Gtk.HeaderBar()
-		title.props.title = "S'inscrire à [comment ça s'apppelle ?!]"
+		title.props.title = "S'inscrire"
 		nameL= Gtk.Label("Nom d'utilisateur:")
 		nameE= Gtk.Entry()
 		mailL= Gtk.Label("Adresse e-mail:")
@@ -43,7 +45,8 @@ class RegistrationBox(Gtk.Grid):
 		self.attach(AlrAccount, 0, 6, 4, 1)
 
 	def registration(self, button):
-		print("registration")
+		self.common.is_connected = True
 
 	def go_to_connection(self, link):
-		print("go_to_connection")
+		self.common.has_account = True
+

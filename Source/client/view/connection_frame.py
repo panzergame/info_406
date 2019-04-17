@@ -11,7 +11,26 @@ from .registration_box import *
 
 class ConnectionWindow(Gtk.Window):
 
-	def __init__(self):
+	def __init__(self, common):
 		Gtk.Window.__init__(self, title="Se connecter")
-		self.add(ConnectionBox())
+		self.common = common
+		self.common.add_observer(self)
+
+		self.box = self.choose_box()
+		self.add(self.box)
+
 		self.set_resizable(False)
+
+	def choose_box(self):
+		if self.common.has_account:
+			box = ConnectionBox(self.common)
+		else:
+			box = RegistrationBox(self.common)
+		return box
+
+	def update(self, common):
+		self.remove(self.box)
+		self.common = common
+		self.box = self.choose_box()
+		self.add(self.box)
+		self.box.show_all()

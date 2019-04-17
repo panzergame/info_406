@@ -5,6 +5,8 @@ from datetime import datetime
 
 class Common:
 	def __init__(self, collection):
+		self._is_connected = False
+		self._has_account = True
 		self._user_clicked = None
 		self._group_clicked = None
 		self._agenda_displayed = None
@@ -83,4 +85,22 @@ class Common:
 	@current_search_text.setter
 	def current_search_text(self, current_search_text):
 		self._current_search_text = current_search_text
+		self._notify()
+
+	@property
+	def is_connected(self):
+		return self._is_connected
+
+	@is_connected.setter
+	def is_connected(self, is_connected):
+		self._is_connected = is_connected
+		self._notify()
+
+	@property
+	def has_account(self):
+		return self._has_account
+
+	@has_account.setter
+	def has_account(self, has_account):
+		self._has_account = has_account
 		self._notify()

@@ -9,9 +9,12 @@ from .link_as_button import *
 
 class ConnectionBox(Gtk.Grid):
 
-	def __init__(self):
+	def __init__(self, common):
 
 		Gtk.Grid.__init__(self)
+
+		self.common = common
+
 		self.set_border_width(20)
 		self.set_column_spacing(10)
 		self.set_row_spacing(10)
@@ -39,7 +42,7 @@ class ConnectionBox(Gtk.Grid):
 		self.attach(noAccount, 0, 5, 4, 1)
 
 	def go_to_registration(self, button):
-		print("go_to_registration")
+		self.common.has_account = False
 
 	def connection(self, link):
-		print("connection")
+		self.common.is_connected = True
