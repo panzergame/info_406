@@ -21,7 +21,7 @@ class Window:
 
 	def update(self, common):
 		if self.frame.get_property("visible") and self.connected != common.is_connected:
-			self.frame.hide()
+			self.frame.destroy()
 			win = Window(common)
 			win.main()
 
