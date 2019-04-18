@@ -21,7 +21,9 @@ class Common:
 		self.observers.add(observer)
 
 	def _notify(self):
-		for obs in self.observers:
+		# Copie pour éviter l'iteration sur une liste modifié.
+		observers = self.observers.copy()
+		for obs in observers:
 			obs.update(self)
 
 	@property
