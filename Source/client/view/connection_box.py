@@ -4,6 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from .link_as_button import *
+from client import *
 
 
 
@@ -21,28 +22,46 @@ class ConnectionBox(Gtk.Grid):
 
 		title = Gtk.HeaderBar()
 		title.props.title = "Accéder à mon agenda"
+		self.ErrLabel = Gtk.Label("")
 		nameL= Gtk.Label("Nom d'utilisateur:")
 		nameE= Gtk.Entry()
 		passwordL = Gtk.Label("Mot de passe:")
-		passwordE = Gtk.Entry()
+		self.passwordE = Gtk.Entry()
+		self.passwordE.set_visibility(False)
 		memory = Gtk.CheckButton("Se souvenir de moi")
 		connection = Gtk.Button("Se connecter")
-		connection.connect("clicked", self.connection)
+		connection.connect("clicked", self.connection, nameE, self.passwordE)
 		noAccount = LinkAsButton("", "Par encore de compte? Inscrivez-vous ici...")
 		noAccount.connect("activate_link", self.go_to_registration)
 
 
 		self.attach(title, 0, 0, 4, 1)
-		self.attach(nameL, 0, 1, 2, 1)
+		self.attach(self.ErrLabel, 0, 1, 4, 1)
+		self.attach(nameL, 0, 2, 2, 1)
 		self.attach_next_to(nameE, nameL, Gtk.PositionType.RIGHT, 2, 1)
-		self.attach(passwordL, 0, 2, 2, 1)
-		self.attach_next_to(passwordE, passwordL, Gtk.PositionType.RIGHT, 2, 1)
-		self.attach(memory, 0, 3, 4, 1)
-		self.attach(connection, 1, 4, 2, 1)
-		self.attach(noAccount, 0, 5, 4, 1)
+		self.attach(passwordL, 0, 3, 2, 1)
+		self.attach_next_to(self.passwordE, passwordL, Gtk.PositionType.RIGHT, 2, 1)
+		self.attach(memory, 0, 4, 4, 1)
+		self.attach(connection, 1, 5, 2, 1)
+		self.attach(noAccount, 0, 6, 4, 1)
 
 	def go_to_registration(self, button):
 		self.common.has_account = False
 
-	def connection(self, link):
-		self.common.is_connected = True
+	def connection(self, link, name, password):
+		str_name = name.get_text()
+		str_password = password.get_text()
+		try:
+			account = self.common.collection.load_account(str_name, str_password)
+			self.common.account = account
+			self.common.user_clicked = list(self.common.account.users)[0]
+			self.common.agenda_displayed = self.common.user_clicked.agenda
+			self.common.event_clicked = None
+			self.common.day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+			self.common.is_connected = True
+		except ValueError:
+			self.InvalidAccountMessage()
+
+	def InvalidAccountMessage(self):
+		self.passwordE.set_text("")
+		self.ErrLabel.set_markup("<span foreground='red' font_style='italic'>Identifiant ou mot de passe incorrect. Veuillez réessayer.</span>")
