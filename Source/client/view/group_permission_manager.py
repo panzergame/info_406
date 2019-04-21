@@ -89,6 +89,7 @@ class AdminSearchResultsTree(Gtk.Box):
 		self.tree_view.append_column(c3)
 
 		self.add(self.tree_view)
+
 		self.tree_view.set_property("expand","True")
 		self.tree_view.get_selection().set_mode(Gtk.SelectionMode.NONE)
 

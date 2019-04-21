@@ -2,7 +2,7 @@
 # Fichier contenant les classes qui servent à manipuler les données utilisées par
 # le dialogue de gestion des permissions des membres d'un groupe
 
-class PermissionDialogModel():
+class PermissionManagerModel():
 	def __init__(self, collection, group):
 		self.collection = collection
 		self.group = group
@@ -57,11 +57,13 @@ class PermissionDialogModel():
 	def stay_admin(self, admin):
 		self.admin_to_member.remove(admin)
 
-	def get_admins_by_name(self, name):
+	def get_admin_search_results(self):
 		pass
+		#return self.collection.load_members_by_name_from_group()
 
-	def get_members_by_name(self, name):
+	def get_member_search_results(self, name):
 		pass
+		#return self.collection.load_admins_by_name_from_group()
 
 	def apply_changes(self):
 		#Inscription des changements dans la BDD
