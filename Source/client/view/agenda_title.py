@@ -16,12 +16,13 @@ class AgendaTitleBox(Gtk.HBox):
 		self.add(self.hb)
 	
 	def setTitleString(self):
-		if self.common.agenda_displayed.user is None:
-			text = "{} ({})".format(self.common.agenda_displayed.name, self.common.agenda_displayed.group.name)
-		else:
-			text = "Agenda de {} {}".format(self.common.agenda_displayed.user.first_name,self.common.agenda_displayed.user.last_name)
+		if self.common.agenda_displayed is not None:
+			if self.common.agenda_displayed.user is None:
+				text = "{} ({})".format(self.common.agenda_displayed.name, self.common.agenda_displayed.group.name)
+			else:
+				text = "Agenda de {} {}".format(self.common.agenda_displayed.user.first_name,self.common.agenda_displayed.user.last_name)
 
-		self.hb.props.title = text
+			self.hb.props.title = text
 	
 	def update(self, common):
 		self.setTitleString()

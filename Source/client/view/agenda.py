@@ -45,7 +45,10 @@ class AgendaEvents(Gtk.DrawingArea):
 			now = self.common.day
 			start = now - timedelta(days=now.weekday())
 			end = now + timedelta(days=7)
-			events = self.common.agenda_displayed.all_events(start, end)
+			if self.common.agenda_displayed is not None:
+				events = self.common.agenda_displayed.all_events(start, end)
+			else:
+				events = set()
 			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
 			
 		Gtk.DrawingArea.__init__(self)

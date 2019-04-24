@@ -93,7 +93,8 @@ class AccountBox(Gtk.VBox):
 		print(self.list[path][0], self.list[path][2])
 
 	def update(self, common):
-		self.group_list.set_groups(self.common.user_clicked.groups)
+		if self.common.user_clicked is not None:
+			self.group_list.set_groups(self.common.user_clicked.groups)
 
 		self.list.clear()
 		for user in common.account.users:
