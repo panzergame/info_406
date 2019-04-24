@@ -1,0 +1,5 @@
+.. core
+
+.. module:: core
+
+

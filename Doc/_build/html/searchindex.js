@@ -1,0 +1,1 @@
+Search.setIndex({docnames:["core","index"],envversion:53,filenames:["core.rst","index.rst"],objects:{"":{core:[0,0,0,"-"]}},objnames:{"0":["py","module","Python module"]},objtypes:{"0":"py:module"},terms:{index:1,modul:1,pag:1,recherch:1},titles:["&lt;no title&gt;","Welcome to agenda\u2019s documentation!"],titleterms:{agend:1,and:1,document:1,indic:1,tabl:1,welcom:1}})
