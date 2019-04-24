@@ -93,9 +93,6 @@ class AccountBox(Gtk.VBox):
 
 		self.common._notify()
 
-
-
-
 	def on_up_user_clicked(self, widget):
 		print("modif")
 
@@ -105,7 +102,6 @@ class AccountBox(Gtk.VBox):
 
 	def update(self, common):
 		self.group_list.set_groups(self.common.user_clicked.groups)
-
 		self.list.clear()
 		for user in common.account.users:
 			self.list.append((user.first_name, user.last_name, False, user))
