@@ -9,6 +9,10 @@ from .group import *
 
 class AccountBox(Gtk.VBox):
 
+	SELECTION_ROW = 2
+	USER_ROW = 3
+	FIRSTNAME_ROW = 0
+
 	def __init__(self, common):
 		super().__init__()
 
@@ -59,7 +63,7 @@ class AccountBox(Gtk.VBox):
 		self.update(self.common)
 
 	def on_user_changed(self, model, path, column):
-		user = self.list[path][3]
+		user = self.list[path][AccountBox.USER_ROW]
 		self.common.user_clicked = user
 		self.common.agenda_displayed = user.agenda
 		self.group_list.set_groups(user.groups)
@@ -70,16 +74,23 @@ class AccountBox(Gtk.VBox):
 
 	def on_del_user_clicked(self, widget):
 		print("delete user")
+		dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, "Alerte : Suppression impossible")
+		dialog.format_secondary_text("Il doit imperativement rester au moins 1 utilisateur lié à ce compte")
+
 		nb_users = len(self.list)
 		nb_selected = 0
 		for row in self.list:
-			if(row[2]):
+			if(row[AccountBox.SELECTION_ROW]):
 				nb_selected = nb_selected + 1
 		if(not(nb_users == nb_selected)):
 			for row in self.list:
-				if (row[2]):
-					row[3].delete()
+				if (row[AccountBox.SELECTION_ROW]):
+					row[AccountBox.USER_ROW].delete()
 					print(self.common.account)
+		else:
+			dialog.run()
+			dialog.destroy()
+
 		self.common._notify()
 
 
@@ -89,8 +100,8 @@ class AccountBox(Gtk.VBox):
 		print("modif")
 
 	def on_selected(self, widget, path):
-		self.list[path][2] = not self.list[path][2]
-		print(self.list[path][0], self.list[path][2])
+		self.list[path][AccountBox.SELECTION_ROW] = not self.list[path][AccountBox.SELECTION_ROW]
+		print(self.list[path][AccountBox.FIRSTNAME_ROW], self.list[path][AccountBox.SELECTION_ROW])
 
 	def update(self, common):
 		if self.common.user_clicked is not None:
