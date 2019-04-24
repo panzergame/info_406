@@ -9,7 +9,8 @@ class Window:
 
 		self.common = common
 
-		if self.common.is_connected:
+		#if self.common.is_connected:
+		if True:
 			self.frame = MainFrame(self.common)
 			self.connected = True
 		else:

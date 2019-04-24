@@ -5,14 +5,16 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
 
+from .tree import *
+
 class GroupList(Gtk.VBox):
 	def __init__(self, common):
 		super().__init__()
 		self.common = common
 
-		self.tree = Gtk.TreeStore(str, bool, object)
+		self.tree = Tree(str, bool, object)
 
-		view = Gtk.TreeView(self.tree)
+		self.view = Gtk.TreeView(self.tree)
 		render_agenda = Gtk.CellRendererText()
 		agenda_column = Gtk.TreeViewColumn("", render_agenda, text=0)
 
@@ -21,12 +23,12 @@ class GroupList(Gtk.VBox):
 
 		render_subscribe.connect("toggled", self.on_toggled)
 
-		view.append_column(agenda_column)
-		view.append_column(subscribe_column)
+		self.view.append_column(agenda_column)
+		self.view.append_column(subscribe_column)
 
-		view.connect("row-activated", self.on_agenda_changed)
+		self.view.connect("row-activated", self.on_agenda_changed)
 
-		self.add(view)
+		self.add(self.view)
 
 	def on_toggled(self, widget, path):
 		name, current_value, item = self.tree[path]
@@ -47,9 +49,6 @@ class GroupList(Gtk.VBox):
 				else:
 					agenda.link_agenda(item)
 
-				print(agenda.linked_agendas)
-				self.common._notify()
-
 				self.tree[path][1] = not self.tree[path][1]
 
 		self.common._notify()
@@ -62,9 +61,15 @@ class GroupList(Gtk.VBox):
 			self.common.agenda_displayed = item
 
 	def set_groups(self, groups):
-		self.tree.clear()
+		self.view.set_model(None)
 
+		groups_dict = {}
 		for group in groups:
-			iter = self.tree.append(None, (group.name, (group in self.common.user_clicked.groups), group))
+			agenda_list = []
 			for agenda in group.agendas:
-				self.tree.append(iter, (agenda.name, (agenda in self.common.agenda_displayed.linked_agendas), agenda))
+				agenda_list.append((agenda.name, (agenda in self.common.agenda_displayed.linked_agendas), agenda))
+			groups_dict[(group.name, (group in self.common.user_clicked.groups), group)] = agenda_list
+
+		self.tree.clear()
+		self.tree.set(groups_dict)
+		self.view.set_model(self.tree)
