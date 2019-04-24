@@ -17,7 +17,7 @@ server = root.find("server").text
 
 class ClientCollection(ServerClientCollection):
 	def __init__(self):
-		s = xmlrpc.client.ServerProxy('http://localhost:8000', use_builtin_types=True)
+		s = xmlrpc.client.ServerProxy(server, use_builtin_types=True)
 
 		super().__init__(s)
 	
