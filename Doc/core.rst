@@ -1,5 +1,9 @@
-.. core
+Core
+====
 
 .. module:: core
 
 
+.. toctree::
+
+   agenda
