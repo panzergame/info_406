@@ -10,7 +10,6 @@ from dateutil.relativedelta import *
 
 class Agenda(Data):
 	name = DataProperty("name")
-	last_sync = DataProperty("last_sync")
 	user = DataOwnerProperty("user")
 	group = DataOwnerProperty("group")
 
@@ -144,27 +143,41 @@ class Agenda(Data):
 
 		return last_events
 
+	def event_intersect(self, event):
+		for _event in self.all_events(event.start, event.end):
+			if event.intersect(_event):
+				return True
+
+		return False
+
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
 
 		"""
 		
 		Récuperer tout les événements distant
+		Calcul de collision
+		Mise en attente
 		
 		"""
 
-		# Les derniers événements des agendas liée.
+		# Les derniers événements des agendas liées.
 		last_events = set()
 		# Récupération des derniers événements.
-		for agenda in self.linked_agendas:
-			last_events |= agenda.last_events(self.last_sync)
+		for linked_agenda in self._linked_agendas:
+			last_events |= linked_agenda.agenda.last_events(linked_agenda.last_sync)
+			linked_agenda.last_sync = datetime.now()
 
 		# Création des notifications.
 		for event in last_events:
-			notification = Notification.new(self.collection, event, self)
-			self.notifications.add(notification)
+			# Calcul de l'état de la notification.
+			if self.event_intersect(event):
+				status = Notification.AWAITING_COLLISION
+			else:
+				status = Notification.AWAITING_NO_COLLISION
 
-		self.last_sync = datetime.now()
+			notification = Notification.new(self.collection, event, self, status)
+			self.notifications.add(notification)
 
 	def add_notification(self, notification):
 		""" Ajout d'une notification de cet agenda. """
@@ -184,4 +197,7 @@ class Agenda(Data):
 
 	def unlink_agenda(self, agenda):
 		""" Suppression d'un lien vers un autre agenda. """
-		#self.linked_agendas.discard(agenda) # TODO
+
+		for linked_agenda in self._linked_agendas:
+			if linked_agenda.agenda is agenda:
+				self._linked_agendas.discard(linked_agenda)
