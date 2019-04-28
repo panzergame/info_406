@@ -61,7 +61,11 @@ class Event(Data):
 		self.resources.discard(resource)
 
 	def intersect(self, event):
-		return False # TODO
+		""" Test l'intersection entre deux événements """
+		return event.start <= self.start < event.end or \
+			   event.start < self.end < event.end or \
+			   self.start <= event.start < self.end or \
+			   self.start < event.end < self.end
 
 	def __repr__(self):
 		"""affiche l'event"""

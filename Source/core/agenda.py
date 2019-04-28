@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .event import *
+from .linkedagenda import *
 from .notification import *
 from .data import *
 from .dataproperty import *
@@ -13,12 +14,12 @@ class Agenda(Data):
 	user = DataOwnerProperty("user")
 	group = DataOwnerProperty("group")
 
-	def __init__(self, _id, collection, name, linked_agendas=set(), notifications=set(), ignored_events=set(),
-			  last_sync=None, user=None, group=None):
+	def __init__(self, _id, collection, name, linked_agendas=set(), notifications=set(),
+			  user=None, group=None):
 		"""Création d'un agenda.
 			@param collection : la collection a passer (dans le fichier common).
 			@param name : nom de l'agenda
-			@param linked_agendas : liste des agendas associés à l'agenda
+			@param linked_agendas : liste des agendas associés à l'agenda.
 			@param notifications : liste des notifications liés à l'agenda.
 			@param ignored_events : les évènements ni en attentes ?
 			"""
@@ -26,15 +27,10 @@ class Agenda(Data):
 		super().__init__(_id, collection)
 
 		self._name = name
-		self.linked_agendas = WeakRefSet(linked_agendas, self)
+		self._linked_agendas = WeakRefSet(linked_agendas, self)
 		self.notifications = WeakRefSet(notifications)
-		self.ignored_events = WeakRefSet(ignored_events, self)
 		self._user = DataOwnerProperty.init(user, self)
 		self._group = DataOwnerProperty.init(group, self)
-		if last_sync is None:
-			self._last_sync = datetime.now()
-		else:
-			self._last_sync = last_sync
 
 		# Cache d'événement par block d'un mois.
 		# En réalité par block de tous événements commencant dans le même mois.
@@ -88,6 +84,10 @@ class Agenda(Data):
 
 		return chunks
 
+	@property
+	def linked_agendas(self):
+		return set(map(lambda x : x.agenda, self._linked_agendas))
+
 	def add_event(self, event):
 		""" Ajout d'un evenement. """
 		# Actualisation de son propriétaire.
@@ -129,7 +129,7 @@ class Agenda(Data):
 		for agenda in self.linked_agendas:
 			events |= agenda.all_events(from_date, to_date)
 
-		return (events - self.ignored_events)
+		return (events)# - self.ignored_events)
 
 	def last_events(self, last_date):
 		""" Chargement de plus d'événements récent """
@@ -146,6 +146,12 @@ class Agenda(Data):
 
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
+
+		"""
+		
+		Récuperer tout les événements distant
+		
+		"""
 
 		# Les derniers événements des agendas liée.
 		last_events = set()
@@ -167,13 +173,15 @@ class Agenda(Data):
 	def remove_notification(self, notification, ignore):
 		""" Suppression d'une notification de cet agenda. """
 		self.notifications.discard(notification)
-		if ignore:
-			self.ignored_events.add(notification.event)
+		"""if ignore:
+			self.ignored_events.add(notification.event)"""
 
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """
-		self.linked_agendas.add(agenda)
+
+		# Utilisation de la plus petite date pour signifier aucune synchronisation.
+		self._linked_agendas.add(LinkedAgenda(agenda, datetime(1, 1, 1)))
 
 	def unlink_agenda(self, agenda):
 		""" Suppression d'un lien vers un autre agenda. """
-		self.linked_agendas.discard(agenda)
+		#self.linked_agendas.discard(agenda) # TODO

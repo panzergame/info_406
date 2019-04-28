@@ -56,6 +56,8 @@ cheval.remove_agenda(cheval_agenda)
 state("Suppression d'un agenda :")
 cheval.add_agenda(cheval_agenda)
 
+toto_agenda.link_agenda(cheval_agenda)
+
 # Evenements
 
 def add(ag, start, end, type):

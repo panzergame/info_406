@@ -27,9 +27,14 @@ agenda = Agenda.new(collection, "Personnel Tata", set())
 
 today = datetime.now()
 hour = timedelta(hours=1)
+half = timedelta(minutes=30)
 ev = Event.new(collection, today, today + hour, "", "", set(), set())
+ev2 = Event.new(collection, today - hour, today + half, "", "", set(), set())
 
-agenda.add_event(ev)
+print(ev.intersect(ev))
+print(ev.intersect(ev2), ev2.intersect(ev))
 
-notif = Notification.new(collection, ev)
-ev.delete()
+#agenda.add_event(ev)
+
+#notif = Notification.new(collection, ev)
+#ev.delete()
