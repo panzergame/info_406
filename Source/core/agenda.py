@@ -32,7 +32,9 @@ class Agenda(Data):
 		self._group = DataOwnerProperty.init(group, self)
 
 		# Cache d'événement par block d'un mois.
-		# En réalité par block de tous événements commencant dans le même mois.
+		# Ces blocs continennent tous les événements recouvrant une partie d'un même mois.
+		# Si il existe des événements entre deux mois sur plusieurs jour, alors ils sont
+		# doublé dans les chunks de ces deux mois.
 		self._chunks = {}
 
 		# Cache des événements récents.
@@ -58,10 +60,10 @@ class Agenda(Data):
 		Tous les événements commencant dans le mois.
 		"""
 		col = self.collection
-		events = col.load_events(self, month_first_day, next_month_first_day)
+		events = WeakRefSet(col.load_events(self, month_first_day, next_month_first_day))
 
 		# Enregistrement de la page en cache.
-		self._chunks[month_first_day] = WeakRefSet(events)
+		self._chunks[month_first_day] = events
 
 		return events
 
@@ -92,9 +94,9 @@ class Agenda(Data):
 		# Actualisation de son propriétaire.
 		event.agenda = self
 
-		# Ajout dans le chunk.
-		chunk = self._get_chunks(event.start, event.start)[0]
-		chunk.add(event)
+		# Ajout dans les chunks.
+		for chunk in self._get_chunks(event.start, event.end):
+			chunk.add(event)
 
 		# Ajout d'un événement récent
 		self._last_events.add(event)
@@ -104,9 +106,12 @@ class Agenda(Data):
 		# Actualisation de son propriétaire.
 		event.agenda = None
 
-		# Suppression dans le chunk.
-		chunk = self._get_chunks(event.start, event.start)[0]
-		chunk.discard(event)
+		# Suppression dans les chunks.
+		for chunk in self._get_chunks(event.start, event.end):
+			chunk.discard(event)
+
+		# Suppression d'un potentielle événement récent
+		self._last_events.discard(event)
 
 	def events(self, from_date, to_date):
 		""" Obtention des événements propre à l'agenda sur
@@ -117,7 +122,7 @@ class Agenda(Data):
 		events = set()
 		for chunk in chunks:
 			for event in chunk:
-				if event.start >= from_date and event.start < to_date:
+				if event.intersect_range(from_date, to_date):
 					events.add(event)
 
 		return events
@@ -155,11 +160,13 @@ class Agenda(Data):
 
 		"""
 		
-		Récuperer tout les événements distant
-		Calcul de collision
-		Mise en attente
+		1 : Récuperer tout les événements distant
+		2 : Création des notifications
+		3 : Calcul de collision sur les notifications
 		
 		"""
+
+		# ==== 1 ====
 
 		# Les derniers événements des agendas liées.
 		last_events = set()
@@ -168,16 +175,35 @@ class Agenda(Data):
 			last_events |= linked_agenda.agenda.last_events(linked_agenda.last_sync)
 			linked_agenda.last_sync = datetime.now()
 
+		# ==== 2 ====
+
+		# Les nouvelles notifications.
+		new_notifications = set()
+
 		# Création des notifications.
 		for event in last_events:
-			# Calcul de l'état de la notification.
-			if self.event_intersect(event):
-				status = Notification.AWAITING_COLLISION
+			# Si un événement à été modifié, on ne doit pas recréer une notification.
+			for notif in self.notifications:
+				if notif.event is event:
+					notif.status = Notification.INVALID
+					break
 			else:
-				status = Notification.AWAITING_NO_COLLISION
+				notification = Notification.new(self.collection, event, self, Notification.INVALID)
+				new_notifications.add(notification)
 
-			notification = Notification.new(self.collection, event, self, status)
-			self.notifications.add(notification)
+		self.notifications |= new_notifications
+
+		# ==== 3 ====
+
+		# Calcul des collisions.
+		for notif in self.notifications:
+			events = self.events(notif.event.start, notif.event.end)
+			for event in events:
+				if event.intersect(notif.event):
+					notif.status = Notification.AWAITING_COLLISION
+					break
+			else:
+				notif.status = Notification.AWAITING_NO_COLLISION
 
 	def add_notification(self, notification):
 		""" Ajout d'une notification de cet agenda. """
@@ -198,6 +224,16 @@ class Agenda(Data):
 	def unlink_agenda(self, agenda):
 		""" Suppression d'un lien vers un autre agenda. """
 
+		# Suppression de l'agenda lié correspondant.
 		for linked_agenda in self._linked_agendas:
 			if linked_agenda.agenda is agenda:
 				self._linked_agendas.discard(linked_agenda)
+				break
+
+		# Suppression des notifications de cet agenda.
+		euthanazy_notifications = set()
+		for notif in self.notifications:
+			if notif.agenda is agenda:
+				euthanazy_notifications.add(notif)
+
+		self.notifications -= euthanazy_notifications

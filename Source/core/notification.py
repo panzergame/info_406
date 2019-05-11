@@ -8,12 +8,13 @@ class Notification(Data):
 	REJECTED = "Rejeté" # Rejeté définitivement.
 	AWAITING_NO_COLLISION = "En attente" # Sans collision mais en attente d'une décision.
 	ACCEPTED = "Accepté" # Accepté définitivement.
+	INVALID = "Invalid" # Pas encore affecté.
 
 	event = DataOwnerProperty("event")
 	agenda = DataOwnerProperty("agenda")
 	status = DataProperty("status")
 
-	def __init__(self, _id, collection, event, agenda, status):
+	def __init__(self, _id, collection, event, agenda, status=INVALID):
 		super().__init__(_id, collection)
 
 		self._event = DataOwnerProperty.init(event, self)

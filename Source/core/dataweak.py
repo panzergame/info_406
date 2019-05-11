@@ -40,9 +40,17 @@ class WeakRefSet:
 
 	def __ior__(self, other):
 		if type(other) == set:
+			for item in other:
+				item.new_ref(self)
+
 			self._set |= other
+			self._update_owner()
 		elif type(other) == WeakRefSet:
+			for item in other._set:
+				item.new_ref(self)
+
 			self._set |= other._set
+			self._update_owner()
 		else:
 			raise TypeError()
 
@@ -56,13 +64,30 @@ class WeakRefSet:
 		else:
 			raise TypeError()
 
+	def __isub__(self, other):
+		if type(other) == set:
+			removed = self._set - other
+		elif type(other) == WeakRefSet:
+			removed = self._set - other._set
+		else:
+			raise TypeError()
+
+		for item in removed:
+			item.del_ref(self)
+
+		self._set -= other
+
+		return self
+
 	def delete(self, owner=None, delete_proxies=False):
 		self._update_owner()
 		return self.discard(owner)
 
 	def discard(self, item):
 		self._update_owner()
+		item.del_ref(self)
 		return self._set.discard(item)
 
 	def add(self, item):
+		item.new_ref(self)
 		return self._set.add(item)

@@ -290,10 +290,10 @@ class DbCollection(Collection):
 		return data
 
 	def load_events(self, agenda, from_date, to_date):
-		""" Charge les événements débutant entre deux dates. """
+		""" Charge les événements se déroulant entre deux dates. """
 		return self._load_batched(DbEvent, "agenda", agenda.id,
-			"AND (start >= \"{}\" AND start < \"{}\")".format(
-				from_date, to_date))
+			"AND ((start >= \"{}\" AND start <= \"{}\") OR (end >= \"{}\" AND end <= \"{}\"))".format(
+				from_date, to_date, from_date, to_date))
 
 	def load_last_events(self, agenda, from_date, to_date):
 		""" Charge les événements créés ou midifiés entre deux dates. """

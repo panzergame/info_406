@@ -17,9 +17,9 @@ class Data(WeakRefered):
 	# Interface CRUD
 
 	@classmethod
-	def new(cls, collection, *args):
+	def new(cls, collection, *args, **kwargs):
 		# Enregistrement de la donnée dans la collection et création d'un id.
-		return collection.new(cls, *args)
+		return collection.new(cls, args, kwargs)
 
 	@classmethod
 	def load(cls, collection, _id):

@@ -62,10 +62,13 @@ class Event(Data):
 
 	def intersect(self, event):
 		""" Test l'intersection entre deux événements """
-		return event.start <= self.start < event.end or \
-			   event.start < self.end < event.end or \
-			   self.start <= event.start < self.end or \
-			   self.start < event.end < self.end
+		return self.intersect_range(event.start, event.end)
+
+	def intersect_range(self, start, end):
+		return start <= self.start < end or \
+			   start < self.end < end or \
+			   self.start <= start < self.end or \
+			   self.start < end < self.end
 
 	def __repr__(self):
 		"""affiche l'event"""
