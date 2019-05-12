@@ -7,3 +7,4 @@ Core
 .. toctree::
 
    agenda
+   event

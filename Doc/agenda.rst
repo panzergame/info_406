@@ -4,7 +4,7 @@ Agenda
 .. class:: agenda
 
   .. method:: new(collection, name)
-	 Construction d'un nouveau agenda.
+	 Construction d'un nouvel agenda.
 
 	:param collection: La collection de l'agenda.
 	:type collection: Collection
@@ -56,4 +56,3 @@ Agenda
 
 	:param event: L'événement à ajouter
 	:type event: :class:`Event`
-  
