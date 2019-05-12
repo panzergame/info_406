@@ -130,10 +130,13 @@ class Agenda(Data):
 	def all_events(self, from_date, to_date):
 		""" Renvoi tous les évenement avec ceux des agendas liés """
 		events = self.events(from_date, to_date)
-		for agenda in self.linked_agendas:
-			events |= agenda.all_events(from_date, to_date)
+		# On ajoute les événements distants acceptés.
+		#for agenda in self.linked_agendas:
+			#events |= agenda.all_events(from_date, to_date)
 
-		return (events)# - self.ignored_events)
+		events |= set(notif.event for notif in self.notifications if notif.status == Notification.ACCEPTED)
+
+		return events
 
 	def last_events(self, last_date):
 		""" Chargement de plus d'événements récent """
@@ -149,11 +152,21 @@ class Agenda(Data):
 		return last_events
 
 	def event_intersect(self, event):
-		for _event in self.all_events(event.start, event.end):
+		""" Recherche de collision avec un évenement propre """
+		for _event in self.events(event.start, event.end):
 			if event.intersect(_event):
 				return True
 
 		return False
+
+	def event_intersect_notification(self, event):
+		""" Recherche de collision avec un évenement distant """
+		for notif in self.notifications:
+			if event.intersect(notif.event):
+				return True
+
+		return False
+
 
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
@@ -197,23 +210,15 @@ class Agenda(Data):
 
 		# Calcul des collisions.
 		for notif in self.notifications:
-			events = self.events(notif.event.start, notif.event.end)
-			for event in events:
-				if event.intersect(notif.event):
-					notif.status = Notification.AWAITING_COLLISION
-					break
+			# Recherche de collision avec les événement propre à l'agenda.
+			if self.event_intersect(notif.event):
+				notif.status = Notification.AWAITING_COLLISION
+			# Recherche de collision avec les autres notifications (= événement distant).
+			elif self.event_intersect_notification(notif.event):
+				notif.status = Notification.AWAITING_COLLISION_REMOTE
+			# Sinon pas de collision du tout.
 			else:
 				notif.status = Notification.AWAITING_NO_COLLISION
-
-	def add_notification(self, notification):
-		""" Ajout d'une notification de cet agenda. """
-		self.notifications.add(notification)
-
-	def remove_notification(self, notification, ignore):
-		""" Suppression d'une notification de cet agenda. """
-		self.notifications.discard(notification)
-		"""if ignore:
-			self.ignored_events.add(notification.event)"""
 
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """

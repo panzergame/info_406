@@ -4,7 +4,8 @@ from .data import *
 from .dataproperty import *
 
 class Notification(Data):
-	AWAITING_COLLISION = "En collision" # En collision et en attente d'une décision.
+	AWAITING_COLLISION = "En collision avec un événement personnel" # En collision avec un événement du même agenda et en attente d'une décision.
+	AWAITING_COLLISION_REMOTE = "En collision avec un événement distant" # En collision avec un événement d'un agenda distant.
 	REJECTED = "Rejeté" # Rejeté définitivement.
 	AWAITING_NO_COLLISION = "En attente" # Sans collision mais en attente d'une décision.
 	ACCEPTED = "Accepté" # Accepté définitivement.
@@ -14,7 +15,7 @@ class Notification(Data):
 	agenda = DataOwnerProperty("agenda")
 	status = DataProperty("status")
 
-	def __init__(self, _id, collection, event, agenda, status=INVALID):
+	def __init__(self, _id, collection, event, agenda, status):
 		super().__init__(_id, collection)
 
 		self._event = DataOwnerProperty.init(event, self)
