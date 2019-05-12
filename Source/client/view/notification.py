@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
-
+from .common import *
 from datetime import *
 
 def datetime_str(date):
@@ -18,6 +18,7 @@ class NotificationBox(Gtk.ListBox):
 
 		self.title = Gtk.Label()
 		self.description = Gtk.Label()
+		self.date = Gtk.Label()
 		self.creation = Gtk.Label()
 		self.status = Gtk.Label()
 		self.agenda = Gtk.Label()
@@ -36,6 +37,13 @@ class NotificationBox(Gtk.ListBox):
 		box = Gtk.HBox()
 		box.add(Gtk.Label("Description", xalign=0))
 		box.add(scroll)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Date", xalign=0))
+		box.add(self.date)
 		row.add(box)
 		self.add(row)
 
@@ -78,13 +86,11 @@ class NotificationBox(Gtk.ListBox):
 		self.show_all()
 
 	def on_accept_clicked(self, button):
-		agenda = self.notification.agenda # TODO depuis notification.accept() ?
-		agenda.remove_notification(self.notification, False)
+		self.notification.status = Notification.ACCEPTED
 		self.common._notify()
 
 	def on_deny_clicked(self, button):
-		agenda = self.notification.agenda # TODO depuis notification.accept() ?
-		agenda.remove_notification(self.notification, True)
+		self.notification.status = Notification.REJECTED
 		self.common._notify()
 
 	def update(self, notification):
@@ -95,6 +101,7 @@ class NotificationBox(Gtk.ListBox):
 
 			self.title.set_text(event.type)
 			self.description.set_text(event.description)
+			self.date.set_text(event_to_date_str(event.start, event.end))
 			self.creation.set_text(datetime_str(event.creation_date))
 			self.agenda.set_text(event.agenda.name)
 			self.status.set_text(notification.status)
@@ -110,17 +117,19 @@ class NotificationListBox(Gtk.Box):
 		self.common.add_observer(self)
 		self.notification = NotificationBox(self.common)
 
-		self.list = Gtk.ListStore(str, str, str, str, object)
+		self.list = Gtk.ListStore(str, str, str, str, str, object)
 
 		view = Gtk.TreeView(self.list)
 
 		event_column = Gtk.TreeViewColumn("Événement", Gtk.CellRendererText(), text=0)
 		agenda_column = Gtk.TreeViewColumn("Agenda", Gtk.CellRendererText(), text=1)
-		creation_column = Gtk.TreeViewColumn("Ajouté le", Gtk.CellRendererText(), text=2)
-		status_column = Gtk.TreeViewColumn("État", Gtk.CellRendererText(), text=3)
+		date_column = Gtk.TreeViewColumn("Date", Gtk.CellRendererText(), text=2)
+		creation_column = Gtk.TreeViewColumn("Ajouté le", Gtk.CellRendererText(), text=3)
+		status_column = Gtk.TreeViewColumn("État", Gtk.CellRendererText(), text=4)
 
 		view.append_column(event_column)
 		view.append_column(agenda_column)
+		view.append_column(date_column)
 		view.append_column(creation_column)
 		view.append_column(status_column)
 
@@ -146,14 +155,16 @@ class NotificationListBox(Gtk.Box):
 		if common.agenda_displayed is not None:
 			for notification in common.agenda_displayed.notifications:
 				event = notification.event
-				self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification.status, notification])
+				self.list.append([event.type, event.agenda.name,
+					  event_to_date_str(event.start, event.end), datetime_str(event.creation_date),
+					  notification.status, notification])
 
 		self.notification.update(None)
 
 	def on_notification_changed(self, selection):
 		model, iter = selection.get_selected()
 		if iter is not None:
-			notification = model[iter][3]
+			notification = model[iter][5]
 			self.notification.update(notification)
 		else:
 			self.notification.update(None)

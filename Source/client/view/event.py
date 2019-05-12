@@ -2,7 +2,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
-
+from .common import *
 from datetime import *
 
 class EventBox(Gtk.ListBox):
@@ -18,7 +18,9 @@ class EventBox(Gtk.ListBox):
 		#Initialise les sous éléments avec des valeurs par défauts
 		#Nom de l'évènement
 
-		self.name = EventTitleBox("default_type",datetime(1,1,1),datetime(1,1,1))
+		self.name = EventTitleBox()
+		#Date
+		self.date = EventDateBox()
  		#Description       
 		self.description = EventDescriptionScrollable("default_description")
  		#Ressources utilisées       
@@ -30,6 +32,13 @@ class EventBox(Gtk.ListBox):
 		box = Gtk.HBox()
 		box.add(Gtk.Label("Type", xalign=0))
 		box.add(self.name)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("Date", xalign=0))
+		box.add(self.date)
 		row.add(box)
 		self.add(row)
 
@@ -69,30 +78,29 @@ class EventBox(Gtk.ListBox):
 		else:
 			#Si on change d'évènement, on mets à jour les sous éléments
 			self.set_opacity(1)
-			self.name.update(common.event_clicked.type, common.event_clicked.start, common.event_clicked.end)
+			self.name.update(common.event_clicked.type)
+			self.date.update(common.event_clicked.start, common.event_clicked.end)
 			self.description.update(common.event_clicked.description)
 			self.resources.update(common.event_clicked.resources)
 			self.users.update(common.event_clicked.users)
 
 
 
-class EventTitleBox(Gtk.Box):
+class EventTitleBox(Gtk.Label):
 	#Label d'affichage du type d'un évènement
-	def __init__(self, eventType, eventStart, eventEnd):
-		Gtk.Box.__init__(self, orientation = Gtk.Orientation.VERTICAL)
-		self.type = Gtk.Label(label=eventType)
-		slot_text = "{:02d}:{:02d} - {:02d}:{:02d}".format(eventStart.hour, eventStart.minute, eventEnd.hour, eventEnd.minute)
-		self.slot = Gtk.Label(label = slot_text)
-		
-		self.add(self.type)
-		self.add(self.slot)
 
-	def update(self, eventType, eventStart, eventEnd):
-		self.type.set_text(eventType)
-		if(eventStart.day==eventEnd.day):
-			self.slot.set_text("{:02d}:{:02d} - {:02d}:{:02d}".format(eventStart.hour, eventStart.minute, eventEnd.hour, eventEnd.minute))
-		else:
-			self.slot.set_text("{:02d}/{:02d} {:02d}:{:02d} - {:02d}/{:02d} {:02d}:{:02d}".format(eventStart.day, eventStart.month ,eventStart.hour, eventStart.minute, eventEnd.day, eventEnd.month, eventEnd.hour, eventEnd.minute))
+	def __init__(self):
+		super().__init__(label="default")
+
+	def update(self, eventType):
+		self.set_text(eventType)
+
+class EventDateBox(Gtk.Label):
+	def __init__(self):
+		super().__init__(label="default")
+
+	def update(self, start, end):
+		self.set_text(event_to_date_str(start, end))
 
 class EventDescriptionScrollable(Gtk.ScrolledWindow):
 	#Fenêtre défilable, contient la description d'un évènement
