@@ -2,6 +2,8 @@
 # Fichier contenant les classes qui servent à manipuler les données utilisées par
 # le dialogue de gestion des permissions des membres d'un groupe
 
+import re
+
 class PermissionManagerModel():
 	def __init__(self, collection, group):
 		self.collection = collection
@@ -57,14 +59,29 @@ class PermissionManagerModel():
 	def stay_admin(self, admin):
 		self.admin_to_member.remove(admin)
 
-	def get_admin_search_results(self, name):
-		pass
-		#return self.collection.load_members_by_name_from_group(name)
+	def get_admin_search_results(self):
+		results = set()
+		search = self.admin_search
+		pattern = re.compile("({})+".format(search),flags=re.IGNORECASE)
+		for admin in self.group.admins:
+			if(pattern.search(admin.first_name) or pattern.search(admin.last_name)):
+				results.add(admin)
+		return results
 
-	def get_member_search_results(self, name):
-		pass
-		#return self.collection.load_admins_by_name_from_group(name)
+	def get_member_search_results(self):
+		results = set()
+		search = self.member_search
+		pattern = re.compile("({})+".format(search),flags=re.IGNORECASE)
+		#TODO utiliser la soustraction de set de manière conventionnelle
+		for member in (self.group.admins.__rsub__(self.group.subscribers)):
+			if(pattern.search(member.first_name) or pattern.search(member.last_name)):
+				results.add(member)
+		return results
 
 	def apply_changes(self):
 		#Inscription des changements 
-		pass
+		for member in self.member_to_admin:
+			self.group.add_admin(member)
+		
+		for admin in self.admin_to_member:
+			self.group.remove_admin(admin)

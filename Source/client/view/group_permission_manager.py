@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from client.model import permission_manager_model
+from client.model.permission_manager_model import *
 
 class PermManagementDialog(Gtk.Dialog):
 	"""Dialogue qui permet de modifier les permissions des membres d'un groupe"""
@@ -21,16 +21,15 @@ class PermManagementDialog(Gtk.Dialog):
 		#Listes des admins et barre de recherche des admins
 		inside.add(SubtitleFrame("Administrateurs"))
 		inside.add(AdminSearchEntry())
-		inside.add(AdminSearchResultsTree(manager_common.get_admin_search_results(""), manager_common))
+		inside.add(AdminSearchResultsTree(self.manager_common.get_admin_search_results(), self.manager_common))
 
 		#Listes des membres et barre de recherche des membres
 		inside.add(SubtitleFrame("Membres du groupe"))
 		inside.add(MemberSearchEntry())
-		inside.add(MemberSearchResultsTree(manager_common.get_member_search_results(""), manager_common))
+		#inside.add(MemberSearchResultsTree(self.manager_common.get_member_search_results(), self.manager_common))
 
 		#Bouton de confrimation des changements
 		inside.add(ApplyChangesButton())
-
 		self.show_all()
 
 class GroupNameHeader(Gtk.HeaderBar):
@@ -79,11 +78,12 @@ class AdminSearchResultsTree(Gtk.Box):
 	def create_admin_list_tree_model(self, admins, manager_common):
 		self.admin_list = Gtk.ListStore(str, str, object)
 		for admin in admins:
-			self.admin_list.append([admin.first_name,admin.last_name,PermissionCheckButton(admin in manager_common.admin_to_member, admin)])
-	
+			#self.admin_list.append([admin.first_name,admin.last_name,PermissionCheckButton(admin in manager_common.admin_to_member, admin)])
+			self.admin_list.append(["jean","admin",0])
+
 	def add_tree_view(self):
 		self.tree_view = Gtk.TreeView(model=self.admin_list)
-
+		
 		first_name_renderer = Gtk.CellRendererText()
 		first_name_col=Gtk.TreeViewColumn("Prénom", first_name_renderer, text=0)
 		first_name_col.set_expand(True)
@@ -95,7 +95,7 @@ class AdminSearchResultsTree(Gtk.Box):
 		self.tree_view.append_column(last_name_col)
 
 		toggle_renderer = Gtk.CellRendererToggle()
-		toggle_col=Gtk.TreeViewColumn("Enlever les droits", toggle_renderer)
+		toggle_col=Gtk.TreeViewColumn("Enlever les droits", toggle_renderer, active=1)
 		toggle_col.set_expand(True)
 		toggle_col.set_alignment(0.5)
 		self.tree_view.append_column(toggle_col)
@@ -107,7 +107,7 @@ class AdminSearchResultsTree(Gtk.Box):
 
 	def update(self, model):
 		self.tree_view.delete()
-		self.create_admin_list_tree_model(model.get_admin_search_results(model.admin_search))
+		self.create_admin_list_tree_model(model.get_admin_search_results())
 		self.add_tree_view()
 		self.show_all()
 
@@ -155,7 +155,7 @@ class MemberSearchResultsTree(Gtk.Box):
 
 	def update(self, model):
 		self.tree_view.delete()
-		self.create_member_list_tree_model(model.get_member_search_results(model.member_search))
+		self.create_member_list_tree_model(model.get_member_search_results())
 		self.add_tree_view()
 		self.show_all()
 
@@ -172,6 +172,3 @@ class ApplyChangesButton(Gtk.Button):
 		Gtk.Button.__init__(self, label=text)
 		self.set_halign(Gtk.Align.CENTER)
 
-d = PermManagementDialog()
-d.run()
-Gtk.main()

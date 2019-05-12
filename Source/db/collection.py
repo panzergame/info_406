@@ -354,14 +354,6 @@ class DbCollection(Collection):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """
 		return self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
 
-	def load_members_by_name_from_group(self, group, sub_name):
-		""" Obtention des membres non admins de group avec sub_name dans leur nom ou prénom."""
-		pass
-
-	def load_admins_by_name_from_group(self, group, sub_name):
-		""" Obtention des membres admins de group avec sub_name dans leur nom ou prénom."""
-		pass
-
 
 	def delete(self, data):
 		_type = self._translate_type(type(data))
