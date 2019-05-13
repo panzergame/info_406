@@ -84,9 +84,9 @@ class Collection:
 
 		return groups
 
-	def new(self, type, *args):
+	def new(self, type, args, kwargs):
 		_type = self._datas.key(type)
-		data = _type(-1, self, *args)
+		data = _type(-1, self, *args, **kwargs)
 		self.new_queue.add(data)
 
 		return data

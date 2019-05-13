@@ -19,6 +19,7 @@ class NotificationBox(Gtk.ListBox):
 		self.title = Gtk.Label()
 		self.description = Gtk.Label()
 		self.creation = Gtk.Label()
+		self.status = Gtk.Label()
 		self.agenda = Gtk.Label()
 
 		scroll = Gtk.ScrolledWindow()
@@ -42,6 +43,13 @@ class NotificationBox(Gtk.ListBox):
 		box = Gtk.HBox()
 		box.add(Gtk.Label("Crée le", xalign=0))
 		box.add(self.creation)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
+		box = Gtk.HBox()
+		box.add(Gtk.Label("État", xalign=0))
+		box.add(self.status)
 		row.add(box)
 		self.add(row)
 
@@ -89,6 +97,7 @@ class NotificationBox(Gtk.ListBox):
 			self.description.set_text(event.description)
 			self.creation.set_text(datetime_str(event.creation_date))
 			self.agenda.set_text(event.agenda.name)
+			self.status.set_text(notification.status)
 			self.set_opacity(1)
 		else:
 			self.set_opacity(0)
@@ -101,17 +110,19 @@ class NotificationListBox(Gtk.Box):
 		self.common.add_observer(self)
 		self.notification = NotificationBox(self.common)
 
-		self.list = Gtk.ListStore(str, str, str, object)
+		self.list = Gtk.ListStore(str, str, str, str, object)
 
 		view = Gtk.TreeView(self.list)
 
 		event_column = Gtk.TreeViewColumn("Événement", Gtk.CellRendererText(), text=0)
 		agenda_column = Gtk.TreeViewColumn("Agenda", Gtk.CellRendererText(), text=1)
 		creation_column = Gtk.TreeViewColumn("Ajouté le", Gtk.CellRendererText(), text=2)
+		status_column = Gtk.TreeViewColumn("État", Gtk.CellRendererText(), text=3)
 
 		view.append_column(event_column)
 		view.append_column(agenda_column)
 		view.append_column(creation_column)
+		view.append_column(status_column)
 
 		select = view.get_selection()
 		select.connect("changed", self.on_notification_changed)
@@ -135,7 +146,7 @@ class NotificationListBox(Gtk.Box):
 		if common.agenda_displayed is not None:
 			for notification in common.agenda_displayed.notifications:
 				event = notification.event
-				self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification])
+				self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification.status, notification])
 
 		self.notification.update(None)
 

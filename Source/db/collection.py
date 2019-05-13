@@ -73,6 +73,21 @@ class DbCollection(Collection):
 		close = "`{}` = {}".format(from_attr, from_value)
 		return self._list_relation_close(table, _type, close, to_attr)
 
+	def _list_relation_dict(self, table, attrs, from_attr, from_value):
+		close = "`{}` = {}".format(from_attr, from_value)
+		attrs_names = ", ".join("`{}`".format(key) for key in attrs.keys())
+		rows = self._get("SELECT {} FROM `{}` WHERE {}".format(attrs_names, table, close))
+
+		result = []
+		for row in rows:
+			data = {}
+			for name, _type in attrs.items():
+				data[name] = self._convert_sql(row[name], _type)
+
+			result.append(data)
+
+		return result
+
 	def _list_relation_close(self, table, _type, close, to_attr):
 		""" Obtention d'une colonne (to_attr) de plusieurs lignes avec la close """
 		rows = self._get("SELECT `{}` FROM `{}` WHERE {}".format(to_attr, table, close))
@@ -85,6 +100,14 @@ class DbCollection(Collection):
 		""" Récupère l'id de la dernière ligne insérée """
 		self._run("SELECT LAST_INSERT_ID()")
 		return self.cursor.fetchone()[0]
+
+	def _convert_sql(self, value, _type):
+		""" Converti un attribut my sql avec une optionel convertion vers une Data """
+		if issubclass(_type, Data):
+			return self._data_or_proxy(value, _type)
+
+		# TODO check type
+		return value
 
 	def _convert_value_to_sql(self, value):
 		""" Conversion d'une valeur python en format sql """
@@ -192,10 +215,8 @@ class DbCollection(Collection):
 					self._list_id(DbUser, "account", _id))
 		if issubclass(type, DbAgenda):
 			return DbAgenda(_id, self, row["name"],
-					self._list_relation("Agenda_Agenda", DbAgenda, "agenda1", _id, "agenda2"),
+					self._load_linked_agenda(_id),
 					self._list_id(DbNotification, "agenda", _id),
-					self._list_relation("Agenda_Ignore_Event", DbEvent, "agenda", _id, "event"),
-					row["last_sync"],
 					self._data_or_proxy(row["user"], DbUser), self._data_or_proxy(row["group"], DbGroup))
 		if issubclass(type, DbEvent):
 			return DbEvent(_id, self, row["start"], row["end"], row["type"], row["description"],
@@ -217,7 +238,19 @@ class DbCollection(Collection):
 			return DbNotification(_id, self,
 					self._data_or_proxy(row["event"], DbEvent),
 					self._data_or_proxy(row["agenda"], DbAgenda),
-					row["status"])
+					row["status"])		
+
+	def _load_linked_agenda(self, _id):
+		agendas = self._list_relation_dict("Agenda_Agenda", {"agenda2" : DbAgenda, "last_sync" : datetime}, "agenda1", _id)
+
+		return set(map(lambda value: LinkedAgenda(value["agenda2"], value["last_sync"]), agendas))
+
+	def _insert_linked_agenda(self, _id, linked_agendas):
+		for linked_agenda in linked_agendas:
+			agenda_id = linked_agenda.agenda.id
+			last_sync = linked_agenda.last_sync
+
+			self._run("INSERT INTO `Agenda_Agenda` (`agenda1`, `agenda2`, `last_sync`) VALUES ('{}', '{}', '{}')".format(_id, agenda_id, last_sync))
 		if issubclass(type, DbResource):
 			return DbResource(_id, self, row["name"], row["location"],
 					row["capacity"], self._data_or_proxy(row["group"]))
@@ -257,10 +290,10 @@ class DbCollection(Collection):
 		return data
 
 	def load_events(self, agenda, from_date, to_date):
-		""" Charge les événements débutant entre deux dates. """
+		""" Charge les événements se déroulant entre deux dates. """
 		return self._load_batched(DbEvent, "agenda", agenda.id,
-			"AND (start >= \"{}\" AND start < \"{}\")".format(
-				from_date, to_date))
+			"AND ((start >= \"{}\" AND start <= \"{}\") OR (end >= \"{}\" AND end <= \"{}\"))".format(
+				from_date, to_date, from_date, to_date))
 
 	def load_last_events(self, agenda, from_date, to_date):
 		""" Charge les événements créés ou midifiés entre deux dates. """

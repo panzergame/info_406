@@ -5,7 +5,7 @@ from .data import *
 from .event import *
 
 class DbAgenda(Agenda, DbData):
-	db_attr_names = ("name", "group", "user", "last_sync")
+	db_attr_names = ("name", "group", "user")
 	db_table = "Agenda"
 
 	def __init__(self, *args):
@@ -20,11 +20,9 @@ class DbAgenda(Agenda, DbData):
 
 	def db_insert_relations(self):
 		col = self.collection
-		col._insert_relation(self.id, self.linked_agendas, "Agenda_Agenda", "agenda1", "agenda2")
-		col._insert_relation(self.id, self.ignored_events, "Agenda_Ignore_Event", "agenda", "event")
+		col._insert_linked_agenda(self.id, self._linked_agendas)
 
 	@staticmethod
 	def db_delete_relations(collection, id):
 		collection._delete_relation(id, "Agenda_Agenda", "agenda1")
 		collection._delete_relation(id, "Agenda_Agenda", "agenda2")
-		collection._delete_relation(id, "Agenda_Ignore_Event", "agenda")
