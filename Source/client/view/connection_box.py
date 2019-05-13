@@ -31,7 +31,7 @@ class ConnectionBox(Gtk.Grid):
 		memory = Gtk.CheckButton("Se souvenir de moi")
 		connection = Gtk.Button("Se connecter")
 		connection.connect("clicked", self.connection, nameE, self.passwordE)
-		noAccount = LinkAsButton("", "Par encore de compte? Inscrivez-vous ici...")
+		noAccount = LinkAsButton("Par encore de compte? Inscrivez-vous ici...")
 		noAccount.connect("activate_link", self.go_to_registration)
 
 

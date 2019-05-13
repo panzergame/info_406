@@ -132,9 +132,10 @@ class NotificationListBox(Gtk.Box):
 
 	def update(self, common):
 		self.list.clear()
-		for notification in common.agenda_displayed.notifications:
-			event = notification.event
-			self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification])
+		if common.agenda_displayed is not None:
+			for notification in common.agenda_displayed.notifications:
+				event = notification.event
+				self.list.append([event.type, event.agenda.name, datetime_str(event.creation_date), notification])
 
 		self.notification.update(None)
 
