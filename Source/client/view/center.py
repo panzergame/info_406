@@ -16,8 +16,7 @@ class CenterBox(Gtk.Box):
 		self.common = common
 
 		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
+
 		self.add(AgendaTitleBox(self.common))
 		self.add(AgendaBox(self.common))
 		self.add(AddEventButton(self.common))
-
-		self.show_all()

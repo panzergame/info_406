@@ -154,7 +154,7 @@ class Agenda(Data):
 	def event_intersect(self, event):
 		""" Recherche de collision avec un évenement propre """
 		for _event in self.events(event.start, event.end):
-			if event.intersect(_event):
+			if _event is not event and event.intersect(_event):
 				return True
 
 		return False
@@ -162,7 +162,7 @@ class Agenda(Data):
 	def event_intersect_notification(self, event):
 		""" Recherche de collision avec un évenement distant """
 		for notif in self.notifications:
-			if event.intersect(notif.event):
+			if notif.event is not event and event.intersect(notif.event):
 				return True
 
 		return False

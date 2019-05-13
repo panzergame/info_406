@@ -17,11 +17,15 @@ class Window:
 			self.connected = False
 		self.frame.connect("destroy", Gtk.main_quit)
 		self.frame.show_all()
+
 		self.common.add_observer(self)
+		# Permet d'initialiser tout le monde
+		self.common._notify()
 
 	def update(self, common):
 		if self.frame.get_property("visible") and self.connected != common.is_connected:
 			self.frame.destroy()
+			# euuhhh ?
 			win = Window(common)
 			win.main()
 

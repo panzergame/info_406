@@ -2,6 +2,13 @@
 
 """ Outils de conversion commun pour la vue. """
 
+def get_or_init(d, key, init):
+	if key in d:
+		d[key]
+	else:
+		d[key] = init
+	return d[key]
+
 def date_to_hour_str(date):
 	return "{:02d}:{:02d}".format(date.hour, date.minute)
 

@@ -16,4 +16,3 @@ class LeftBox(Gtk.Box):
 		self.add(AccountBox(self.common))
 		self.add(AddGroupButton(self.common))
 		self.add(SearchBox(self.common))
-		self.show_all()

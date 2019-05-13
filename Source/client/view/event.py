@@ -10,7 +10,7 @@ class EventBox(Gtk.ListBox):
 	def __init__(self, common):
 		super().__init__()
 		self.initSubElements()
-		self.set_opacity(0)
+		self.hide()
 		self.common = common
 		common.add_observer(self)
 
@@ -74,10 +74,10 @@ class EventBox(Gtk.ListBox):
 	def update(self, common):
 		#Mis à jour des éléments du widget en fonction du modele
 		if(common.event_clicked==None):
-			self.set_opacity(0)
+			self.hide()
 		else:
 			#Si on change d'évènement, on mets à jour les sous éléments
-			self.set_opacity(1)
+			self.show()
 			self.name.update(common.event_clicked.type)
 			self.date.update(common.event_clicked.start, common.event_clicked.end)
 			self.description.update(common.event_clicked.description)
