@@ -52,13 +52,12 @@ class AddEventDialog(Gtk.Dialog):
 		self.show_all()
 
 	def on_start_clicked(self, button):
-		now = datetime.now()
-		date = DateTimeDialog(self, now.hour)
+		date = DateTimeDialog(self, self.start)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
-			
+
 			if self.start > self.end:
 				self.end = self.start + timedelta(minutes = 30)
 				self.end_button.set_label(datetime_str(self.end))
@@ -66,8 +65,7 @@ class AddEventDialog(Gtk.Dialog):
 		date.destroy()
 
 	def on_end_clicked(self, button):
-		now = datetime.now()
-		date = DateTimeDialog(self, now.hour)
+		date = DateTimeDialog(self, self.end)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
