@@ -6,7 +6,7 @@ from gi.repository import Gtk
 from core import *
 from .supp_confirm_dialog import *
 from .observer import *
-from .group import *
+from .group_list import *
 
 class AccountBox(Gtk.VBox, ViewObserver):
 	SELECTION_ROW = 2

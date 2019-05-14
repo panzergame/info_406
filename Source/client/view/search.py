@@ -5,7 +5,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
 
-from .group import *
+from .group_list import *
 
 class SearchBox(Gtk.VBox, ViewObserver):
 	def __init__(self, common):
@@ -19,12 +19,13 @@ class SearchBox(Gtk.VBox, ViewObserver):
 
 		self.list = GroupList(self.common)
 
+		self.add(Gtk.Label("Rechercher un groupe"))
 		self.add(self.entry)
 		self.add(self.list)
 
 	def on_search_changed(self, widget):
 		self.sub = self.entry.get_text()
-		self.update(self.common)
+		self.update()
 
 	def update(self):
 		groups = self.common.collection.load_groups(self.sub)
