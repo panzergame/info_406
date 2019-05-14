@@ -4,7 +4,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
-
+from .supp_confirm_dialog import *
 from .group import *
 
 class AccountBox(Gtk.VBox):
@@ -69,25 +69,31 @@ class AccountBox(Gtk.VBox):
 		self.group_list.set_groups(user.groups)
 
 	def on_add_user_clicked(self, widget):
-		print("add")
+		print("Adding user")
 
 
+	# Suppression d'utilisateur :
 	def on_del_user_clicked(self, widget):
-		print("delete user")
-		dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, "Alerte : Suppression impossible")
-		dialog.format_secondary_text("Il doit imperativement rester au moins 1 utilisateur lié à ce compte")
-
 		nb_users = len(self.list)
 		nb_selected = 0
 		for row in self.list:
 			if(row[AccountBox.SELECTION_ROW]):
 				nb_selected = nb_selected + 1
+		# Si il reste au moins un utilisateur on procède à la suppression :
 		if(not(nb_users == nb_selected)):
-			for row in self.list:
-				if (row[AccountBox.SELECTION_ROW]):
-					row[AccountBox.USER_ROW].delete()
-					print(self.common.account)
+			# Appel du dialog de confirmation :
+			dia = SuppConfirmDialog()
+			#dia.format_secondary_text("Etes-vous sûr de vouloir supprimer le(s) utilisateur(s) séletionné(s) ?")
+			if dia.run() == Gtk.ResponseType.OK:
+				for row in self.list:
+					if (row[AccountBox.SELECTION_ROW]):
+						row[AccountBox.USER_ROW].delete()
+						print(self.common.account)
+			dia.destroy()
 		else:
+			dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+									   "Alerte : Suppression impossible")
+			dialog.format_secondary_text("Il doit imperativement rester au moins 1 utilisateur lié à ce compte")
 			dialog.run()
 			dialog.destroy()
 
