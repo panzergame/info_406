@@ -102,6 +102,10 @@ class AddEventButton(Gtk.Button):
 		if dia.run() == Gtk.ResponseType.OK:
 			agenda = self.common.agenda_displayed ### TODO TODO TODO : choisir pour les groupes
 			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
-			agenda.add_event(event)
-			self.common.event_clicked = event
+			events = agenda.all_events(event.start, event.end)
+			if events == set():
+				agenda.add_event(event)
+				self.common.event_clicked = event
+			else:
+				print("conflit")
 		dia.destroy()
