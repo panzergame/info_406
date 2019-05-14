@@ -9,10 +9,12 @@ from gi.repository import Gtk
 # Permet de modifier les permissions d'un group arbitraire de la BDD
 ##########################
 collec = ClientCollection()
-for one_group in collec.load_groups(""):
-	group = one_group
-	break
 
-d = PermManagementDialog(group)
+#Manière dégueulasse de sélectionner un groupe dans le set retourné par la méthode load, donc un groupe alétoire de la bdd
+list_of_groups=[]
+for one_group in collec.load_groups(""):
+	list_of_groups.append(one_group)
+
+d = PermManagementDialog(list_of_groups[0])
 d.run()
 Gtk.main()

@@ -47,22 +47,11 @@ class PermissionManagerModel():
 		self._member_search = member_name
 		self.notify()
 
-	def to_admin(self, member):
-		self.member_to_admin.add(member)
-
-	def stay_member(self, member):
-		self.member_to_admin.remove(member)
-
-	def to_member(self, admin):
-		self.admin_to_member.add(admin)
-
-	def stay_admin(self, admin):
-		self.admin_to_member.remove(admin)
-
 	def get_admin_search_results(self):
 		results = set()
 		search = self.admin_search
 		pattern = re.compile("({})+".format(search),flags=re.IGNORECASE)
+		#TODO union
 		for admin in self.group.admins:
 			if(pattern.search(admin.first_name) or pattern.search(admin.last_name)):
 				results.add(admin)
@@ -85,3 +74,4 @@ class PermissionManagerModel():
 		
 		for admin in self.admin_to_member:
 			self.group.remove_admin(admin)
+
