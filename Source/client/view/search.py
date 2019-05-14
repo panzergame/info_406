@@ -7,11 +7,10 @@ from core import *
 
 from .group import *
 
-class SearchBox(Gtk.VBox):
+class SearchBox(Gtk.VBox, ViewObserver):
 	def __init__(self, common):
-		super().__init__()
-		self.common = common
-		self.common.add_observer(self)
+		Gtk.VBox.__init__(self)
+		ViewObserver.__init__(self, common, common.user_clicked)
 
 		#"Rechercher un groupe"
 		self.entry = Gtk.SearchEntry()
@@ -27,6 +26,6 @@ class SearchBox(Gtk.VBox):
 		self.sub = self.entry.get_text()
 		self.update(self.common)
 
-	def update(self, common):
+	def update(self):
 		groups = self.common.collection.load_groups(self.sub)
 		self.list.set_groups(groups)

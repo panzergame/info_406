@@ -9,12 +9,10 @@ from .connection_box import *
 from .registration_box import *
 
 
-class ConnectionWindow(Gtk.Window):
-
+class ConnectionWindow(Gtk.Window, ViewObserver):
 	def __init__(self, common):
 		Gtk.Window.__init__(self, title="Se connecter")
-		self.common = common
-		self.common.add_observer(self)
+		ViewObserver.__init__(self, common)
 
 		self.box = self.choose_box()
 		self.add(self.box)
@@ -22,15 +20,15 @@ class ConnectionWindow(Gtk.Window):
 		self.set_resizable(False)
 
 	def choose_box(self):
-		if self.common.has_account:
+		if self.common.has_account.value:
 			box = ConnectionBox(self.common)
 		else:
 			box = RegistrationBox(self.common)
 		return box
 
-	def update(self, common):
+	"""def update(self, common):
 		self.remove(self.box)
 		self.common = common
 		self.box = self.choose_box()
 		self.add(self.box)
-		self.box.show_all()
+		self.box.show_all()""" # TODO ??

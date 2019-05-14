@@ -46,19 +46,19 @@ class ConnectionBox(Gtk.Grid):
 		self.attach(noAccount, 0, 6, 4, 1)
 
 	def go_to_registration(self, button):
-		self.common.has_account = False
+		self.common.has_account.value = False
 
 	def connection(self, link, name, password):
 		str_name = name.get_text()
 		str_password = password.get_text()
 		try:
 			account = self.common.collection.load_account(str_name, str_password)
-			self.common.account = account
-			self.common.user_clicked = list(self.common.account.users)[0]
-			self.common.agenda_displayed = self.common.user_clicked.agenda
-			self.common.event_clicked = None
-			self.common.day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-			self.common.is_connected = True
+			self.common.account.value = account
+			self.common.user_clicked.value = list(self.common.account.value.users)[0]
+			self.common.agenda_displayed.value = self.common.user_clicked.value.agenda
+			self.common.event_clicked.value = None
+			self.common.day.value = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+			self.common.is_connected.value = True
 		except ValueError:
 			self.InvalidAccountMessage()
 

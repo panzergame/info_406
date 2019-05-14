@@ -20,8 +20,6 @@ class AddGroupDialog(Gtk.Dialog):
 
 		self.add(box)
 
-		self.show_all()
-
 	@property
 	def name(self):
 		return self.name_entry.get_text()

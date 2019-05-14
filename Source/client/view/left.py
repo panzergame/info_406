@@ -7,12 +7,11 @@ from .account import *
 from .group import *
 from .add_group import *
 
-class LeftBox(Gtk.Box):
+class LeftBox(Gtk.VBox):
 	"""Partie Gauche de l'écran, avec les utilisateurs, les groupes (en attente de Xavier), et la zeone de recherche"""
 	def __init__(self, common):
-		self.common = common
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
-		self.set_border_width(10)
-		self.add(AccountBox(self.common))
-		self.add(AddGroupButton(self.common))
-		self.add(SearchBox(self.common))
+		super().__init__()
+
+		self.add(AccountBox(common))
+		self.add(AddGroupButton(common))
+		self.add(SearchBox(common))

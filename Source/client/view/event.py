@@ -3,16 +3,16 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from .common import *
+from .observer import *
 from datetime import *
 
-class EventBox(Gtk.ListBox):
+class EventBox(Gtk.ListBox, ViewObserver):
 	#Boîte d'affichage détaillé d'un évènement
 	def __init__(self, common):
-		super().__init__()
+		Gtk.ListBox.__init__(self)
+		ViewObserver.__init__(self, common, common.event_clicked)
+
 		self.initSubElements()
-		self.hide()
-		self.common = common
-		common.add_observer(self)
 
 	def initSubElements(self):
 		#Initialise les sous éléments avec des valeurs par défauts
@@ -68,21 +68,22 @@ class EventBox(Gtk.ListBox):
 		self.add(button)
 
 	def on_delete_clicked(self, button):
-		self.common.event_clicked.delete()
-		self.common.event_clicked = None
+		self.common.event_clicked.value.delete()
+		self.common.event_clicked.value = None
 
-	def update(self, common):
+	def update(self):
+		ev = self.common.event_clicked.value
 		#Mis à jour des éléments du widget en fonction du modele
-		if(common.event_clicked==None):
+		if ev is None:
 			self.hide()
 		else:
 			#Si on change d'évènement, on mets à jour les sous éléments
 			self.show()
-			self.name.update(common.event_clicked.type)
-			self.date.update(common.event_clicked.start, common.event_clicked.end)
-			self.description.update(common.event_clicked.description)
-			self.resources.update(common.event_clicked.resources)
-			self.users.update(common.event_clicked.users)
+			self.name.update(ev.type)
+			self.date.update(ev.start, ev.end)
+			self.description.update(ev.description)
+			self.resources.update(ev.resources)
+			self.users.update(ev.users)
 
 
 
