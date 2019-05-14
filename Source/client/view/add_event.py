@@ -7,18 +7,20 @@ from gi.repository import Gtk
 from .date_time import DateTimeDialog
 from core import *
 from datetime import datetime
+from datetime import timedelta
 
 def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self):
+	def __init__(self, common):
 		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
+		self.common = common
 
 		self.start = datetime.now().replace(minute=0)
-		self.end = datetime.now().replace(minute=0)
+		self.end = self.start + timedelta(minutes=30)
 
 		self.name_entry = Gtk.Entry()
 		self.name_entry.set_text("nom")
@@ -56,6 +58,10 @@ class AddEventDialog(Gtk.Dialog):
 		if date.run() == Gtk.ResponseType.OK:
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
+			
+			if self.start > self.end:
+				self.end = self.start + timedelta(minutes = 30)
+				self.end_button.set_label(datetime_str(self.end))
 
 		date.destroy()
 
@@ -66,6 +72,10 @@ class AddEventDialog(Gtk.Dialog):
 		if date.run() == Gtk.ResponseType.OK:
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.end_button.set_label(datetime_str(self.end))
+
+			if self.start > self.end:
+				self.start = self.end - timedelta(minutes = 30)
+				self.start_button.set_label(datetime_str(self.start))
 
 		date.destroy()
 
@@ -89,7 +99,7 @@ class AddEventButton(Gtk.Button):
 		self.common = common
 
 	def on_clicked(self, button):
-		dia = AddEventDialog()
+		dia = AddEventDialog(self.common)
 
 		if dia.run() == Gtk.ResponseType.OK:
 			agenda = self.common.agenda_displayed ### TODO TODO TODO : choisir pour les groupes
