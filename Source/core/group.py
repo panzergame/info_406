@@ -31,6 +31,18 @@ class Group(Data):
 		# Actualisation de son propriétaire.
 		agenda.group = None
 
+	def add_resource(self, resource):
+		""" Ajout d'une resource """
+		self.resources.add(resource)
+		# Actualisation de son propriétaire.
+		resource.group = self
+
+	def remove_resource(self, resource):
+		""" Suppression d'une ressource """
+		self.resources.discard(resource)
+		# Actualisation de son propriétaire.
+		resource.group = None
+
 	def subscribe(self, user):
 		""" Inscription d'un utilisateur. """
 		self.subscribers.add(user)
