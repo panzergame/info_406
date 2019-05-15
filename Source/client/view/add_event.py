@@ -58,7 +58,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.end = self.start + timedelta(minutes = 30)
 				self.end_button.set_label(datetime_str(self.end))
 
@@ -71,7 +71,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.end_button.set_label(datetime_str(self.end))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.start = self.end - timedelta(minutes = 30)
 				self.start_button.set_label(datetime_str(self.start))
 
@@ -103,9 +103,17 @@ class AddEventButton(Gtk.Button):
 			agenda = self.common.agenda_displayed ### TODO TODO TODO : choisir pour les groupes
 			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 			events = agenda.all_events(event.start, event.end)
-			if events == set():
+			if events == set(): #aucun conflit
 				agenda.add_event(event)
 				self.common.event_clicked = event
 			else:
+				#trois cas à gérer: conflit perso, conflit groupe indispensable, conflit groupe non indispensable
 				print("conflit")
+				events = events - agenda.events(event.start, event.end)
+				if events == set(): #seulement conflit perso
+					print("seleument conflit perso")
+				else:
+					print("autre conflit")
+					events = events - agenda.events(event.start, event.end)
+
 		dia.destroy()
