@@ -39,6 +39,7 @@ class AddAgendaButton(Gtk.Button):
 			if dia.run() == Gtk.ResponseType.OK:
 				ag = Agenda.new(self.common.collection, dia.name)
 				group.add_agenda(ag)
+				self.common.agenda_displayed.value = ag
 				self.common.group_clicked.notify()
 
 			dia.destroy()

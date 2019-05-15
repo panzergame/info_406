@@ -10,7 +10,7 @@ from .group_list import *
 class SearchBox(Gtk.VBox, ViewObserver):
 	def __init__(self, common):
 		Gtk.VBox.__init__(self)
-		ViewObserver.__init__(self, common, common.user_clicked)
+		ViewObserver.__init__(self, common, common.user_clicked, common.group_clicked)
 
 		#"Rechercher un groupe"
 		self.entry = Gtk.SearchEntry()
