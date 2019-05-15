@@ -9,10 +9,10 @@ class Resource(Data):
 	capacity = DataProperty("capacity")
 	group = DataOwnerProperty("group")
 
-	def __init__(self, _id, collection, name, location, capacity, group):
+	def __init__(self, _id, collection, name, location, capacity, group=None):
 		super().__init__(_id, collection)
 
 		self._name = name
 		self._location = location
 		self._capacity = capacity
-		self._group = group
+		self._group = DataOwnerProperty.init(group, self)

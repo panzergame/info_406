@@ -10,13 +10,11 @@ from .agenda import AgendaBox
 from .add_event import AddEventButton
 from .link_button import LinkButton
 
-class CenterBox(Gtk.Box):
+class CenterBox(Gtk.VBox):
 	"""Boîte contenant tout ce qui est affiché à l'écran"""
 	def __init__(self, common):
-		self.common = common
+		super().__init__()
 
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=6)
-
-		self.add(AgendaTitleBox(self.common))
-		self.add(AgendaBox(self.common))
-		self.add(AddEventButton(self.common))
+		self.pack_start(AgendaTitleBox(common), False, False, False)
+		self.add(AgendaBox(common))
+		self.pack_end(AddEventButton(common), False, False, False)

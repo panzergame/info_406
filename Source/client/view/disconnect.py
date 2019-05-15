@@ -6,7 +6,7 @@ from gi.repository import Gtk
 from client import *
 
 
-class MenuBar(Gtk.MenuBar):
+class Disconnect(Gtk.MenuBar):
 	def __init__(self, common):
 		Gtk.MenuBar.__init__(self)
 		self.common = common
@@ -16,9 +16,9 @@ class MenuBar(Gtk.MenuBar):
 		self.add(logout)
 
 	def disconnect(self, link):
-		self.common.is_connected = False
-		self.common.day = datetime.now()
-		self.common.event_clicked = None
-		self.common.agenda_displayed = None
-		self.common.user_clicked = None
-		self.common.account = None
+		self.common.is_connected.value = False
+		self.common.day.value = datetime.now()
+		self.common.event_clicked.value = None
+		self.common.agenda_displayed.value = None
+		self.common.user_clicked.value = None
+		self.common.account.value = None

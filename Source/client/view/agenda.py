@@ -7,20 +7,21 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+from .observer import *
+
 from client.controller.agenda import *
 from client.view.link_button import LinkButton
 
-class AgendaBox(Gtk.Box):
+class AgendaBox(Gtk.VBox):
 	#Affichage d'une semaine d'un agenda, en commençant par le jour passé au constructeur
 	def __init__(self, common):
-		Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL)
+		super().__init__()
 		eventBox = Gtk.EventBox()
-
 
 		self.overlay = Gtk.Overlay()
 		#Widget permettant de superposer d'autres widget
 		
-		self.overlay.add(AgendaTimeAnnotations(common.day))
+		self.overlay.add(AgendaTimeAnnotations(common.day.value))
 		#Ajout du fond de l'agenda, séparateurs de jours et d'heures
 
 		self.agenda_events = AgendaEvents(common)
@@ -36,28 +37,37 @@ class AgendaBox(Gtk.Box):
 		self.connect("button_press_event",listener.manageClick)
 	
 
-class AgendaEvents(Gtk.DrawingArea):
+class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 	#Classe d'affichage des évènement d'un agenda
 	def __init__(self, common):
-		self.common = common
+		Gtk.DrawingArea.__init__(self)
+		ViewObserver.__init__(self, common, common.day, common.agenda_displayed, common.notification_clicked)
+
 		def draw(da, ctx):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés
-			now = self.common.day
+			now = self.common.day.value
 			start = now - timedelta(days=now.weekday())
 			end = now + timedelta(days=7)
-			if self.common.agenda_displayed is not None:
-				events = self.common.agenda_displayed.all_events(start, end)
+			
+
+			# Dessin des événements
+			ag = self.common.agenda_displayed.value
+			if ag is not None:
+				events = ag.all_events(start, end)
 			else:
 				events = set()
-			AgendaEvents.drawAllEvents(da, ctx, events, self.common.day)
+			AgendaEvents.drawAllEvents(da, ctx, events, now)
 			
-		Gtk.DrawingArea.__init__(self)
+			# Dessin d'une notification séléctionné
+			notif = self.common.notification_clicked.value
+			if notif is not None:
+				event = notif.event
+				if event.intersect_range(start, end):
+					AgendaEvents.drawEvent(da, ctx, event, now, (255, 255, 255))
+			
 		self.connect('draw', draw)
 
-		common.add_observer(self)
-
-	def update(self, common):
-		self.common = common
+	def update(self):
 		self.queue_draw()
 
 	def drawAllEvents(drawingArea, context, events, firstDay):

@@ -44,6 +44,14 @@ class Event(Data):
 		"""return la durée de l'évènement """
 		return self.end - self.start
 
+	@property
+	def start(self):
+		return self._start
+
+	@property
+	def end(self):
+		return self._end
+
 	def add_user(self, user):
 		"""Ajout d'un utilisateur sur un event"""
 		self.users.add(user)

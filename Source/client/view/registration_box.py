@@ -5,20 +5,18 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from .link_as_button import *
 from client import *
+from .observer import *
 import re
 
-
-
-class RegistrationBox(Gtk.Grid):
+class RegistrationBox(Gtk.Grid, ViewObserver):
 
 	def __init__(self, common):
+		super(Gtk.Grid).__init__()
+		super(ViewObserver).__init__(common)
 
-		Gtk.Grid.__init__(self)
 		self.set_border_width(20)
 		self.set_column_spacing(10)
 		self.set_row_spacing(10)
-
-		self.common = common
 
 		title = Gtk.HeaderBar()
 		title.props.title = "S'inscrire"
@@ -60,12 +58,12 @@ class RegistrationBox(Gtk.Grid):
 			if re.fullmatch(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", str_mail) is not None:
 				if str_password == str_conf:
 					account = Account.new(self.common.collection, str_name, str_password, str_mail)
-					self.common.account = account
-					self.common.user_clicked = None
-					self.common.agenda_displayed = None
-					self.common.event_clicked = None
-					self.common.day = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-					self.common.is_connected = True
+					self.common.account.value = account
+					self.common.user_clicked.value = None
+					self.common.agenda_displayed.value = None
+					self.common.event_clicked.value = None
+					self.common.day.value = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+					self.common.is_connected.value = True
 				else:
 					self.InvalidValuesMessage("La confimation de mot de passe ne correspond pas. Veuillez entrer des valeurs valides")
 			else:
@@ -74,7 +72,7 @@ class RegistrationBox(Gtk.Grid):
 			self.InvalidValuesMessage("Veuillez remplir tous les champs")
 
 	def go_to_connection(self, link):
-		self.common.has_account = True
+		self.common.has_account.value = True
 
 	def InvalidValuesMessage(self, msg):
 		self.passwordE.set_text("")

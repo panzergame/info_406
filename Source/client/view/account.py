@@ -5,26 +5,20 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
 from .supp_confirm_dialog import *
-from .add_user_dialog import *
-from .group import *
+from .observer import *
+from .group_list import *
 
-class AccountBox(Gtk.VBox):
-
+class AccountBox(Gtk.VBox, ViewObserver):
 	SELECTION_ROW = 2
 	USER_ROW = 3
 	FIRSTNAME_ROW = 0
 
 	def __init__(self, common):
-		super().__init__()
-
-		self.common = common
-		self.common.add_observer(self)
+		Gtk.VBox.__init__(self)
+		ViewObserver.__init__(self, common, common.user_clicked, common.account)
 
 		title = Gtk.Label("Utilisateurs", xalign=0)
-		add_user_button = Gtk.Button(label="Ajouter un utilisateur")
-		add_user_button.connect("clicked", self.on_add_user_clicked)
 		self.pack_start(title, True, True, 0)
-		self.pack_start(add_user_button, True, True, 0)
 
 		self.list = Gtk.ListStore(str, str, bool, object)
 
@@ -49,24 +43,28 @@ class AccountBox(Gtk.VBox):
 
 		self.group_list = GroupList(self.common)
 
-		self.add(view)
-		supp_up_box = Gtk.Box()
+		add_user_button = Gtk.Button(label="Ajouter un utilisateur")
+		add_user_button.connect("clicked", self.on_add_user_clicked)
+
 		del_user_button = Gtk.Button(label="Supprimer des utilisateurs")
 		del_user_button.connect("clicked", self.on_del_user_clicked)
 		up_user_button = Gtk.Button(label="Modifier un utilisateur")
 		up_user_button.connect("clicked", self.on_up_user_clicked)
+
+		supp_up_box = Gtk.Box()
 		supp_up_box.add(del_user_button)
 		supp_up_box.add(up_user_button)
+
+		self.add(view)
+		self.pack_start(add_user_button, True, True, 0)
 		self.add(supp_up_box)
 		self.add(Gtk.Label("Mes groupes", xalign=0))
 		self.add(self.group_list)
 
-		self.update(self.common)
-
 	def on_user_changed(self, model, path, column):
 		user = self.list[path][AccountBox.USER_ROW]
-		self.common.user_clicked = user
-		self.common.agenda_displayed = user.agenda
+		self.common.user_clicked.value = user
+		self.common.agenda_displayed.value = user.agenda
 		self.group_list.set_groups(user.groups)
 
 	def on_add_user_clicked(self, widget):
@@ -113,7 +111,6 @@ class AccountBox(Gtk.VBox):
 				for row in self.list:
 					if (row[AccountBox.SELECTION_ROW]):
 						row[AccountBox.USER_ROW].delete()
-						print(self.common.account)
 			dia.destroy()
 		else:
 			dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
@@ -122,7 +119,8 @@ class AccountBox(Gtk.VBox):
 			dialog.run()
 			dialog.destroy()
 
-		self.common._notify()
+		self.common.user_clicked.notify()
+
 
 	def on_up_user_clicked(self, widget):
 		print("modif")
@@ -131,11 +129,11 @@ class AccountBox(Gtk.VBox):
 		self.list[path][AccountBox.SELECTION_ROW] = not self.list[path][AccountBox.SELECTION_ROW]
 		print(self.list[path][AccountBox.FIRSTNAME_ROW], self.list[path][AccountBox.SELECTION_ROW])
 
-	def update(self, common):
-
-		if self.common.user_clicked is not None:
-			self.group_list.set_groups(self.common.user_clicked.groups)
+	def update(self):
+		user = self.common.user_clicked.value
+		if user is not None:
+			self.group_list.set_groups(user.groups)
 
 		self.list.clear()
-		for user in common.account.users:
+		for user in self.common.account.value.users:
 			self.list.append((user.first_name, user.last_name, False, user))
