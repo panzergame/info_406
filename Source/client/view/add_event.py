@@ -12,7 +12,7 @@ def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self):
+	def __init__(self): 
 		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))

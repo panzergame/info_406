@@ -5,6 +5,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
 from .supp_confirm_dialog import *
+from .add_user_dialog import *
 from .group import *
 
 class AccountBox(Gtk.VBox):
@@ -69,7 +70,31 @@ class AccountBox(Gtk.VBox):
 		self.group_list.set_groups(user.groups)
 
 	def on_add_user_clicked(self, widget):
-		print("Adding user")
+		dialog = AddUserDialog()
+		valide = False
+		while (not(valide)):
+			if (dialog.run() == Gtk.ResponseType.OK):
+				name = dialog.get_name()
+				first_name = dialog.get_first_name()
+				email = dialog.get_mail()
+				tel = dialog.get_tel()
+
+				if ((dialog.est_vide(name))or(dialog.est_vide(first_name))):
+					err = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+											   "Alerte : Création impossible")
+					err.format_secondary_text("Des champs obligatoires n'ont pas été remplis,"
+											  " veillez à remplir tous les champs marqués d'un '*'.")
+					err.run()
+					err.destroy()
+				else:
+					user = User.new(self.common.collection, first_name.replace(" ",""), name.replace(" ",""),
+									email.replace(" ",""), tel.replace(" ",""))
+					self.common.account.add_user(user)
+					valide = True
+			else:
+				valide = True
+		dialog.destroy()
+		self.common._notify()
 
 
 	# Suppression d'utilisateur :
