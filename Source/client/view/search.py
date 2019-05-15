@@ -19,8 +19,8 @@ class SearchBox(Gtk.VBox, ViewObserver):
 
 		self.list = GroupList(self.common)
 
-		self.add(Gtk.Label("Rechercher un groupe"))
-		self.add(self.entry)
+		self.pack_start(Gtk.Label("Rechercher un groupe"), False, False, False)
+		self.pack_start(self.entry, False, False, False)
 		self.add(self.list)
 
 	def on_search_changed(self, widget):

@@ -7,8 +7,6 @@ from gi.repository import Gtk
 from .left import LeftBox
 from .right import RightBox
 from .center import CenterBox
-from .menu_bar import MenuBar
-from .agenda import AgendaBox
 
 class MainBox(Gtk.HBox):
     """Boîte contenant tout ce qui est affiché à l'écran"""
@@ -16,7 +14,6 @@ class MainBox(Gtk.HBox):
         super().__init__()
 
         grid = Gtk.Grid()
-        grid.attach(MenuBar(common), 0, 0, 8, 1)
         grid.attach(LeftBox(common), 0, 1, 1, 1)
         grid.attach(CenterBox(common), 1, 1, 6, 1)
         grid.attach(RightBox(common), 7, 1, 1, 1)

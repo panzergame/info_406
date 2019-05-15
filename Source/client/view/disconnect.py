@@ -6,7 +6,7 @@ from gi.repository import Gtk
 from client import *
 
 
-class MenuBar(Gtk.MenuBar):
+class Disconnect(Gtk.MenuBar):
 	def __init__(self, common):
 		Gtk.MenuBar.__init__(self)
 		self.common = common

@@ -18,10 +18,7 @@ class AccountBox(Gtk.VBox, ViewObserver):
 		ViewObserver.__init__(self, common, common.user_clicked, common.account)
 
 		title = Gtk.Label("Utilisateurs", xalign=0)
-		add_user_button = Gtk.Button(label="Ajouter un utilisateur")
-		add_user_button.connect("clicked", self.on_add_user_clicked)
 		self.pack_start(title, True, True, 0)
-		self.pack_start(add_user_button, True, True, 0)
 
 		self.list = Gtk.ListStore(str, str, bool, object)
 
@@ -46,14 +43,20 @@ class AccountBox(Gtk.VBox, ViewObserver):
 
 		self.group_list = GroupList(self.common)
 
-		self.add(view)
-		supp_up_box = Gtk.Box()
+		add_user_button = Gtk.Button(label="Ajouter un utilisateur")
+		add_user_button.connect("clicked", self.on_add_user_clicked)
+
 		del_user_button = Gtk.Button(label="Supprimer des utilisateurs")
 		del_user_button.connect("clicked", self.on_del_user_clicked)
 		up_user_button = Gtk.Button(label="Modifier un utilisateur")
 		up_user_button.connect("clicked", self.on_up_user_clicked)
+
+		supp_up_box = Gtk.Box()
 		supp_up_box.add(del_user_button)
 		supp_up_box.add(up_user_button)
+
+		self.add(view)
+		self.pack_start(add_user_button, True, True, 0)
 		self.add(supp_up_box)
 		self.add(Gtk.Label("Mes groupes", xalign=0))
 		self.add(self.group_list)

@@ -193,6 +193,9 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		else:
 			self.common.notification_clicked.value = None
 
+		self.common.agenda_displayed.notify()
+
+
 	def on_sync_clicked(self, button):
 		self.common.agenda_displayed.value.sync_notifications()
 		self.common.notification_clicked.value = None

@@ -5,6 +5,7 @@ gi.require_version('Gtk','3.0')
 from gi.repository import Gtk
 
 from .observer import *
+from .add_agenda import *
 
 class AgendaList(Gtk.VBox, ViewObserver):
 	def __init__(self, common):
@@ -24,8 +25,9 @@ class AgendaList(Gtk.VBox, ViewObserver):
 
 		self.update()
 
-		self.add(Gtk.Label("Agenda du groupe"))
+		self.pack_start(Gtk.Label("Agenda du groupe"), False, False, False)
 		self.add(self.view)
+		self.pack_end(AddAgendaButton(common), False, False, False)
 
 	def on_agenda_changed(self, model, path, column):
 		item = self.list[path][1]

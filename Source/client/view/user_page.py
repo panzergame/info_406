@@ -9,4 +9,4 @@ class UserPage(Gtk.VBox):
 	def __init__(self, common):
 		super().__init__()
 
-		self.add(AccountBox(common))
+		self.pack_start(AccountBox(common), False, False, False)

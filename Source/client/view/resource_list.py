@@ -5,6 +5,7 @@ gi.require_version('Gtk','3.0')
 from gi.repository import Gtk
 
 from .observer import *
+from .add_resource import *
 
 class ResourceList(Gtk.VBox, ViewObserver):
 	def __init__(self, common):
@@ -31,8 +32,9 @@ class ResourceList(Gtk.VBox, ViewObserver):
 
 		self.update()
 
-		self.add(Gtk.Label("Ressources du groupe"))
+		self.pack_start(Gtk.Label("Ressources du groupe"), False, False, False)
 		self.add(self.view)
+		self.pack_end(AddResourceButton(common), False, False, False)
 
 	def update(self):
 		self.list.clear()
