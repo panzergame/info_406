@@ -10,7 +10,7 @@ class SuppConfirmDialog(Gtk.Dialog):
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
-		msg = Gtk.Label("Etes-vous sûr de vouloir supprimer le(s) utilisateur(s) sélectionné(s) ?\n"
+		msg = Gtk.Label("Êtes-vous sûr de vouloir supprimer le(s) utilisateur(s) sélectionné(s) ?\n"
 						"Cette opération est irréversible.")
 
 		box = self.get_content_area()
