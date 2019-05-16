@@ -132,7 +132,6 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 
 		event_column = Gtk.TreeViewColumn("", Gtk.CellRendererText(), text=0)
 		date_column = Gtk.TreeViewColumn("Date", Gtk.CellRendererText(), text=1)
-		date_column.set_sort_column_id(1)
 		creation_column = Gtk.TreeViewColumn("Ajouté le", Gtk.CellRendererText(), text=2)
 
 		self.view.append_column(event_column)
@@ -160,7 +159,7 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		dr = {}
 		ag = self.common.agenda_displayed.value
 		if ag is not None:
-			for notification in ag.notifications:
+			for notification in sorted(ag.notifications, key = lambda notif : (notif.event.start, notif.event.creation_date)):
 				event = notification.event
 				agenda = event.agenda
 				group = agenda.group
@@ -192,9 +191,6 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 				self.common.notification_clicked.value = None
 		else:
 			self.common.notification_clicked.value = None
-
-		self.common.agenda_displayed.notify()
-
 
 	def on_sync_clicked(self, button):
 		self.common.agenda_displayed.value.sync_notifications()
