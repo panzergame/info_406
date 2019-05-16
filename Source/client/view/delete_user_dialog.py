@@ -66,7 +66,8 @@ de toutes les données les concernant (groupes, évènements, etc).
 		box.add(button_box)
 		self.show_all()
 
-d = AllUsersDeletionDialog(None)
-d.run()
-d.destroy()
-Gtk.main()
+if __name__ == "__main__":
+	d = AllUsersDeletionDialog(None)
+	d.run()
+	d.destroy()
+	Gtk.main()

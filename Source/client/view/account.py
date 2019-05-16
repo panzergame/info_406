@@ -4,6 +4,8 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from core import *
+from .delete_user_dialog import *
+from .add_user_dialog import *
 from .supp_confirm_dialog import *
 from .observer import *
 from .group_list import *
@@ -87,12 +89,14 @@ class AccountBox(Gtk.VBox, ViewObserver):
 				else:
 					user = User.new(self.common.collection, first_name.replace(" ",""), name.replace(" ",""),
 									email.replace(" ",""), tel.replace(" ",""))
-					self.common.account.add_user(user)
+					ag = Agenda.new(self.common.collection, "Personnel")
+					user.agenda = ag
+					self.common.account.value.add_user(user)
+					self.common.account.notify()
 					valide = True
 			else:
 				valide = True
 		dialog.destroy()
-		self.common._notify()
 
 
 	# Suppression d'utilisateur :
