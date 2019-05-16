@@ -137,7 +137,6 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		self.view.append_column(event_column)
 		self.view.append_column(date_column)
 		self.view.append_column(creation_column)
-
 		select = self.view.get_selection()
 		select.connect("changed", self.on_notification_changed)
 
@@ -160,7 +159,7 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		dr = {}
 		ag = self.common.agenda_displayed.value
 		if ag is not None:
-			for notification in ag.notifications:
+			for notification in sorted(ag.notifications, key = lambda notif : (notif.event.start, notif.event.creation_date)):
 				event = notification.event
 				agenda = event.agenda
 				group = agenda.group
@@ -192,9 +191,6 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 				self.common.notification_clicked.value = None
 		else:
 			self.common.notification_clicked.value = None
-
-		self.common.agenda_displayed.notify()
-
 
 	def on_sync_clicked(self, button):
 		self.common.agenda_displayed.value.sync_notifications()

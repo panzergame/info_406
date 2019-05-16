@@ -41,7 +41,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 	#Classe d'affichage des évènement d'un agenda
 	def __init__(self, common):
 		Gtk.DrawingArea.__init__(self)
-		ViewObserver.__init__(self, common, common.day, common.agenda_displayed, common.notification_clicked)
+		ViewObserver.__init__(self, common, common.day, common.agenda_displayed, common.notification_clicked, common.event_clicked)
 
 		def draw(da, ctx):
 			#Fonction appelée à chaque fois que les évènements doivent être dessinés

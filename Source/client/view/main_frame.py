@@ -18,11 +18,11 @@ class MainFrame(Gtk.Window):
 
 
         #Initialisation d'un fichier CSS:
-        style_provider = Gtk.CssProvider()
+        """style_provider = Gtk.CssProvider()
         css = open('client/view/style.css' ,'rb')
         css_data = css.read()
         css.close()
 
         style_provider.load_from_data(css_data)
 
-        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),style_provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        Gtk.StyleContext.add_provider_for_screen(Gdk.Screen.get_default(),style_provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)"""

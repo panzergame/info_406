@@ -5,11 +5,11 @@ class WeakRefered:
 		self._weakrefs = []
 
 	def new_ref(self, ref):
-		#print("new ref")
+		#print("new ref", self, ref, type(ref))
 		self._weakrefs.append(ref)
 
 	def del_ref(self, ref):
-		#print("del ref")
+		#print("del ref", self, ref, type(ref))
 		self._weakrefs.remove(ref)
 
 	def delete(self):
@@ -81,11 +81,12 @@ class WeakRefSet:
 
 	def delete(self, owner=None, delete_proxies=False):
 		self._update_owner()
-		return self.discard(owner)
+		return self.discard(owner, del_ref=False)
 
-	def discard(self, item):
+	def discard(self, item, del_ref=True):
 		self._update_owner()
-		item.del_ref(self)
+		if del_ref:
+			item.del_ref(self)
 		return self._set.discard(item)
 
 	def add(self, item):
