@@ -198,7 +198,6 @@ class Agenda(Data):
 			# Si un événement à été modifié, on ne doit pas recréer une notification.
 			for notif in self.notifications:
 				if notif.event is event:
-					notif.status = Notification.INVALID
 					break
 			else:
 				notification = Notification.new(self.collection, event, self, Notification.INVALID)
@@ -216,8 +215,11 @@ class Agenda(Data):
 			# Recherche de collision avec les autres notifications (= événement distant).
 			elif self.event_intersect_notification(notif.event):
 				notif.status = Notification.AWAITING_COLLISION_REMOTE
-			# Sinon pas de collision du tout.
-			else:
+			# Sinon pour une nouvelle notification pas de collision du tout.
+			elif notif.status == Notification.INVALID:
+				notif.status = Notification.AWAITING_NO_COLLISION
+			# Une ancienne notification plus en collision.
+			elif notif.status in (Notification.AWAITING_COLLISION, Notification.AWAITING_COLLISION_REMOTE):
 				notif.status = Notification.AWAITING_NO_COLLISION
 
 	def link_agenda(self, agenda):
