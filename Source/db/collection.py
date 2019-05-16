@@ -24,7 +24,7 @@ class DbCollection(Collection):
 		DbNotification
 	]
 
-	def __init__(self, conn):
+	def __init__(self, conn, log=False):
 		super().__init__()
 
 		# Liste des noms des types supportés et leur association.
@@ -33,7 +33,13 @@ class DbCollection(Collection):
 		self.conn = conn
 		self.cursor = self.conn.cursor()
 
+		self.log = log
+
 ############### OUTILS ###############
+
+	def _print(self, *args):
+		if self.log:
+			print(*args)
 
 	def _get(self, query):
 		""" Execution d'un requête et récupération du résultat sous la forme d'un tableau de dictionnaire """
@@ -45,7 +51,7 @@ class DbCollection(Collection):
 
 	def _run(self, query):
 		""" Execution d'une requête """
-		print("[query] {}".format(query))
+		self._print("[query] {}".format(query))
 		self.cursor.execute(query)
 
 	def _get_row_attr(self, attr, value, table, close=""):

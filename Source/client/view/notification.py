@@ -132,12 +132,12 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 
 		event_column = Gtk.TreeViewColumn("", Gtk.CellRendererText(), text=0)
 		date_column = Gtk.TreeViewColumn("Date", Gtk.CellRendererText(), text=1)
+		date_column.set_sort_column_id(1)
 		creation_column = Gtk.TreeViewColumn("Ajouté le", Gtk.CellRendererText(), text=2)
 
 		self.view.append_column(event_column)
 		self.view.append_column(date_column)
 		self.view.append_column(creation_column)
-
 		select = self.view.get_selection()
 		select.connect("changed", self.on_notification_changed)
 
