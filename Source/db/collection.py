@@ -56,6 +56,10 @@ class DbCollection(Collection):
 		""" Obtention d'une ligne par son id """
 		return self._get_row_attr("id", _id, table)
 
+	# def _get_rows_join_close(self, table1, table2, fkey1, fkey2, close=""):
+	# 	""" Obtention des lignes d'une jointure entre deux tables table1 et table2 ou fkey1 (table1) = fkey2 (table2)"""
+	# 	rows = self._get("SELECT * FROM `{}` JOIN `{}` ON `{}`.`{}` = `{}`.`{}` {}".format(table1, table2, table1, fkey1, table2, fkey2, close))
+
 	def _list_id(self, _type, attr, value):
 		""" Obtention de l'id ou attr = value """
 		table = _type.db_table
@@ -273,8 +277,11 @@ class DbCollection(Collection):
 		if len(rows) == 0:
 			raise ValueError("Invalid account")
 
-		# Premier compte.
-		row = rows[0]
+	def delete(self, data):
+		_type = self._translate_type(type(data))
+		self.delete_queue.add(data)
+		# Désenregistrement de la donnée si elle possède une id.
+		self._unregister_data(data)
 
 		_id = row["id"]
 
