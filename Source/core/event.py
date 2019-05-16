@@ -44,6 +44,14 @@ class Event(Data):
 		"""return la durée de l'évènement """
 		return self.end - self.start
 
+	@property
+	def start(self):
+		return self._start
+
+	@property
+	def end(self):
+		return self._end
+
 	def add_user(self, user):
 		"""Ajout d'un utilisateur sur un event"""
 		self.users.add(user)
@@ -61,7 +69,14 @@ class Event(Data):
 		self.resources.discard(resource)
 
 	def intersect(self, event):
-		return False # TODO
+		""" Test l'intersection entre deux événements """
+		return self.intersect_range(event.start, event.end)
+
+	def intersect_range(self, start, end):
+		return start <= self.start < end or \
+			   start < self.end < end or \
+			   self.start <= start < self.end or \
+			   self.start < end < self.end
 
 	def __repr__(self):
 		"""affiche l'event"""

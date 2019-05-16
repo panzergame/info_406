@@ -4,12 +4,11 @@ from .main_frame import *
 from .connection_frame import *
 
 
-class Window:
+class Window(ViewObserver):
 	def __init__(self, common):
+		ViewObserver.__init__(self, common, common.is_connected)
 
-		self.common = common
-
-		if self.common.is_connected:
+		if self.common.is_connected.value:
 			self.frame = MainFrame(self.common)
 			self.connected = True
 		else:
@@ -17,12 +16,15 @@ class Window:
 			self.connected = False
 		self.frame.connect("destroy", Gtk.main_quit)
 		self.frame.show_all()
-		self.common.add_observer(self)
 
-	def update(self, common):
-		if self.frame.get_property("visible") and self.connected != common.is_connected:
+		# Permet d'initialiser tout le monde
+		self.common.notify()
+
+	def update(self):
+		if self.frame.get_property("visible") and self.connected != self.common.is_connected.value:
 			self.frame.destroy()
-			win = Window(common)
+			# euuhhh ?
+			win = Window(self.common)
 			win.main()
 
 	def main(self):

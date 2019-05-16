@@ -9,8 +9,8 @@ from gi.repository import Gtk
 class LinkAsButton(Gtk.LinkButton):
 	"""LinkButton qui se comporte comme une Button"""
 
-	def __init__(self, method, text):
-		Gtk.LinkButton.__init__(self, method, text)
+	def __init__(self, text):
+		Gtk.LinkButton.__init__(self, None, text)
 
 	def do_activate_link(self):
 		return True

@@ -6,9 +6,9 @@ from gi.repository import Gtk
 
 from core import *
 
-class AddGroupDialog(Gtk.Dialog):
+class AddAgendaDialog(Gtk.Dialog):
 	def __init__(self):
-		Gtk.Dialog.__init__(self, "Ajouter un groupe", None, 0,
+		Gtk.Dialog.__init__(self, "Ajouter un agenda", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
@@ -24,19 +24,22 @@ class AddGroupDialog(Gtk.Dialog):
 	def name(self):
 		return self.name_entry.get_text()
 
-
-class AddGroupButton(Gtk.Button):
+class AddAgendaButton(Gtk.Button):
 	def __init__(self, common):
-		Gtk.Button.__init__(self, "Ajouter un groupe")
+		super().__init__("Ajouter un agenda")
 		self.connect("clicked", self.on_clicked)
 
 		self.common = common
 
 	def on_clicked(self, button):
-		dia = AddGroupDialog()
+		group = self.common.group_clicked.value
+		if group is not None:
+			dia = AddAgendaDialog()
 
-		if dia.run() == Gtk.ResponseType.OK:
-			group = Group.new(self.common.collection, dia.name, set(), set(), set(), set())
-			self.common.group_clicked.value = group
+			if dia.run() == Gtk.ResponseType.OK:
+				ag = Agenda.new(self.common.collection, dia.name)
+				group.add_agenda(ag)
+				self.common.agenda_displayed.value = ag
+				self.common.group_clicked.notify()
 
-		dia.destroy()
+			dia.destroy()

@@ -34,6 +34,7 @@ class Collection:
 	def __init__(self):
 		# Toutes les données existant dynamiquement ou dans le base et chargé.
 		self._datas = TypeDict(self.supported_types)
+		self._new_datas = TypeDict(self.supported_types)
 		# Tous les proxies de données fournis.
 		self._data_proxies = TypeDict(self.supported_types)
 
@@ -82,12 +83,17 @@ class Collection:
 			if regex.match(group.name):
 				groups.add(group)
 
+		for group in self._new_datas[Group].values():
+			if regex.match(group.name):
+				groups.add(group)
+
 		return groups
 
-	def new(self, type, *args):
+	def new(self, type, args, kwargs):
 		_type = self._datas.key(type)
-		data = _type(-1, self, *args)
+		data = _type(-1, self, *args, **kwargs)
 		self.new_queue.add(data)
+		self._new_datas[type][id(data)] = data
 
 		return data
 

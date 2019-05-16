@@ -15,6 +15,5 @@ password = root.find("password").text
 database = root.find("database").text
 
 conn = mysql.connector.connect(host="localhost", user=login, password=password, database=database)
-cursor = conn.cursor()
 
-collection = DbCollection(cursor)
+collection = DbCollection(conn)

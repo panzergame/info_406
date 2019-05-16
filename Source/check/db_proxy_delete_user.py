@@ -4,14 +4,12 @@ from .db_open import *
 
 account = collection.load_account("root", "root")
 
-for group in collection.load_groups("USMB"):
+for user in account.users:
+	for group in user.groups:
+		print(group.name)
 
-	print(group.subscribers)
-
-	print(account.delete())
-
-	print(group.subscribers)
-
+for user in account.users:
+	user.delete()
 	break
 
 collection.flush()

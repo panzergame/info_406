@@ -7,18 +7,20 @@ from gi.repository import Gtk
 from .date_time import DateTimeDialog
 from core import *
 from datetime import datetime
+from datetime import timedelta
 
 def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self):
+	def __init__(self, common):
 		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
+		self.common = common
 
 		self.start = datetime.now().replace(minute=0)
-		self.end = datetime.now().replace(minute=0)
+		self.end = self.start + timedelta(minutes=30)
 
 		self.name_entry = Gtk.Entry()
 		self.name_entry.set_text("nom")
@@ -50,22 +52,28 @@ class AddEventDialog(Gtk.Dialog):
 		self.show_all()
 
 	def on_start_clicked(self, button):
-		now = datetime.now()
-		date = DateTimeDialog(self, now.hour)
+		date = DateTimeDialog(self, self.start)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
 
+			if self.start > self.end:
+				self.end = self.start + timedelta(minutes = 30)
+				self.end_button.set_label(datetime_str(self.end))
+
 		date.destroy()
 
 	def on_end_clicked(self, button):
-		now = datetime.now()
-		date = DateTimeDialog(self, now.hour)
+		date = DateTimeDialog(self, self.end)
 
 		if date.run() == Gtk.ResponseType.OK:
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.end_button.set_label(datetime_str(self.end))
+
+			if self.start > self.end:
+				self.start = self.end - timedelta(minutes = 30)
+				self.start_button.set_label(datetime_str(self.start))
 
 		date.destroy()
 
@@ -89,11 +97,15 @@ class AddEventButton(Gtk.Button):
 		self.common = common
 
 	def on_clicked(self, button):
-		dia = AddEventDialog()
+		dia = AddEventDialog(self.common)
 
 		if dia.run() == Gtk.ResponseType.OK:
-			agenda = self.common.agenda_displayed ### TODO TODO TODO : choisir pour les groupes
+			agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
 			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
-			agenda.add_event(event)
-			self.common.event_clicked = event
+			events = agenda.all_events(event.start, event.end)
+			if events == set():
+				agenda.add_event(event)
+				self.common.event_clicked.value = event
+			else:
+				print("conflit")
 		dia.destroy()

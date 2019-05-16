@@ -2,26 +2,25 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-class AgendaTitleBox(Gtk.HBox):
-	def __init__(self, common):
-		Gtk.Box.__init__(self)
-		self.common = common
-		self.common.add_observer(self)
+from .observer import *
 
-		self.hb = Gtk.HeaderBar()
-		self.hb.set_property("hexpand", True)
+class AgendaTitleBox(Gtk.HeaderBar, ViewObserver):
+	def __init__(self, common):
+		Gtk.HeaderBar.__init__(self)
+		ViewObserver.__init__(self, common, common.agenda_displayed)
 
 		self.setTitleString()
 
-		self.add(self.hb)
-	
 	def setTitleString(self):
-		if self.common.agenda_displayed.user is None:
-			text = "{} ({})".format(self.common.agenda_displayed.name, self.common.agenda_displayed.group.name)
-		else:
-			text = "Agenda de {} {}".format(self.common.agenda_displayed.user.first_name,self.common.agenda_displayed.user.last_name)
+		ag = self.common.agenda_displayed.value
+		if ag is not None:
+			user = ag.user
+			if user is None:
+				text = "{} ({})".format(ag.name, ag.group.name)
+			else:
+				text = "Agenda de {} {}".format(user.first_name, user.last_name)
 
-		self.hb.props.title = text
+			self.props.title = text
 	
-	def update(self, common):
+	def update(self):
 		self.setTitleString()
