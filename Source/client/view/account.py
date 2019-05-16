@@ -7,6 +7,7 @@ from core import *
 from .delete_user_dialog import *
 from .add_user_dialog import *
 from .supp_confirm_dialog import *
+from .modif_user_dialog import *
 from .observer import *
 from .group_list import *
 
@@ -106,28 +107,67 @@ class AccountBox(Gtk.VBox, ViewObserver):
 		for row in self.list:
 			if(row[AccountBox.SELECTION_ROW]):
 				nb_selected = nb_selected + 1
-		# Si il reste au moins un utilisateur on procède à la suppression :
-		if(not(nb_users == nb_selected)):
-			# Appel du dialog de confirmation :
-			dia = SuppConfirmDialog()
-			#dia.format_secondary_text("Etes-vous sûr de vouloir supprimer le(s) utilisateur(s) séletionné(s) ?")
-			if dia.run() == Gtk.ResponseType.OK:
-				for row in self.list:
-					if (row[AccountBox.SELECTION_ROW]):
-						row[AccountBox.USER_ROW].delete()
-			dia.destroy()
-		else:
-			dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
-									   "Alerte : Suppression impossible")
-			dialog.format_secondary_text("Il doit imperativement rester au moins 1 utilisateur lié à ce compte")
-			dialog.run()
-			dialog.destroy()
-
-		self.common.user_clicked.notify()
+		if (nb_selected != 0):
+			# Si il reste au moins un utilisateur on procède à la suppression :
+			if(not(nb_users == nb_selected)):
+				# Appel du dialog de confirmation :
+				dia = SuppConfirmDialog()
+				if dia.run() == Gtk.ResponseType.OK:
+					for row in self.list:
+						if (row[AccountBox.SELECTION_ROW]):
+							row[AccountBox.USER_ROW].delete()
+				self.common.user_clicked.notify()
+				dia.destroy()
+			else:
+				dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+										   "Alerte : Suppression impossible")
+				dialog.format_secondary_text("Il doit imperativement rester au moins 1 utilisateur lié à ce compte")
+				dialog.run()
+				dialog.destroy()
 
 
 	def on_up_user_clicked(self, widget):
-		print("modif")
+		nb_selected = 0
+		for row in self.list:
+			if (row[AccountBox.SELECTION_ROW]):
+				nb_selected = nb_selected + 1
+		if (nb_selected != 0):
+			if(nb_selected == 1):
+				for row in self.list:
+					if (row[AccountBox.SELECTION_ROW]):
+						user = row[AccountBox.USER_ROW]
+				dialog = ModifUserDialog(user)
+				valide = False
+				while (not (valide)):
+					if (dialog.run() == Gtk.ResponseType.OK):
+						name = dialog.get_name().replace(" ","")
+						first_name = dialog.get_first_name().replace(" ","")
+						email = dialog.get_mail().replace(" ","")
+						tel = dialog.get_tel().replace(" ","")
+						if ((dialog.est_vide(name)) or (dialog.est_vide(first_name))):
+							err = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+													"Alerte : Modification impossible")
+							err.format_secondary_text("Des champs obligatoires sont vides,"
+													  " veillez à remplir tous les champs marqués d'un '*'.")
+							err.run()
+							err.destroy()
+						else:
+							user.first_name = first_name
+							user.last_name = name
+							user.email = email
+							user.tel = tel
+							self.common.account.notify()
+							valide = True
+					else:
+						valide = True
+				dialog.destroy()
+			else:
+				dia = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+										   "Alerte : Action impossible")
+				dia.format_secondary_text("Vous ne pouvez modifier qu'un utilisateur à la fois.")
+				dia.run()
+				dia.destroy()
+
 
 	def on_selected(self, widget, path):
 		self.list[path][AccountBox.SELECTION_ROW] = not self.list[path][AccountBox.SELECTION_ROW]
