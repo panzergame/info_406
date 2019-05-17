@@ -105,7 +105,7 @@ class AddEventButton(Gtk.Button):
 				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
 				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 				events = agenda.all_events(event.start, event.end)
-				if events == set():
+				if self.no_conflict(events):
 					agenda.add_event(event)
 					self.common.event_clicked.value = event
 					valide = True
@@ -134,3 +134,14 @@ class AddEventButton(Gtk.Button):
 		else:
 			res = True
 		return res"""
+
+	def no_conflict(self, events_list):
+		return events_list == set()
+
+	"""def conflicts_with_indispensable(self, events_list):
+		for event in events_list:
+			if self.indispensable(event):
+				return True
+		return False
+
+	def indispensable(self, event):"""
