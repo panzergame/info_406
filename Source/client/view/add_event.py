@@ -8,6 +8,7 @@ from .date_time import DateTimeDialog
 from core import *
 from datetime import datetime
 from datetime import timedelta
+from .conflict_dialogs import *
 
 def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
@@ -98,14 +99,38 @@ class AddEventButton(Gtk.Button):
 
 	def on_clicked(self, button):
 		dia = AddEventDialog(self.common)
-
-		if dia.run() == Gtk.ResponseType.OK:
-			agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
-			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
-			events = agenda.all_events(event.start, event.end)
-			if events == set():
-				agenda.add_event(event)
-				self.common.event_clicked.value = event
+		valide = False
+		while(not(valide)):
+			if dia.run() == Gtk.ResponseType.OK:
+				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
+				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
+				events = agenda.all_events(event.start, event.end)
+				if events == set():
+					agenda.add_event(event)
+					self.common.event_clicked.value = event
+					valide = True
+				else:
+					#if (avec_indispensable(events) == true):
+						valide = self.manage_spe_conflicts(events)
+					#else:
+						#valide = gerer_conflits_standards(events)
 			else:
-				print("conflit")
+				valide = True
 		dia.destroy()
+
+	def manage_spe_conflicts(self, events_list):
+		dialog = SpeConflictDialog(events_list)
+		if dialog.run() == Gtk.ResponseType.OK:
+			res = False
+		else:
+			res = True
+		dialog.destroy()
+		return res
+
+	"""def manage_std_conflicts(self, events_list):
+		dialog = StdConflictDialog(events_list)
+		if dialog.run() == Gtk.ResponseType.OK:
+			res = False
+		else:
+			res = True
+		return res"""
