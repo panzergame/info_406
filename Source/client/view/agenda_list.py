@@ -25,7 +25,9 @@ class AgendaList(Gtk.VBox, ViewObserver):
 
 		self.update()
 
-		self.pack_start(Gtk.Label("Agenda du groupe"), False, False, False)
+		agendal = Gtk.Label()
+		agendal.set_markup("\n <big> Agendas du groupe </big> \n")
+		self.pack_start(agendal, False, False, False)
 		self.add(self.view)
 		self.pack_end(AddAgendaButton(common), False, False, False)
 

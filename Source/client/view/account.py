@@ -20,7 +20,8 @@ class AccountBox(Gtk.VBox, ViewObserver):
 		Gtk.VBox.__init__(self)
 		ViewObserver.__init__(self, common, common.user_clicked, common.account)
 
-		title = Gtk.Label("Utilisateurs", xalign=0)
+		title = Gtk.Label()
+		title.set_markup("\n <big> Utilisateurs </big> \n")
 		self.pack_start(title, True, True, 0)
 
 		self.list = Gtk.ListStore(str, str, bool, object)
@@ -58,10 +59,15 @@ class AccountBox(Gtk.VBox, ViewObserver):
 		supp_up_box.add(del_user_button)
 		supp_up_box.add(up_user_button)
 
+
 		self.add(view)
 		self.pack_start(add_user_button, True, True, 0)
 		self.add(supp_up_box)
-		self.add(Gtk.Label("Mes groupes", xalign=0))
+
+
+		groupe = Gtk.Label()
+		groupe.set_markup("\n <big> Mes Groupes </big> \n")
+		self.add(groupe)
 		self.add(self.group_list)
 
 	def on_user_changed(self, model, path, column):
