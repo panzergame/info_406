@@ -7,12 +7,13 @@ from gi.repository import Gtk
 from core import *
 
 class SpeConflictDialog(Gtk.Dialog):
-	def __init__(self, events_list):
+	def __init__(self, events_list, common):
 		Gtk.Dialog.__init__(self, "Conflit lors de l'ajout d'un évènement", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
 		self.events_list = events_list
+		self.common = common
 
 		self.info = Gtk.Label(""" Vous ne pouvez pas ajouter d'évenement sur cette plage horaire car vous êtes indispensables au(x) évènement(s) suivant(s) :""")
 		self.choix = Gtk.Label(""" Cliquez sur "Valider" pour déplacer votre nouvel évènement ou sur "Annuler" pour abandonner la création.""")
@@ -88,3 +89,6 @@ sur "Déplacer" pour déplacer votre nouvel évènement ou sur "Annuler" pour ab
 		"""
 		box.add(self.choix)
 		self.show_all()
+
+	def have_grp_events(self):
+		return (self.events_list - self.common.agenda_displayed.events) != set()

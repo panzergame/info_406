@@ -12,7 +12,7 @@ class DateTimeDialog(Gtk.Dialog):
 
         self.set_default_size(200, 200)
         self.calendar = Gtk.Calendar()
-        self.calendar.select_month(date_time.month,date_time.year)
+        self.calendar.select_month(date_time.month - 1, date_time.year)
         self.calendar.select_day(date_time.day)
         main_box = self.get_content_area()
         main_box.add(self.calendar)
