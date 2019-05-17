@@ -11,10 +11,12 @@ from .add_group import *
 from .search import *
 from .observer import *
 
-class GroupPage(Gtk.VBox, ViewObserver):
+class GroupPage(Gtk.ScrolledWindow, ViewObserver):
 	def __init__(self, common):
-		Gtk.VBox.__init__(self)
+		Gtk.ScrolledWindow.__init__(self)
 		ViewObserver.__init__(self, common, common.group_clicked)
+
+		box = Gtk.VBox()
 
 		self.members = MembreList(common)
 		self.agendas = AgendaList(common)
@@ -22,11 +24,13 @@ class GroupPage(Gtk.VBox, ViewObserver):
 		self.add_group = AddGroupButton(common)
 		self.search = SearchBox(common)
 
-		self.pack_start(self.search, False, False, False)
-		self.pack_start(self.add_group, False, False, False)
-		self.add(self.members)
-		self.add(self.agendas)
-		self.add(self.resources)
+		box.pack_start(self.search, False, False, False)
+		box.pack_start(self.add_group, False, False, False)
+		box.add(self.members)
+		box.add(self.agendas)
+		box.add(self.resources)
+
+		self.add(box)
 
 	def update(self):
 		group = self.common.group_clicked.value

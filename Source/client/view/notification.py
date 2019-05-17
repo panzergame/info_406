@@ -159,7 +159,7 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		dr = {}
 		ag = self.common.agenda_displayed.value
 		if ag is not None:
-			for notification in sorted(ag.notifications, key = lambda notif : (notif.event.start, notif.event.creation_date)):
+			for notification in sorted(ag.notifications(datetime.now()), key = lambda notif : (notif.event.start, notif.event.creation_date)):
 				event = notification.event
 				agenda = event.agenda
 				group = agenda.group
