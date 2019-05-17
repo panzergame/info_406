@@ -11,7 +11,7 @@ class Disconnect(Gtk.MenuBar):
 		Gtk.MenuBar.__init__(self)
 		self.common = common
 
-		logout = Gtk.MenuItem("Se déconnecter")
+		logout = Gtk.MenuItem("Se déconnecter    ")
 		logout.connect("activate", self.disconnect)
 		self.add(logout)
 
