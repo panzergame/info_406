@@ -8,9 +8,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from .observer import *
+from core import *
 
 from client.controller.agenda import *
-from client.view.link_button import LinkButton
+from .link_button import LinkButton
 
 class AgendaBox(Gtk.VBox):
 	#Affichage d'une semaine d'un agenda, en commençant par le jour passé au constructeur
@@ -41,36 +42,62 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 	#Classe d'affichage des évènement d'un agenda
 	def __init__(self, common):
 		Gtk.DrawingArea.__init__(self)
-		ViewObserver.__init__(self, common, common.day, common.agenda_displayed, common.notification_clicked, common.event_clicked)
+		ViewObserver.__init__(self, common, common.day, common.agenda_displayed, common.notification_clicked, common.event_clicked, common.users_filtered, common.resources_filtered)
+
+		self.presence = Presence(set(), set())
 
 		def draw(da, ctx):
-			#Fonction appelée à chaque fois que les évènements doivent être dessinés
-			now = self.common.day.value
-			start = now - timedelta(days=now.weekday())
-			end = now + timedelta(days=7)
-			
+			""" Fonction appelée à chaque fois que les évènements doivent être dessinés """
 
-			# Dessin des événements
-			ag = self.common.agenda_displayed.value
-			if ag is not None:
-				events = ag.all_events(start, end)
-			else:
-				events = set()
-			AgendaEvents.drawAllEvents(da, ctx, events, now)
-			
-			# Dessin d'une notification séléctionné
-			notif = self.common.notification_clicked.value
+			now, start, end = self.date_range()
+			events = self.events(start, end)
+			notif = self.notification(start, end)
+			slots = self.presence.slots(start, end)
+
+			AgendaEvents.drawEventsAndSlots(da, ctx, events, slots, now)
 			if notif is not None:
-				event = notif.event
-				if event.intersect_range(start, end):
-					AgendaEvents.drawEvent(da, ctx, event, now, (255, 255, 255))
-			
+				AgendaEvents.drawEvent(da, ctx, notif.event, now, (1, 1, 1, 0.5))
+
 		self.connect('draw', draw)
 
+	def date_range(self):
+		""" Renvoie le jour actuelle, le lundi de la semaine actuelle
+		et le lundi de la semaine prochaine. """
+		now = self.common.day.value
+		start = now - timedelta(days=now.weekday())
+		end = now + timedelta(days=7)
+
+		return now, start, end
+
+	def events(self, start, end):
+		""" Récupère les événements de l'agenda courant sur une période. """
+		ag = self.common.agenda_displayed.value
+		if ag is not None:
+			return ag.all_events(start, end)
+		else:
+			return set()
+
+	def notification(self, start, end):
+		""" Récupère la notification selectionné si elle se trouve dans une période. """
+		notif = self.common.notification_clicked.value
+		if notif is not None:
+			if notif.event.intersect_range(start, end):
+				return notif
+
+		return None
+
 	def update(self):
+		group = self.common.group_clicked.value
+		if group is not None:
+			self.presence = Presence(self.common.users_filtered.value.get(group, set()),
+							self.common.resources_filtered.value.get(group, set()))
+		else:
+			self.presence = Presence(set(), set())
+
 		self.queue_draw()
 
-	def drawAllEvents(drawingArea, context, events, firstDay):
+	@staticmethod
+	def drawEventsAndSlots(drawingArea, context, events, slots, firstDay):
 		#Méthode appelant la méthode dessinant un event sur chaque event de l'agenda
 		
 		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
@@ -80,7 +107,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		#On met à l'échelle le contexte dans lequel on va dessiner
 		
 		for event in events:
-			color = ((event.start.hour/24),(event.start.day/30),(event.start.month/12))
+			color = ((event.start.hour/24),(event.start.day/30),(event.start.month/12), 1)
 			#todo mettre une vraie sélection de couleur, actuellement dépend de la date
 			
 			context.set_font_size((1/2)*(1/24))
@@ -88,13 +115,15 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			
 			AgendaEvents.drawEvent(drawingArea, context, event, firstDay, color)
 
-		
-	def drawEvent(drawingArea, context, event, firstDay, color):
-		#Méthode permettant de dessiner un évènement
-		
+		for slot in slots:
+			color = (1, 0, 0, 0.5)
+			AgendaEvents.drawSlot(drawingArea, context, slot, firstDay, color)
+
+	@staticmethod
+	def getSlotCoords(start, end, firstDay):
 		minutesPerDay = 24*60
 		daysDisplayed = 7
-		
+
 		def toDayMinutes(date):
 			#Permet de connaître le nombre de minutes d'un datetime ou un timedelta sans prendre en compte les jours
 			if type(date) == datetime:
@@ -104,33 +133,34 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 				return (date.seconds/60)
 			else:
 				raise ValueError
-		
-		
-		def getSlotCoords(start, end, firstDay):
-			#Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT
-			rectanglesList=[]
-			currentStart = start
-			for i in range(end.day-start.day+1):
-				#On donne les coordoonées du rectangle
-				x = (currentStart-firstDay).days*(1/daysDisplayed)
-				y = (toDayMinutes(currentStart)/(minutesPerDay))
-				width = (1/daysDisplayed)
-				
-				if currentStart.day==end.day:
-					#Si on est le même jour on trace une hauteur qui correspond à la durée de l'évèneme,t
-					height = (toDayMinutes(end - currentStart)/(minutesPerDay))
-				else:
-					#Sinon on trace une hauteur jusqu'à la fin de la journée = complémentaire du temps écoulé depuis le début de la journée
-					height = 1-(toDayMinutes(currentStart)/(minutesPerDay))
 
-				#On ajoute le rectangle à tracer à la liste des rectangles
-				rectanglesList.append([x,y,width,height])
-
-				#Si l'event s'étend sur plusieurs jours, on recommence en avançant la date de départ de 1 jour, en fonction de ce qui a été tracé
-				currentStart=datetime(currentStart.year,currentStart.month,currentStart.day)+timedelta(1)
+		#Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT
+		rectanglesList=[]
+		currentStart = start
+		for i in range(end.day-start.day+1):
+			#On donne les coordoonées du rectangle
+			x = (currentStart-firstDay).days*(1/daysDisplayed)
+			y = (toDayMinutes(currentStart)/(minutesPerDay))
+			width = (1/daysDisplayed)
 			
+			if currentStart.day==end.day:
+				#Si on est le même jour on trace une hauteur qui correspond à la durée de l'évèneme,t
+				height = (toDayMinutes(end - currentStart)/(minutesPerDay))
+			else:
+				#Sinon on trace une hauteur jusqu'à la fin de la journée = complémentaire du temps écoulé depuis le début de la journée
+				height = 1-(toDayMinutes(currentStart)/(minutesPerDay))
 
-			return rectanglesList
+			#On ajoute le rectangle à tracer à la liste des rectangles
+			rectanglesList.append((x,y,width,height))
+
+			#Si l'event s'étend sur plusieurs jours, on recommence en avançant la date de départ de 1 jour, en fonction de ce qui a été tracé
+			currentStart=datetime(currentStart.year,currentStart.month,currentStart.day)+timedelta(1)
+
+		return rectanglesList
+
+	@staticmethod
+	def drawEvent(drawingArea, context, event, firstDay, color):
+		#Méthode permettant de dessiner un évènement
 
 		def drawEventInfo(drawingArea, context, event_rectangle, color):
 			#Permet de dessiner le résumé des informations d'un event
@@ -155,21 +185,24 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			context.show_text("{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute))
 
 		#Affichage d'un rectangle de couleur pour l'event
-		for event_rectangle in getSlotCoords(event.start, event.end, firstDay):
-			x = event_rectangle[0]
-			y = event_rectangle[1]
-			width = event_rectangle[2]
-			height = event_rectangle[3]
-			context.set_source_rgb(color[0],color[1],color[2])
+		for event_rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
+			x, y, width, height = event_rectangle
+			context.set_source_rgba(*color)
 			context.rectangle(x, y, width, height)
 			context.fill()
 			#Affichage des infos de l'event sur ce rectangle
 			drawEventInfo(drawingArea, context, event_rectangle, color)
 			context.fill()
-		
-		
 
+	@staticmethod
+	def drawSlot(drawingArea, context, slot, firstDay, color):
+		daysDisplayed = 7
 
+		#Affichage d'un rectangle de couleur pour l'event
+		for x, y, width, height in AgendaEvents.getSlotCoords(slot.start, slot.end, firstDay):
+			context.set_source_rgba(*color)
+			context.rectangle(x, y, width, height)
+			context.fill()
 
 class AgendaTimeAnnotations(Gtk.DrawingArea):
 	#Classe d'affichage du fond de l'agenda

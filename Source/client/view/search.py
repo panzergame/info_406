@@ -19,7 +19,9 @@ class SearchBox(Gtk.VBox, ViewObserver):
 
 		self.list = GroupList(self.common)
 
-		self.pack_start(Gtk.Label("Rechercher un groupe"), False, False, False)
+		recherche = Gtk.Label()
+		recherche.set_markup("\n <big> Rechercher un groupe </big> \n")
+		self.pack_start(recherche, False , False ,False)
 		self.pack_start(self.entry, False, False, False)
 		self.add(self.list)
 

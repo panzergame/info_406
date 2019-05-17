@@ -26,7 +26,10 @@ class MembreList(Gtk.VBox, ViewObserver):
 
 		self.update()
 
-		self.add(Gtk.Label("Membres du groupe"))
+
+		membrel = Gtk.Label()
+		membrel.set_markup("\n <big> Membres du groupe </big> \n")
+		self.add(membrel)
 		self.add(self.view)
 
 	def update(self):
