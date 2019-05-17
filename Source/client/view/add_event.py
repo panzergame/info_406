@@ -110,10 +110,10 @@ class AddEventButton(Gtk.Button):
 					self.common.event_clicked.value = event
 					valide = True
 				else:
-					#if (avec_indispensable(events) == true):
-						valide = self.manage_spe_conflicts(events)
+					#if (self.avec_indispensable(events) == true):
+					#	valide = self.manage_spe_conflicts(events)
 					#else:
-						#valide = gerer_conflits_standards(events)
+					valide = self.manage_std_conflicts(events)
 			else:
 				valide = True
 		dia.destroy()
@@ -127,10 +127,11 @@ class AddEventButton(Gtk.Button):
 		dialog.destroy()
 		return res
 
-	"""def manage_std_conflicts(self, events_list):
+	def manage_std_conflicts(self, events_list):
 		dialog = StdConflictDialog(events_list)
 		if dialog.run() == Gtk.ResponseType.OK:
 			res = False
 		else:
 			res = True
-		return res"""
+		dialog.destroy()
+		return res
