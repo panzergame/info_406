@@ -16,6 +16,8 @@ class Common:
 		self.notification_clicked = ObservableAttribute(None)
 		self.users_filtered = ObservableAttribute({})
 		self.resources_filtered = ObservableAttribute({})
+		self.hours_displayed=ObservableAttribute(24)
+		self.days_displayed=ObservableAttribute(7)
 		self.collection = collection
 
 	def notify(self):
