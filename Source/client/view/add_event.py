@@ -16,23 +16,35 @@ def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self, common):
-		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
+	def __init__(self, common, ex_event = None):
+		if ex_event is None:
+			title = "Ajouter un événement"
+		else:
+			title = "Modifier un événement"
+
+		Gtk.Dialog.__init__(self, title , None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 		self.common = common
 
-		self.start = datetime.now().replace(minute=0)
-		self.end = self.start + timedelta(minutes=30)
-
 		self.name_entry = Gtk.Entry()
-		self.name_entry.set_text("nom")
-
 		self.type_entry = Gtk.Entry()
-		self.type_entry.set_text("type")
-
 		self.description_entry = Gtk.Entry()
-		self.description_entry.set_text("description")
+
+		if ex_event is None:
+			self.start = datetime.now().replace(minute=0)
+			self.end = self.start + timedelta(minutes=30)
+			self.name_entry.set_text("nom")
+			self.type_entry.set_text("type")
+			self.description_entry.set_text("description")
+
+		else:
+			self.start = ex_event.start
+			self.end = ex_event.end
+			self.name_entry.set_text(ex_event.type)
+			self.type_entry.set_text("type") #TODO quand type sera mis, il faudra que ça prenne la bonne valeur
+			self.description_entry.set_text(ex_event.description)
+
 
 		self.start_button = Gtk.Button(datetime_str(self.start))
 		self.start_button.connect("clicked", self.on_start_clicked)
@@ -107,11 +119,13 @@ class AddEventButton(Gtk.Button):
 	def on_clicked(self, button):
 		self.launch_add_event()
 
-	def launch_add_event(self):
-		dia = AddEventDialog(self.common)
+	def launch_add_event(self, ex_event = None):
+		dia = AddEventDialog(self.common, ex_event)
 		valide = False
 		while(not(valide)):
 			if dia.run() == Gtk.ResponseType.OK:
+				if ex_event is not None:
+					ex_event.delete()
 				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
 				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 				events = agenda.all_events(event.start, event.end)

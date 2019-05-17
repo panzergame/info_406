@@ -80,8 +80,7 @@ class EventBox(Gtk.ListBox, ViewObserver):
 	def on_modify_clicked(self, button):
 		ex = self.common.event_clicked.value
 		button = AddEventButton(self.common)
-		button.launch_add_event()
-		ex.delete()
+		button.launch_add_event(ex)
 
 
 	def update(self):
