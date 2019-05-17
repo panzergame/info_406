@@ -5,9 +5,12 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from .date_time import DateTimeDialog
+from .user_filter import *
+from .resource_filter import *
 from core import *
 from datetime import datetime
 from datetime import timedelta
+from .conflict_dialogs import *
 
 def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
@@ -58,7 +61,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.end = self.start + timedelta(minutes = 30)
 				self.end_button.set_label(datetime_str(self.end))
 
@@ -71,7 +74,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.end_button.set_label(datetime_str(self.end))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.start = self.end - timedelta(minutes = 30)
 				self.start_button.set_label(datetime_str(self.start))
 
@@ -98,14 +101,38 @@ class AddEventButton(Gtk.Button):
 
 	def on_clicked(self, button):
 		dia = AddEventDialog(self.common)
-
-		if dia.run() == Gtk.ResponseType.OK:
-			agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
-			event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
-			events = agenda.all_events(event.start, event.end)
-			if events == set():
-				agenda.add_event(event)
-				self.common.event_clicked.value = event
+		valide = False
+		while(not(valide)):
+			if dia.run() == Gtk.ResponseType.OK:
+				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
+				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
+				events = agenda.all_events(event.start, event.end)
+				if events == set():
+					agenda.add_event(event)
+					self.common.event_clicked.value = event
+					valide = True
+				else:
+					#if (avec_indispensable(events) == true):
+						valide = self.manage_spe_conflicts(events)
+					#else:
+						#valide = gerer_conflits_standards(events)
 			else:
-				print("conflit")
+				valide = True
 		dia.destroy()
+
+	def manage_spe_conflicts(self, events_list):
+		dialog = SpeConflictDialog(events_list)
+		if dialog.run() == Gtk.ResponseType.OK:
+			res = False
+		else:
+			res = True
+		dialog.destroy()
+		return res
+
+class AddEvent(Gtk.HBox):
+	def __init__(self, common):
+		Gtk.HBox.__init__(self)
+
+		self.add(UserFilter(common))
+		self.add(ResourceFilter(common))
+		self.add(AddEventButton(common))

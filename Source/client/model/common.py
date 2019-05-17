@@ -14,6 +14,8 @@ class Common:
 		self.day = ObservableAttribute(datetime.now())
 		self.event_clicked = ObservableAttribute(None)
 		self.notification_clicked = ObservableAttribute(None)
+		self.users_filtered = ObservableAttribute({})
+		self.resources_filtered = ObservableAttribute({})
 		self.collection = collection
 
 	def notify(self):
