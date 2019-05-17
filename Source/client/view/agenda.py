@@ -164,26 +164,44 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		#Méthode permettant de dessiner un évènement
 
 		def drawEventInfo(drawingArea, context, event_rectangle, color):
+			hours_displayed=24
 			#Permet de dessiner le résumé des informations d'un event
-			x,y,width,height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
+			display_area_x,display_area_y,display_area_width,display_area_height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
 
 			if(sum(color)>1.5):
-			#Test de si la couleur de l'event est claire ou foncée
+			#Test de si la couleur de l'event est claire ou foncée pour une couleur de texte opposée
 				color = (0,0,0)
 			else:
 				color = (1,1,1)
-
 			context.set_source_rgb(color[0],color[1],color[2])
 
-			x_text = x + 0.1*width
-			y_text = y + 0.5*height
+			#Calcul des coordonnées du texte affichant le type de l'event
+			event_type_text = event.type
+
+			type_xbearing, type_ybearing, event_text_width, event_text_height, event_text_dx, event_text_dy = context.text_extents(event_type_text)
+			#Obtention de la taille d'affichage du texte
+
+			x_event_type = display_area_x + (display_area_width-event_text_width)/2
+			y_event_type = display_area_y + (display_area_height-event_text_height)/2
+			#On centre le texte dans le carré représentant l'event en x et on le décale un peu en y
+					
+			context.move_to(x_event_type,y_event_type)
+			context.show_text(event_type_text)
+			#Affichage du texte
+
+			#Calcul des coordonnées du texte affichant la durée de l'event
+			event_duration_text = "{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute)
+
+			duration_xbearing, duration_ybearing, event_duration_width, event_duration_height, event_duration_dx, event_duration_dy = context.text_extents(event_duration_text)
+			#Obtention de la taille d'affichage du texte
+
+			x_event_duration = display_area_x + (display_area_width-event_duration_width)/2
+			y_event_duration = y_event_type + 1/(2*hours_displayed) #Décalage de 30min par rapport à l'affichage du type de l'event
+			#coordonnées d'affichage du texte
 		
-			context.move_to(x_text,y_text)
-			context.show_text("{}".format(event.type))
-		
-			context.move_to(x_text,y_text+1/48)
-			#Décalage de 1/2 heure vers le bas par rapport au type de l'event
-			context.show_text("{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute))
+			context.move_to(x_event_duration, y_event_duration)
+			context.show_text(event_duration_text)
+			#affichage du texte
 
 		#Affichage d'un rectangle de couleur pour l'event
 		for event_rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
@@ -239,6 +257,8 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 		#Taille des lignes tracées
 
 		context.set_font_size(((1/2)*(1/self.hours_displayed)))
+		#La hauteur du texte est la même que la hauteur d'une demi-heure dans l'agenda
+
 		context.set_source_rgb(0.2,0.2,0.2)
 		#Taille de police et couleur
 
@@ -248,8 +268,25 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 
 		for i in range(0, self.days_displayed):
 			#Affichage de la date en haut de chaque colonne correspondant à un jour
-			context.move_to((1/(4*self.days_displayed))+i*(1/self.days_displayed), 1/(2*self.hours_displayed))
-			context.show_text(AgendaDayAnnotations.dayToString(self.day+timedelta(days=i)))
+			#On choisit la position de départ pour que le texte soit centré
+
+			day_text =  AgendaDayAnnotations.dayToString(self.day+timedelta(days=i))
+			xbearing, ybearing, text_width, text_height, dx, dy = context.text_extents(day_text)
+			#On récupère la taille que fera le texte
+
+			display_area_width = 1/self.days_displayed
+			display_area_height = 1/self.hours_displayed
+			#Taille de la zone où on affiche le texte
+
+			display_area_x = display_area_width*i
+			display_area_y = (1/2)*(1/self.hours_displayed)
+			#On affiche le texte sur la première demi-heure de la journée
+
+			text_x_offset = (display_area_width - text_width)/2
+			#Décalage du texte par rapport à la zone d'affichage pour que le texte soit centré en x
+
+			context.move_to(display_area_x + text_x_offset, display_area_y + 0)
+			context.show_text(day_text)
 
 		for i in range(1, self.days_displayed):
 			#Traçage des lignes verticales séparant les jours
@@ -277,7 +314,7 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 		elif day_num == 6:
 			dayName="dim"
 
-		return ("{} {:02d}/{:02d}".format(dayName,current_day.day, current_day.month))
+		return ("{} {:02d}/{:02d}".format(dayName, current_day.day, current_day.month))
 
 
 class AgendaTimeAnnotations(Gtk.DrawingArea):
