@@ -105,6 +105,9 @@ class AddEventButton(Gtk.Button):
 		self.common = common
 
 	def on_clicked(self, button):
+		self.launch_add_event()
+
+	def launch_add_event(self):
 		dia = AddEventDialog(self.common)
 		valide = False
 		while(not(valide)):
