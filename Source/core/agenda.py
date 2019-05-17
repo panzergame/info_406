@@ -27,7 +27,7 @@ class Agenda(Data):
 
 		self._name = name
 		self._linked_agendas = WeakRefSet(linked_agendas, self)
-		self.notifications = WeakRefSet(notifications)
+		self._notifications = WeakRefSet(notifications)
 		self._user = DataOwnerProperty.init(user, self)
 		self._group = DataOwnerProperty.init(group, self)
 
@@ -134,7 +134,7 @@ class Agenda(Data):
 		#for agenda in self.linked_agendas:
 			#events |= agenda.all_events(from_date, to_date)
 
-		events |= set(notif.event for notif in self.notifications if notif.status == Notification.ACCEPTED)
+		events |= set(notif.event for notif in self._notifications if notif.status == Notification.ACCEPTED)
 
 		return events
 
@@ -161,7 +161,7 @@ class Agenda(Data):
 
 	def event_intersect_notification(self, event):
 		""" Recherche de collision avec un évenement distant """
-		for notif in self.notifications:
+		for notif in self._notifications:
 			if notif.event is not event and event.intersect(notif.event):
 				return True
 
@@ -172,8 +172,8 @@ class Agenda(Data):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
 
 		"""
-		
-		1 : Récuperer tout les événements distant
+
+		1 : Récuperer tout les nouveaux événements distant
 		2 : Création des notifications
 		3 : Calcul de collision sur les notifications
 		
@@ -196,19 +196,19 @@ class Agenda(Data):
 		# Création des notifications.
 		for event in last_events:
 			# Si un événement à été modifié, on ne doit pas recréer une notification.
-			for notif in self.notifications:
+			for notif in self._notifications:
 				if notif.event is event:
 					break
 			else:
 				notification = Notification.new(self.collection, event, self, Notification.INVALID)
 				new_notifications.add(notification)
 
-		self.notifications |= new_notifications
+		self._notifications |= new_notifications
 
 		# ==== 3 ====
 
 		# Calcul des collisions.
-		for notif in self.notifications:
+		for notif in self._notifications:
 			# Recherche de collision avec les événement propre à l'agenda.
 			if self.event_intersect(notif.event):
 				notif.status = Notification.AWAITING_COLLISION
@@ -221,6 +221,17 @@ class Agenda(Data):
 			# Une ancienne notification plus en collision.
 			elif notif.status in (Notification.AWAITING_COLLISION, Notification.AWAITING_COLLISION_REMOTE):
 				notif.status = Notification.AWAITING_NO_COLLISION
+
+
+	def notifications(self, now):
+		""" Obtention de notifications après now """
+		notifications = set()
+		for notif in self._notifications:
+			event = notif.event
+			if event.end >= now:
+				notifications.add(notif)
+
+		return notifications
 
 	def link_agenda(self, agenda):
 		""" Ajout d'un lien vers un autre agenda. """
@@ -239,8 +250,8 @@ class Agenda(Data):
 
 		# Suppression des notifications de cet agenda.
 		euthanazy_notifications = set()
-		for notif in self.notifications:
+		for notif in self._notifications:
 			if notif.agenda is agenda:
 				euthanazy_notifications.add(notif)
 
-		self.notifications -= euthanazy_notifications
+		self._notifications -= euthanazy_notifications
