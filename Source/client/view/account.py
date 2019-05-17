@@ -21,7 +21,7 @@ class AccountBox(Gtk.VBox, ViewObserver):
 		ViewObserver.__init__(self, common, common.user_clicked, common.account)
 
 		title = Gtk.Label()
-		title.set_markup("\n <big> Utilisateurs </big> \n")
+		title.set_markup("\n \n <big> Utilisateurs </big>")
 		self.pack_start(title, True, True, 0)
 
 		self.list = Gtk.ListStore(str, str, bool, object)
@@ -47,26 +47,39 @@ class AccountBox(Gtk.VBox, ViewObserver):
 
 		self.group_list = GroupList(self.common)
 
-		add_user_button = Gtk.Button(label="Ajouter un utilisateur")
+
+		add_img = Gtk.Image()
+		add_img.set_from_file("client/view/image/add.png")
+		add_user_button = Gtk.Button()
+		add_user_button.add(add_img)
 		add_user_button.connect("clicked", self.on_add_user_clicked)
 
-		del_user_button = Gtk.Button(label="Supprimer des utilisateurs")
+
+		del_img = Gtk.Image()
+		del_img.set_from_file("client/view/image/delete.png")
+		del_user_button = Gtk.Button()
+		del_user_button.add(del_img)
 		del_user_button.connect("clicked", self.on_del_user_clicked)
-		up_user_button = Gtk.Button(label="Modifier un utilisateur")
+
+
+		mod_img = Gtk.Image()
+		mod_img.set_from_file("client/view/image/modify.png")
+		up_user_button = Gtk.Button()
+		up_user_button.add(mod_img)
 		up_user_button.connect("clicked", self.on_up_user_clicked)
 
 		supp_up_box = Gtk.Box()
+		supp_up_box.add(add_user_button)
 		supp_up_box.add(del_user_button)
 		supp_up_box.add(up_user_button)
 
 
 		self.add(view)
-		self.pack_start(add_user_button, True, True, 0)
 		self.add(supp_up_box)
 
 
 		groupe = Gtk.Label()
-		groupe.set_markup("\n <big> Mes Groupes </big> \n")
+		groupe.set_markup(" \n \n <big> Mes Groupes </big>")
 		self.add(groupe)
 		self.add(self.group_list)
 

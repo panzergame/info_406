@@ -94,7 +94,12 @@ class AddEventDialog(Gtk.Dialog):
 
 class AddEventButton(Gtk.Button):
 	def __init__(self, common):
-		Gtk.Button.__init__(self, "Ajouter")
+		Gtk.Button.__init__(self)
+
+		add_img = Gtk.Image()
+		add_img.set_from_file("client/view/image/add.png")
+		self.add(add_img)
+
 		self.connect("clicked", self.on_clicked)
 
 		self.common = common
@@ -128,7 +133,7 @@ class AddEventButton(Gtk.Button):
 			res = True
 		dialog.destroy()
 		return res
-		
+
 	def manage_std_conflicts(self, events_list):
 		dialog = StdConflictDialog(events_list)
 		if dialog.run() == Gtk.ResponseType.OK:

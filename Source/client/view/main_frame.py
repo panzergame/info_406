@@ -18,7 +18,7 @@ class MainFrame(Gtk.Window):
 
         #Initialisation d'un fichier CSS:
         style_provider = Gtk.CssProvider()
-        css = open('client/view/style.css' ,'rb')
+        css = open('client/view/css/style.css' ,'rb')
         css_data = css.read()
         css.close()
 
