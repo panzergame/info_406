@@ -78,6 +78,12 @@ class Event(Data):
 			   self.start <= start < self.end or \
 			   self.start < end < self.end
 
+	def intersect_wide_range(self, start, end):
+		return start <= self.start <= end or \
+			   start <= self.end <= end or \
+			   self.start <= start <= self.end or \
+			   self.start <= end <= self.end
+
 	def __repr__(self):
 		"""affiche l'event"""
 		def datetime_str(date):
