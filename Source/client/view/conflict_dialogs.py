@@ -21,7 +21,7 @@ class SpeConflictDialog(Gtk.Dialog):
 		view = Gtk.TreeView(model=self.list)
 		name = Gtk.CellRendererText()
 
-		name_column = Gtk.TreeViewColumn("Nom :")
+		name_column = Gtk.TreeViewColumn("Nom :", name, text=0)
 		name_column.pack_start(name, True)
 
 		view.append_column(name_column)

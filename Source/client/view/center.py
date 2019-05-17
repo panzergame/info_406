@@ -7,7 +7,7 @@ from gi.repository import Gtk
 from client.model import common
 from .agenda_title import AgendaTitleBox
 from .agenda import AgendaBox
-from .add_event import AddEventButton
+from .add_event import AddEvent
 from .link_button import LinkButton
 
 class CenterBox(Gtk.VBox):
@@ -17,4 +17,4 @@ class CenterBox(Gtk.VBox):
 
 		self.pack_start(AgendaTitleBox(common), False, False, False)
 		self.add(AgendaBox(common))
-		self.pack_end(AddEventButton(common), False, False, False)
+		self.pack_end(AddEvent(common), False, False, False)

@@ -19,4 +19,3 @@ class MainBox(Gtk.HBox):
         grid.attach(RightBox(common), 7, 1, 1, 1)
 
         self.add(grid)
-
