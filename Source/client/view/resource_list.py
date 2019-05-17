@@ -31,10 +31,9 @@ class ResourceList(Gtk.VBox, ViewObserver):
 		self.view.append_column(cap_column)
 
 		self.update()
-
 		resourcel = Gtk.Label()
-		resourcel.set_markup("\n <big> Ressources du groupe </big> \n")
 
+		resourcel.set_markup("\n \n <big> Ressources du groupe </big>")
 		self.pack_start(resourcel, False, False, 0)
 		self.add(self.view)
 		self.pack_end(AddResourceButton(common), False, False, 0)

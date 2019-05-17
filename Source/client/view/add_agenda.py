@@ -26,7 +26,12 @@ class AddAgendaDialog(Gtk.Dialog):
 
 class AddAgendaButton(Gtk.Button):
 	def __init__(self, common):
-		super().__init__("Ajouter un agenda")
+		super().__init__()
+
+		add_img = Gtk.Image()
+		add_img.set_from_file("client/view/image/add.png")
+		self.add(add_img)
+
 		self.connect("clicked", self.on_clicked)
 
 		self.common = common
