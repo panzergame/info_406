@@ -6,10 +6,11 @@ from gi.repository import Gtk
 from core import *
 from .observer import *
 
-class GroupList(Gtk.VBox, ViewObserver):
+class GroupList(Gtk.VBox):
 	def __init__(self, common):
 		Gtk.VBox.__init__(self)
-		ViewObserver.__init__(self, common)
+
+		self.common = common
 
 		self.tree = Gtk.TreeStore(str, bool, object)
 
@@ -48,11 +49,10 @@ class GroupList(Gtk.VBox, ViewObserver):
 				else:
 					agenda.link_agenda(item)
 
-				#self.common._notify() TODO
-
 				self.tree[path][1] = not self.tree[path][1]
 
-		#self.common._notify() TODO
+		self.common.user_clicked.notify()
+		self.common.agenda_displayed.notify()
 
 	def on_agenda_changed(self, model, path, column):
 		item = self.tree[path][2]

@@ -27,9 +27,10 @@ class AgendaList(Gtk.VBox, ViewObserver):
 
 		agendal = Gtk.Label()
 		agendal.set_markup("\n <big> Agendas du groupe </big> \n")
-		self.pack_start(agendal, False, False, False)
+
+		self.pack_start(agendal, False, False, 0)
 		self.add(self.view)
-		self.pack_end(AddAgendaButton(common), False, False, False)
+		self.pack_end(AddAgendaButton(common), False, False, 0)
 
 	def on_agenda_changed(self, model, path, column):
 		item = self.list[path][1]

@@ -15,6 +15,6 @@ class CenterBox(Gtk.VBox):
 	def __init__(self, common):
 		super().__init__()
 
-		self.pack_start(AgendaTitleBox(common), False, False, False)
+		self.pack_start(AgendaTitleBox(common), False, False, 0)
 		self.add(AgendaBox(common))
-		self.pack_end(AddEvent(common), False, False, False)
+		self.pack_end(AddEvent(common), False, False, 0)
