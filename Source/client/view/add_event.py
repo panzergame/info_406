@@ -59,7 +59,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.start = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.start_button.set_label(datetime_str(self.start))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.end = self.start + timedelta(minutes = 30)
 				self.end_button.set_label(datetime_str(self.end))
 
@@ -72,7 +72,7 @@ class AddEventDialog(Gtk.Dialog):
 			self.end = datetime(date.year, date.month, date.day, date.hour, date.minute)
 			self.end_button.set_label(datetime_str(self.end))
 
-			if self.start > self.end:
+			if (self.start >= self.end):
 				self.start = self.end - timedelta(minutes = 30)
 				self.start_button.set_label(datetime_str(self.start))
 
