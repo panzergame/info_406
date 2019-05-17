@@ -117,10 +117,10 @@ class AddEventButton(Gtk.Button):
 					self.common.event_clicked.value = event
 					valide = True
 				else:
-					#if self.conflicts_with_indispensable(events):
-					#	valide = self.manage_spe_conflicts(events)
-					#else:
-					valide = self.manage_std_conflicts(events)
+					if self.conflicts_with_indispensable(events):
+						valide = self.manage_spe_conflicts(events)
+					else:
+						valide = self.manage_std_conflicts(events)
 			else:
 				valide = True
 		dia.destroy()
@@ -145,13 +145,17 @@ class AddEventButton(Gtk.Button):
 	def no_conflict(self, events_list):
 		return events_list == set()
 
-	"""def conflicts_with_indispensable(self, events_list):
+	def conflicts_with_indispensable(self, events_list):
 		for event in events_list:
 			if self.indispensable(event):
 				return True
 		return False
 
-	def indispensable(self, event):"""
+	def indispensable(self, event):
+		for user in event.users:
+			if user == self.common.user_clicked:
+				return True
+		return False
 
 
 	def manage_std_conflicts(self, events_list):
