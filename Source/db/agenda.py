@@ -17,7 +17,6 @@ class DbAgenda(Agenda, DbData):
 		from .notification import DbNotification
 		return collection._euthanasy_proxies(DbEvent, "agenda", _id) | \
 		collection._euthanasy_proxies(DbNotification, "agenda", _id)
-		return set()
 
 	def db_insert_relations(self):
 		col = self.collection
