@@ -95,14 +95,25 @@ class Collection:
 
 		regex = re.compile(".*{}.*".format(sub_name))
 		for user in self._datas[User].values():
-			if (regex.match(user.first_name) or regex.match(user.last_name)):
+
+			first_name = user.first_name
+			last_name = user.last_name
+			nom = "%s %s" % (first_name, last_name)
+
+			if regex.match(nom):
 				users.add(user)
 
 		for user in self._new_datas[User].values():
-			if (regex.match(user.first_name) or regex.match(user.last_name)):
+
+			first_name = user.first_name
+			last_name = user.last_name
+			nom = "%s %s" % (first_name, last_name)
+
+			if regex.match(nom):
 				users.add(user)
 
 		return users
+
 
 
 	def new(self, type, args, kwargs):

@@ -244,7 +244,7 @@ class DbCollection(Collection):
 			return DbNotification(_id, self,
 					self._data_or_proxy(row["event"], DbEvent),
 					self._data_or_proxy(row["agenda"], DbAgenda),
-					row["status"])		
+					row["status"])
 
 	def _load_linked_agenda(self, _id):
 		agendas = self._list_relation_dict("Agenda_Agenda", {"agenda2" : DbAgenda, "last_sync" : datetime}, "agenda1", _id)
@@ -329,6 +329,12 @@ class DbCollection(Collection):
 		""" Obtention des groups avec sub_name inclus dans leur nom. """
 		return super().load_groups(sub_name) | \
 			self._list_id_close(DbGroup, "name REGEXP '({})+'".format(sub_name))
+
+
+	def load_users(self, sub_name):
+		""" Obtention des users avec sub_name inclus dans leur nom. """
+		return super().load_users(sub_name) | \
+			self._list_id_close(DbUser, "first_name, last_name REGEXP '({})+'".format(sub_name))
 
 	def find_proxies(self, _type, _id):
 		return _type.db_delete_proxies(self, _id)
