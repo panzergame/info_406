@@ -144,19 +144,14 @@ class AddEventButton(Gtk.Button):
 
 	def manage_spe_conflicts(self, events_list):
 		dialog = SpeConflictDialog(events_list, self.common)
-		if dialog.run() == Gtk.ResponseType.OK:
-			res = False
-		else:
-			res = True
+		res = (dialog.run() == Gtk.ResponseType.OK)
 		dialog.destroy()
 		return res
 
 	def manage_std_conflicts(self, events_list):
 		dialog = StdConflictDialog(events_list)
-		if dialog.run() == Gtk.ResponseType.OK:
-			res = False
-		else:
-			res = True
+		res = (dialog.run() == Gtk.ResponseType.OK)
+		dialog.destroy()
 		return res
 
 	def no_conflict(self, events_list):
@@ -177,10 +172,7 @@ class AddEventButton(Gtk.Button):
 
 	def manage_std_conflicts(self, events_list):
 		dialog = StdConflictDialog(events_list)
-		if dialog.run() == Gtk.ResponseType.OK:
-			res = False
-		else:
-			res = True
+		res = (dialog.run() == Gtk.ResponseType.OK)
 		dialog.destroy()
 		return res
 

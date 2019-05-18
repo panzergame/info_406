@@ -153,20 +153,23 @@ class Agenda(Data):
 
 	def event_intersect(self, event):
 		""" Recherche de collision avec un évenement propre """
+
+		events = set()
 		for _event in self.events(event.start, event.end):
 			if _event is not event and event.intersect(_event):
-				return True
+				events.add(_event)
 
-		return False
+		return events
 
-	def event_intersect_notification(self, event):
+	def notification_intersect(self, event):
 		""" Recherche de collision avec un évenement distant """
+
+		notifs = set()
 		for notif in self._notifications:
 			if notif.event is not event and event.intersect(notif.event):
-				return True
+				notifs.add(notif)
 
-		return False
-
+		return notifs
 
 	def sync_notifications(self):
 		""" Créer des notifications pour les nouveau événements extérieurs. """
@@ -210,10 +213,16 @@ class Agenda(Data):
 		# Calcul des collisions.
 		for notif in self._notifications:
 			# Recherche de collision avec les événement propre à l'agenda.
-			if self.event_intersect(notif.event):
-				notif.status = Notification.AWAITING_COLLISION
+			self_intersect_events = self.event_intersect(notif.event)
 			# Recherche de collision avec les autres notifications (= événement distant).
-			elif self.event_intersect_notification(notif.event):
+			remote_intersect_notifs = self.notification_intersect(notif.event)
+
+			# En collision avec un événement propre de l'agenda.
+			if len(self_intersect_events) > 0:
+				print(self_intersect_events)
+				notif.status = Notification.AWAITING_COLLISION
+			# En collision avec un autre événement distant.
+			elif len(remote_intersect_notifs) > 0:
 				notif.status = Notification.AWAITING_COLLISION_REMOTE
 			# Sinon pour une nouvelle notification pas de collision du tout.
 			elif notif.status == Notification.INVALID:
@@ -222,6 +231,8 @@ class Agenda(Data):
 			elif notif.status in (Notification.AWAITING_COLLISION, Notification.AWAITING_COLLISION_REMOTE):
 				notif.status = Notification.AWAITING_NO_COLLISION
 
+			notif.self_intersected_events = self_intersect_events
+			notif.remote_intersected_notifs = remote_intersect_notifs
 
 	def notifications(self, now):
 		""" Obtention de notifications après now """
