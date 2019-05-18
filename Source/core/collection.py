@@ -89,6 +89,22 @@ class Collection:
 
 		return groups
 
+
+	def load_users(self, sub_name):
+		users = set()
+
+		regex = re.compile(".*{}.*".format(sub_name))
+		for user in self._datas[User].values():
+			if (regex.match(user.first_name) or regex.match(user.last_name)):
+				users.add(user)
+
+		for user in self._new_datas[User].values():
+			if (regex.match(user.first_name) or regex.match(user.last_name)):
+				users.add(user)
+
+		return users
+
+
 	def new(self, type, args, kwargs):
 		_type = self._datas.key(type)
 		data = _type(-1, self, *args, **kwargs)

@@ -6,9 +6,10 @@ from gi.repository import Gtk
 
 from .user_page import *
 from .group_page import *
+from .friend_page import *
 
 class LeftBox(Gtk.VBox, ViewObserver):
-	"""Partie gauche de l'écran , avec les deu onglets groupe et utilisateur"""
+	"""Partie gauche de l'écran , avec les deu onglets groupe et utilisateur et liste d'amis"""
 
 	def __init__(self, common):
 		Gtk.VBox.__init__(self)
@@ -18,11 +19,13 @@ class LeftBox(Gtk.VBox, ViewObserver):
 
 		user = UserPage(common)
 		groups = GroupPage(common)
+		friend = FriendPage(common)
 
 		notebook = Gtk.Notebook()
 		notebook.append_page(user, Gtk.Label('Votre Agenda'))
 		notebook.append_page(groups, self.group_label)
-		
+		notebook.append_page(friend , Gtk.Label('Vos Contacts'))
+
 		self.add(notebook)
 
 	def update(self):
