@@ -12,7 +12,7 @@ class Common:
 		self.agenda_displayed = ObservableAttribute(None)
 		self.account = ObservableAttribute(None)
 		self.day = ObservableAttribute(datetime.now())
-		self.event_clicked = ObservableAttribute(None)
+		self.event_clicked = ObservableAttribute({})
 		self.notification_clicked = ObservableAttribute(None)
 		self.users_filtered = ObservableAttribute({})
 		self.resources_filtered = ObservableAttribute({})

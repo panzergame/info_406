@@ -74,17 +74,17 @@ class EventBox(Gtk.ListBox, ViewObserver):
 
 
 	def on_delete_clicked(self, button):
-		self.common.event_clicked.value.delete()
-		self.common.event_clicked.value = None
+		self.common.event_clicked.value[self.common.agenda_displayed.value].delete()
+		self.common.event_clicked.value[self.common.agenda_displayed.value] = None
 
 	def on_modify_clicked(self, button):
-		ex = self.common.event_clicked.value
+		ex = self.common.event_clicked.value[self.common.agenda_displayed.value]
 		button = AddEventButton(self.common)
 		button.launch_add_event(ex)
 
 
 	def update(self):
-		ev = self.common.event_clicked.value
+		ev = self.common.event_clicked.value[self.common.agenda_displayed.value]
 		#Mis à jour des éléments du widget en fonction du modele
 		if ev is None:
 			self.hide()
