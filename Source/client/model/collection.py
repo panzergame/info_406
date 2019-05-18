@@ -19,10 +19,12 @@ class ClientCollection(DbCollection):
 	def __init__(self):
 		self.conn = mysql.connector.connect(host="localhost", user=login, password=password, database=database)
 
-		super().__init__(self.conn)
+		super().__init__(self.conn, log=True)
 
 	def flush(self):
-		self.conn.commit()
+		super().flush()
+
+		#self.conn.commit()
 
 	def close(self):
 		self.cursor.close()
