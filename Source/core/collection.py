@@ -52,6 +52,7 @@ class Collection:
 	def _unregister_data(self, data):
 		assert(data.id != -1)
 
+		#print("unregister", data.id)
 		self._datas[data.data_type].pop(data.id)
 
 	def _register_proxy(self, proxy):

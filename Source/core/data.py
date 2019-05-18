@@ -26,10 +26,11 @@ class Data(WeakRefered):
 		return collection.load(_id, cls)
 
 	def delete(self, owner=None, destruct_proxy=True, delete_proxies=True):
-		# Destruction de son proxy aussi.
-		if destruct_proxy and self.proxy is not None:			self.proxy.delete(destruct_data=False, delete_proxies=False)
-
 		super().delete()
+
+		# Destruction de son proxy aussi.
+		if destruct_proxy and self.proxy is not None:
+			self.proxy.delete(destruct_data=False, delete_proxies=False)
 
 		return self.collection.delete(self, delete_proxies)
 
