@@ -54,10 +54,15 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			events = self.events(start, end)
 			notif = self.notification(start, end)
 			slots = self.presence.slots(start, end)
+			selected_event = self.common.event_clicked.value
 
 			AgendaEvents.drawEventsAndSlots(da, ctx, events, slots, now)
 			if notif is not None:
 				AgendaEvents.drawEvent(da, ctx, notif.event, now, (1, 1, 1, 0.5))
+
+			if selected_event is not None:
+				AgendaEvents.drawSelectedEvent(da, ctx, selected_event, now)
+
 
 		self.connect('draw', draw)
 
@@ -99,7 +104,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def drawEventsAndSlots(drawingArea, context, events, slots, firstDay):
-		#Méthode appelant la méthode dessinant un event sur chaque event de l'agenda
+		"""Méthode appelant la méthode dessinant un event sur chaque event de l'agenda"""
 		
 		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
 		#On récupère la taille de la zone d'affichage de l'agenda
@@ -122,11 +127,12 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def getSlotCoords(start, end, firstDay):
+		"""Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT"""
 		minutesPerDay = 24*60
 		daysDisplayed = 7
 
 		def toDayMinutes(date):
-			#Permet de connaître le nombre de minutes d'un datetime ou un timedelta sans prendre en compte les jours
+			"""Permet de connaître le nombre de minutes d'un datetime ou un timedelta sans prendre en compte les jours"""
 			if type(date) == datetime:
 				return date.minute + date.hour*60
 			elif type(date) == timedelta:
@@ -135,7 +141,6 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			else:
 				raise ValueError
 
-		#Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT
 		rectanglesList=[]
 		currentStart = start
 		for i in range(end.day-start.day+1):
@@ -161,11 +166,11 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def drawEvent(drawingArea, context, event, firstDay, color):
-		#Méthode permettant de dessiner un évènement
+		"""Méthode permettant de dessiner un évènement"""
 
 		def drawEventInfo(drawingArea, context, event_rectangle, color):
+			"""Permet de dessiner les informations d'un évènement au bon endroit"""
 			hours_displayed=24
-			#Permet de dessiner le résumé des informations d'un event
 			display_area_x,display_area_y,display_area_width,display_area_height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
 
 			if(sum(color)>1.5):
@@ -214,6 +219,15 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			context.fill()
 
 	@staticmethod
+	def drawSelectedEvent(drawingArea, context, event, firstDay):
+		for x, y, width, height in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(0,0,0),0.005)
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(1,1,1),0.004)
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(0,0,0),0.001)
+			#Pour faire une bande blanche aux bords noirs 
+			
+
+	@staticmethod
 	def drawSlot(drawingArea, context, slot, firstDay, color):
 		daysDisplayed = 7
 
@@ -223,12 +237,23 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			context.rectangle(x, y, width, height)
 			context.fill()
 
-class AgendaDayAnnotations(Gtk.DrawingArea):
+	@staticmethod
+	def drawInnerBorder(drawingArea, context, x, y, width, height, color, border_width):
+		"""Fonction qui permet de tracer une bordure intérieure d'un rectangle"""
+		context.set_source_rgb(*color)
+		context.set_line_width(border_width)
+		context.rectangle(x+border_width/2,y+border_width/2,width-border_width,height-border_width)
+		#Quand on trace le contour d'un rectangle avec pycairo, le "milieu" de la bordure correspond au coordonnées du rectangle
+		#le calcul effectué sur les coordonnées permet de dessiner une bordure "intérieure" au rectangle auquel on ajout la bordure
+		context.stroke()
+
+class AgendaDayAnnotations(Gtk.DrawingArea, ViewObserver):
 	"""
 	Zone de dessin qui affiche le nom des jours et les traits de séparation entre les jours
 	"""
 	def __init__(self, common):
 		Gtk.DrawingArea.__init__(self)
+		ViewObserver.__init__(self, common, common.day)
 		self.day = common.day.value
 		self.hours_displayed = common.hours_displayed.value
 		self.days_displayed = common.days_displayed.value
@@ -238,6 +263,9 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 		self.show_all()
 	
 	def draw(self, drawingArea, context):
+		"""
+		Dessine les annotations de jour
+		"""
 		###########################
 		#initialisation du contexte
 		###########################
@@ -296,6 +324,10 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 		context.stroke()
 		#Application des changements
 
+	def update(self):
+		"""méthode appelée lorsque le modèle change"""
+		self.queue_draw()
+
 	@staticmethod
 	def dayToString(current_day):
 		day_num = current_day.weekday()
@@ -315,7 +347,6 @@ class AgendaDayAnnotations(Gtk.DrawingArea):
 			dayName="dim"
 
 		return ("{} {:02d}/{:02d}".format(dayName, current_day.day, current_day.month))
-
 
 class AgendaTimeAnnotations(Gtk.DrawingArea):
 	"""Classe de dessin des annotations de temps"""
