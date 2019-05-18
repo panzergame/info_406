@@ -18,7 +18,7 @@ class Disconnect(Gtk.MenuBar):
 	def disconnect(self, link):
 		self.common.is_connected.value = False
 		self.common.day.value = datetime.now()
-		self.common.event_clicked.value = None
+		self.common.event_clicked.value = {}
 		self.common.agenda_displayed.value = None
 		self.common.user_clicked.value = None
 		self.common.account.value = None

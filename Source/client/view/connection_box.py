@@ -56,7 +56,7 @@ class ConnectionBox(Gtk.Grid):
 			self.common.account.value = account
 			self.common.user_clicked.value = list(self.common.account.value.users)[0]
 			self.common.agenda_displayed.value = self.common.user_clicked.value.agenda
-			self.common.event_clicked.value = None
+			self.common.event_clicked.value = {}
 			self.common.day.value = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 			self.common.is_connected.value = True
 		except ValueError:

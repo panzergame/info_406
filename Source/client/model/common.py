@@ -20,6 +20,7 @@ class Common:
 		self.days_displayed=ObservableAttribute(7)
 		self.collection = collection
 
+
 	def notify(self):
 		self.is_connected.notify()
 		self.has_account.notify()

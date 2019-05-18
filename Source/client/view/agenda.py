@@ -54,7 +54,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			events = self.events(start, end)
 			notif = self.notification(start, end)
 			slots = self.presence.slots(start, end)
-			selected_event = self.common.event_clicked.value[self.common.agenda_displayed.value]
+			selected_event = self.common.event_clicked.value.get(self.common.agenda_displayed.value, None)
 
 			AgendaEvents.drawEventsAndSlots(da, ctx, events, slots, now)
 			if notif is not None:

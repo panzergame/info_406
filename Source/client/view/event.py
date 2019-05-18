@@ -11,7 +11,7 @@ class EventBox(Gtk.ListBox, ViewObserver):
 	#Boîte d'affichage détaillé d'un évènement
 	def __init__(self, common):
 		Gtk.ListBox.__init__(self)
-		ViewObserver.__init__(self, common, common.event_clicked)
+		ViewObserver.__init__(self, common, common.event_clicked, common.agenda_displayed)
 
 		self.initSubElements()
 
@@ -84,7 +84,8 @@ class EventBox(Gtk.ListBox, ViewObserver):
 
 
 	def update(self):
-		ev = self.common.event_clicked.value[self.common.agenda_displayed.value]
+		ev = self.common.event_clicked.value.get(self.common.agenda_displayed.value, None)
+		#.get(self.common.agenda_displayed.value, None)
 		#Mis à jour des éléments du widget en fonction du modele
 		if ev is None:
 			self.hide()

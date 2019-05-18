@@ -131,7 +131,7 @@ class AddEventButton(Gtk.Button):
 				events = agenda.all_events(event.start, event.end)
 				if self.no_conflict(events):
 					agenda.add_event(event)
-					self.common.event_clicked.value = event
+					self.common.event_clicked.value[self.common.agenda_displayed] = event
 					valide = True
 				else:
 					if self.conflicts_with_indispensable(events):
