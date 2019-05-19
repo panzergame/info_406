@@ -15,7 +15,7 @@ class AgendaCalendar(Gtk.Button):
 
 		self.calendar = Gtk.Calendar()
 		date = self.common.day.value
-		self.calendar.select_month(date.month - 1, date.year)
+		self.calendar.select_month(date.month-1, date.year)
 		self.calendar.select_day(date.day)
 		self.calendar.connect("day_selected", self.on_changed)
 
@@ -34,6 +34,9 @@ class AgendaCalendar(Gtk.Button):
 
 	def on_changed(self, widget):
 		year, month, day = self.calendar.get_date()
+		month+=1
+		#Pour que month soit entre 1 et 12 au lieu d'entre 0 et 11
+		#et que le format day/month/year soit en accord avec les datetime
 		date = datetime(year, month, day)
 		self.label.set_text(date_to_day_str(date))
 		self.common.day.value = date
