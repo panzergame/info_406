@@ -120,7 +120,7 @@ class AddEventButton(Gtk.Button):
 					#if self.conflicts_with_indispensable(events):
 					#	valide = self.manage_spe_conflicts(events)
 					#else:
-					valide = self.manage_std_conflicts(events)
+					valide = self.manage_std_conflicts(agenda, event, events)
 			else:
 				valide = True
 		dia.destroy()
@@ -132,14 +132,6 @@ class AddEventButton(Gtk.Button):
 		else:
 			res = True
 		dialog.destroy()
-		return res
-
-	def manage_std_conflicts(self, events_list):
-		dialog = StdConflictDialog(events_list)
-		if dialog.run() == Gtk.ResponseType.OK:
-			res = False
-		else:
-			res = True
 		return res
 
 	def no_conflict(self, events_list):
@@ -154,12 +146,56 @@ class AddEventButton(Gtk.Button):
 	def indispensable(self, event):"""
 
 
-	def manage_std_conflicts(self, events_list):
-		dialog = StdConflictDialog(events_list)
-		if dialog.run() == Gtk.ResponseType.OK:
+	def manage_std_conflicts(self, agenda, event, events_list):
+		dialog = StdConflictDialog(event.start, event.end, self.common)
+		if (dialog.run() == Gtk.ResponseType.OK):
+			res = self.force_creation(agenda, event, events_list)
+		elif (dialog.run() == 1):
+			res = self.edit_events(agenda, event, events_list)
+		elif (dialog.run() == 2):
 			res = False
 		else:
 			res = True
+		dialog.destroy()
+		return res
+
+	def force_creation(self, agenda, event, events_list):
+		dialog = ForceRequestDialog()
+		if (dialog.run() == Gtk.ResponseType.OK):
+			for e in events_list:
+				e.delete()
+			agenda.add_event(event)
+			self.common.event_clicked.value = event
+			res = True
+		else:
+			res = False
+		dialog.destroy()
+		return res
+
+	def edit_events(self, agenda, event, events_list):
+		dialog = EditEventsDialog(events_list)
+		valide = False
+		while(not(valide)):
+			if (dialog.run() == Gtk.ResponseType.OK):
+				if (dialog.no_conflicts):
+					dia = EditRequestDialog()
+					if (dia.run() == Gtk.ResponseType.OK):
+						# Procéder aux changements
+						#agenda.add_event(event)
+						#self.common.event_clicked.value = event
+						res = True
+						valide = True
+					dia.destroy()
+				else:
+					dia = Gtk.MessageDialog(None, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK,
+											"Alerte : Action impossible")
+					dia.format_secondary_text("Il reste des conflits non résolus, il ne doit rester "
+											  "aucun conflit pour continuer.")
+					dia.run()
+					dia.destroy()
+			else:
+				res = False
+				valide = True
 		dialog.destroy()
 		return res
 
