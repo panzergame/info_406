@@ -119,24 +119,19 @@ class Agenda(Data):
 		"""
 		chunks = self._get_chunks(from_date, to_date)
 
-		events = set()
-		for chunk in chunks:
-			for event in chunk:
-				if event.intersect_range(from_date, to_date):
-					events.add(event)
+		return set(event
+				for chunk in chunks
+					for event in chunk
+						if event.intersect_range(from_date, to_date))
 
-		return events
+	def notifications_accepted(self, from_date, to_date):
+		return set(notif.event
+				for notif in self._notifications
+					if notif.status == Notification.ACCEPTED and notif.event.intersect_range(from_date, to_date))
 
 	def all_events(self, from_date, to_date):
-		""" Renvoi tous les évenement avec ceux des agendas liés """
-		events = self.events(from_date, to_date)
-		# On ajoute les événements distants acceptés.
-		#for agenda in self.linked_agendas:
-			#events |= agenda.all_events(from_date, to_date)
-
-		events |= set(notif.event for notif in self._notifications if notif.status == Notification.ACCEPTED)
-
-		return events
+		""" Renvoi tous les évenement avec ceux des agendas liés accepté """
+		return self.events(from_date, to_date) | self.notifications_accepted(from_date, to_date)
 
 	def last_events(self, last_date):
 		""" Chargement de plus d'événements récent """
