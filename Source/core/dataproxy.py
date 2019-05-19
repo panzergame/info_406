@@ -63,9 +63,9 @@ class DataProxy(WeakRefered):
 
 	def __repr__(self):
 		if "_data" not in dir(self):
-			return "[Proxy of {} type {}, {}]".format(self._id, self._type.__name__, hex(id(self)))
+			return "#[Proxy of {} type {}, {}]#".format(self._id, self._type.__name__, hex(id(self)))
 		else:
-			return self._data.__repr__()
+			return "#[{}]#".format(self._data.__repr__())
 
 	def __hash__(self):
 		return hash(self._type) ^ hash(self._id)

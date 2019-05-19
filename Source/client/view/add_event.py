@@ -16,23 +16,35 @@ def datetime_str(date):
 	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
-	def __init__(self, common):
-		Gtk.Dialog.__init__(self, "Ajouter un événement", None, 0,
+	def __init__(self, common, ex_event = None):
+		if ex_event is None:
+			title = "Ajouter un événement"
+		else:
+			title = "Modifier un événement"
+
+		Gtk.Dialog.__init__(self, title , None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 		self.common = common
 
-		self.start = datetime.now().replace(minute=0)
-		self.end = self.start + timedelta(minutes=30)
-
 		self.name_entry = Gtk.Entry()
-		self.name_entry.set_text("nom")
-
 		self.type_entry = Gtk.Entry()
-		self.type_entry.set_text("type")
-
 		self.description_entry = Gtk.Entry()
-		self.description_entry.set_text("description")
+
+		if ex_event is None:
+			self.start = datetime.now().replace(minute=0)
+			self.end = self.start + timedelta(minutes=30)
+			self.name_entry.set_text("nom")
+			self.type_entry.set_text("type")
+			self.description_entry.set_text("description")
+
+		else:
+			self.start = ex_event.start
+			self.end = ex_event.end
+			self.name_entry.set_text(ex_event.type)
+			self.type_entry.set_text("type") #TODO quand type sera mis, il faudra que ça prenne la bonne valeur
+			self.description_entry.set_text(ex_event.description)
+
 
 		self.start_button = Gtk.Button(datetime_str(self.start))
 		self.start_button.connect("clicked", self.on_start_clicked)
@@ -105,46 +117,48 @@ class AddEventButton(Gtk.Button):
 		self.common = common
 
 	def on_clicked(self, button):
-		dia = AddEventDialog(self.common)
+		self.launch_add_event()
+
+	def launch_add_event(self, ex_event = None):
+		dia = AddEventDialog(self.common, ex_event)
 		valide = False
 		while(not(valide)):
 			if dia.run() == Gtk.ResponseType.OK:
+				if ex_event is not None:
+					ex_event.delete()
 				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
 				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
 				events = agenda.all_events(event.start, event.end)
 				if self.no_conflict(events):
 					agenda.add_event(event)
-					self.common.event_clicked.value = event
+					self.common.event_clicked.value[self.common.agenda_displayed] = event
 					valide = True
 				else:
-					#if self.conflicts_with_indispensable(events):
-					#	valide = self.manage_spe_conflicts(events)
-					#else:
-					valide = self.manage_std_conflicts(agenda, event, events)
+					if self.conflicts_with_indispensable(events):
+						valide = self.manage_spe_conflicts(events)
+					else:
+						valide = self.manage_std_conflicts(events)
 			else:
 				valide = True
 		dia.destroy()
 
 	def manage_spe_conflicts(self, events_list):
 		dialog = SpeConflictDialog(events_list, self.common)
-		if dialog.run() == Gtk.ResponseType.OK:
-			res = False
-		else:
-			res = True
+		res = (dialog.run() == Gtk.ResponseType.OK)
 		dialog.destroy()
 		return res
 
 	def no_conflict(self, events_list):
 		return events_list == set()
 
-	"""def conflicts_with_indispensable(self, events_list):
+	def conflicts_with_indispensable(self, events_list):
 		for event in events_list:
 			if self.indispensable(event):
 				return True
 		return False
 
-	def indispensable(self, event):"""
-
+	def indispensable(self, event):
+		return (self.common.user_clicked in event.users)
 
 	def manage_std_conflicts(self, agenda, event, events_list):
 		dialog = StdConflictDialog(event.start, event.end, self.common)

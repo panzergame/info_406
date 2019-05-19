@@ -12,11 +12,14 @@ class Common:
 		self.agenda_displayed = ObservableAttribute(None)
 		self.account = ObservableAttribute(None)
 		self.day = ObservableAttribute(datetime.now())
-		self.event_clicked = ObservableAttribute(None)
+		self.event_clicked = ObservableDict()
 		self.notification_clicked = ObservableAttribute(None)
-		self.users_filtered = ObservableAttribute({})
-		self.resources_filtered = ObservableAttribute({})
+		self.users_filtered = ObservableDict()
+		self.resources_filtered = ObservableDict()
+		self.hours_displayed=ObservableAttribute(24)
+		self.days_displayed=ObservableAttribute(7)
 		self.collection = collection
+
 
 	def notify(self):
 		self.is_connected.notify()

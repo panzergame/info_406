@@ -22,14 +22,15 @@ class AgendaBox(Gtk.VBox):
 		self.overlay = Gtk.Overlay()
 		#Widget permettant de superposer d'autres widget
 		
-		self.overlay.add(AgendaTimeAnnotations(common.day.value))
+		self.overlay.add(AgendaTimeAnnotations(common))
 		#Ajout du fond de l'agenda, séparateurs de jours et d'heures
 
 		self.agenda_events = AgendaEvents(common)
 		self.overlay.add_overlay(self.agenda_events)
 		#Ajout des évènements de l'agenda
-		
 
+		self.overlay.add_overlay(AgendaDayAnnotations(common))
+		
 		eventBox.add(self.overlay)
 		self.add(eventBox)
 
@@ -53,10 +54,15 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			events = self.events(start, end)
 			notif = self.notification(start, end)
 			slots = self.presence.slots(start, end)
+			selected_event = self.common.event_clicked.value.get(self.common.agenda_displayed.value, None)
 
 			AgendaEvents.drawEventsAndSlots(da, ctx, events, slots, now)
 			if notif is not None:
 				AgendaEvents.drawEvent(da, ctx, notif.event, now, (1, 1, 1, 0.5))
+
+			if selected_event is not None:
+				AgendaEvents.drawSelectedEvent(da, ctx, selected_event, now)
+
 
 		self.connect('draw', draw)
 
@@ -98,7 +104,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def drawEventsAndSlots(drawingArea, context, events, slots, firstDay):
-		#Méthode appelant la méthode dessinant un event sur chaque event de l'agenda
+		"""Méthode appelant la méthode dessinant un event sur chaque event de l'agenda"""
 		
 		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
 		#On récupère la taille de la zone d'affichage de l'agenda
@@ -121,11 +127,12 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def getSlotCoords(start, end, firstDay):
+		"""Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT"""
 		minutesPerDay = 24*60
 		daysDisplayed = 7
 
 		def toDayMinutes(date):
-			#Permet de connaître le nombre de minutes d'un datetime ou un timedelta sans prendre en compte les jours
+			"""Permet de connaître le nombre de minutes d'un datetime ou un timedelta sans prendre en compte les jours"""
 			if type(date) == datetime:
 				return date.minute + date.hour*60
 			elif type(date) == timedelta:
@@ -134,7 +141,6 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			else:
 				raise ValueError
 
-		#Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT
 		rectanglesList=[]
 		currentStart = start
 		for i in range(end.day-start.day+1):
@@ -160,29 +166,47 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 
 	@staticmethod
 	def drawEvent(drawingArea, context, event, firstDay, color):
-		#Méthode permettant de dessiner un évènement
+		"""Méthode permettant de dessiner un évènement"""
 
 		def drawEventInfo(drawingArea, context, event_rectangle, color):
-			#Permet de dessiner le résumé des informations d'un event
-			x,y,width,height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
+			"""Permet de dessiner les informations d'un évènement au bon endroit"""
+			hours_displayed=24
+			display_area_x,display_area_y,display_area_width,display_area_height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
 
 			if(sum(color)>1.5):
-			#Test de si la couleur de l'event est claire ou foncée
+			#Test de si la couleur de l'event est claire ou foncée pour une couleur de texte opposée
 				color = (0,0,0)
 			else:
 				color = (1,1,1)
-
 			context.set_source_rgb(color[0],color[1],color[2])
 
-			x_text = x + 0.1*width
-			y_text = y + 0.5*height
+			#Calcul des coordonnées du texte affichant le type de l'event
+			event_type_text = event.type
+
+			type_xbearing, type_ybearing, event_text_width, event_text_height, event_text_dx, event_text_dy = context.text_extents(event_type_text)
+			#Obtention de la taille d'affichage du texte
+
+			x_event_type = display_area_x + (display_area_width-event_text_width)/2
+			y_event_type = display_area_y + (display_area_height-event_text_height)/2
+			#On centre le texte dans le carré représentant l'event en x et on le décale un peu en y
+					
+			context.move_to(x_event_type,y_event_type)
+			context.show_text(event_type_text)
+			#Affichage du texte
+
+			#Calcul des coordonnées du texte affichant la durée de l'event
+			event_duration_text = "{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute)
+
+			duration_xbearing, duration_ybearing, event_duration_width, event_duration_height, event_duration_dx, event_duration_dy = context.text_extents(event_duration_text)
+			#Obtention de la taille d'affichage du texte
+
+			x_event_duration = display_area_x + (display_area_width-event_duration_width)/2
+			y_event_duration = y_event_type + 1/(2*hours_displayed) #Décalage de 30min par rapport à l'affichage du type de l'event
+			#coordonnées d'affichage du texte
 		
-			context.move_to(x_text,y_text)
-			context.show_text("{}".format(event.type))
-		
-			context.move_to(x_text,y_text+1/48)
-			#Décalage de 1/2 heure vers le bas par rapport au type de l'event
-			context.show_text("{:02d}h{:02d}-{:02d}h{:02d}".format(event.start.hour, event.start.minute, event.end.hour, event.end.minute))
+			context.move_to(x_event_duration, y_event_duration)
+			context.show_text(event_duration_text)
+			#affichage du texte
 
 		#Affichage d'un rectangle de couleur pour l'event
 		for event_rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
@@ -195,6 +219,15 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			context.fill()
 
 	@staticmethod
+	def drawSelectedEvent(drawingArea, context, event, firstDay):
+		for x, y, width, height in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(0,0,0),0.005)
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(1,1,1),0.004)
+			AgendaEvents.drawInnerBorder(drawingArea,context,x,y,width,height,(0,0,0),0.001)
+			#Pour faire une bande blanche aux bords noirs 
+			
+
+	@staticmethod
 	def drawSlot(drawingArea, context, slot, firstDay, color):
 		daysDisplayed = 7
 
@@ -204,64 +237,135 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			context.rectangle(x, y, width, height)
 			context.fill()
 
-class AgendaTimeAnnotations(Gtk.DrawingArea):
-	#Classe d'affichage du fond de l'agenda
-	def __init__(self, startDay):
-		day  = startDay
-		def draw(da, ctx):
-			AgendaTimeAnnotations.drawAnnotations(da, ctx, day)
-			
+	@staticmethod
+	def drawInnerBorder(drawingArea, context, x, y, width, height, color, border_width):
+		"""Fonction qui permet de tracer une bordure intérieure d'un rectangle"""
+		context.set_source_rgb(*color)
+		context.set_line_width(border_width)
+		context.rectangle(x+border_width/2,y+border_width/2,width-border_width,height-border_width)
+		#Quand on trace le contour d'un rectangle avec pycairo, le "milieu" de la bordure correspond au coordonnées du rectangle
+		#le calcul effectué sur les coordonnées permet de dessiner une bordure "intérieure" au rectangle auquel on ajout la bordure
+		context.stroke()
+
+class AgendaDayAnnotations(Gtk.DrawingArea, ViewObserver):
+	"""
+	Zone de dessin qui affiche le nom des jours et les traits de séparation entre les jours
+	"""
+	def __init__(self, common):
 		Gtk.DrawingArea.__init__(self)
+		ViewObserver.__init__(self, common, common.day)
+		self.day = common.day.value
+		self.hours_displayed = common.hours_displayed.value
+		self.days_displayed = common.days_displayed.value
+
 		self.set_property("expand",True)
-		self.connect('draw', draw)
+		self.connect('draw', self.draw)
+		self.show_all()
+	
+	def draw(self, drawingArea, context):
+		"""
+		Dessine les annotations de jour
+		"""
+		###########################
+		#initialisation du contexte
+		###########################
+
+		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
+		context.scale(size[0], size[1])
+		#Mise à l'échelle du contexte
+		
+		context.select_font_face("Purisa")
+		#Choix de la police d'écriture
+
+		dashes=[1,0]
+		context.set_dash(dashes)
+		#On enlève les pointillés potentiels
+			
+		context.set_line_width(0.001)
+		#Taille des lignes tracées
+
+		context.set_font_size(((1/2)*(1/self.hours_displayed)))
+		#La hauteur du texte est la même que la hauteur d'une demi-heure dans l'agenda
+
+		context.set_source_rgb(0.2,0.2,0.2)
+		#Taille de police et couleur
+
+		###########################
+		#Traçage des lignes séparant les jours et de date/nom pour chaque jour
+		###########################
+
+		for i in range(0, self.days_displayed):
+			#Affichage de la date en haut de chaque colonne correspondant à un jour
+			#On choisit la position de départ pour que le texte soit centré
+
+			day_text =  AgendaDayAnnotations.dayToString(self.day+timedelta(days=i))
+			xbearing, ybearing, text_width, text_height, dx, dy = context.text_extents(day_text)
+			#On récupère la taille que fera le texte
+
+			display_area_width = 1/self.days_displayed
+			display_area_height = 1/self.hours_displayed
+			#Taille de la zone où on affiche le texte
+
+			display_area_x = display_area_width*i
+			display_area_y = (1/2)*(1/self.hours_displayed)
+			#On affiche le texte sur la première demi-heure de la journée
+
+			text_x_offset = (display_area_width - text_width)/2
+			#Décalage du texte par rapport à la zone d'affichage pour que le texte soit centré en x
+
+			context.move_to(display_area_x + text_x_offset, display_area_y + 0)
+			context.show_text(day_text)
+
+		for i in range(1, self.days_displayed):
+			#Traçage des lignes verticales séparant les jours
+			context.move_to(i/(self.days_displayed), 0)
+			context.line_to(i/(self.days_displayed), 1)
+	
+		context.stroke()
+		#Application des changements
+
+	def update(self):
+		"""méthode appelée lorsque le modèle change"""
+		self.queue_draw()
+
+	@staticmethod
+	def dayToString(current_day):
+		day_num = current_day.weekday()
+		if day_num == 0:
+			dayName="lun"
+		elif day_num == 1:
+			dayName="mar"
+		elif day_num == 2:
+			dayName="mer"
+		elif day_num == 3:
+			dayName="jeu"
+		elif day_num == 4:
+			dayName="ven"
+		elif day_num == 5:
+			dayName="sam"
+		elif day_num == 6:
+			dayName="dim"
+
+		return ("{} {:02d}/{:02d}".format(dayName, current_day.day, current_day.month))
+
+class AgendaTimeAnnotations(Gtk.DrawingArea):
+	"""Classe de dessin des annotations de temps"""
+	def __init__(self, common):
+		Gtk.DrawingArea.__init__(self)
+		self.hours_displayed = common.hours_displayed.value
+		self.days_displayed = common.days_displayed.value
+
+		self.set_property("expand",True)
+		self.connect('draw', self.draw)
 		self.show_all()
 
-	def drawAnnotations(drawingArea, context, startDay):
-		#Classe de dessin des annotations de temps
-		daysDisplayed = 7
-		hoursDisplayed = 24
-		def drawTimeLines():
-			#Méthode de traçage des lignes correspondant aux heures
-			dashes=[(1/70),(1/70)]
-			context.set_dash(dashes)
-			#Pointillé
-			
-			context.set_font_size((1/3)*(1/hoursDisplayed))
-			context.set_source_rgb(0.5, 0.5, 0.5)
-			#Taille de police et couleur
-			
-			for i in range(1, hoursDisplayed):
-				#Pour chaque heure
-				
-				context.move_to(0.002, (i/hoursDisplayed)-0.002)
-				context.show_text("{}h".format(i))
-				#On se place un peu au dessus de la ligne à tracer et on écrit l'heure
-				
-				context.move_to(0, i/hoursDisplayed)
-				context.line_to(1, i/hoursDisplayed)
-				#On trace la ligne
+	def draw(self, drawingArea, context):
+		#Méthode qui trace les annotations
 
-		def drawDayLines():
-			#Méthode de traçage des lignes correspondant aux jours
-			dashes=[1,0]
-			context.set_dash(dashes)
-			#On enlève les pointillés potentiels
-			
-			context.set_font_size(((1/2)*(1/hoursDisplayed)))
-			context.set_source_rgb(0.5,0.5,0.5)
-			#Taille de police et couleur
+		#################################
+		#Intialisation du contexte
+		#################################
 
-			for i in range(0, daysDisplayed):
-				#Affichage de la date en haut de chaque colonne correspondant à un jour
-				context.move_to((1/(4*daysDisplayed))+i*(1/daysDisplayed), 1/(2*hoursDisplayed))
-				context.show_text("{:02d}/{:02d}".format((timedelta(i)+startDay).day, (timedelta(i)+startDay).month))
-
-			for i in range(1, daysDisplayed):
-				#Traçage des lignes verticales séparant les jours
-				context.move_to(i/(daysDisplayed), 0)
-				context.line_to(i/(daysDisplayed), 1)
-
-			
 		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
 		context.scale(size[0], size[1])
 		#Mise à l'échelle du contexte
@@ -273,12 +377,33 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
 		context.select_font_face("Purisa")
 		#Choix de la police d'écriture
 		
-		drawTimeLines()
 		context.set_line_width(0.002)
+		#épaisseur des lignes tracées
+
+		dashes_width = 1/(self.days_displayed*10)
+		dashes=[dashes_width,dashes_width]
+		context.set_dash(dashes)
+		#Permet d'afficher un trait pointillé avec 5 répétitions de motif par jour affiché
+			
+		context.set_font_size((1/3)*(1/self.hours_displayed))
+		context.set_source_rgb(0.5, 0.5, 0.5)
+		#Taille de police et couleur
+
+		##############################
+		#Tracage des annotations
+		#############################
+			
+		for i in range(1, self.hours_displayed):
+			#Pour chaque heure
+				
+			context.move_to(0.002, (i/self.hours_displayed)-0.002)
+			context.show_text("{}h".format(i))
+			#On se place un peu au dessus de la ligne à tracer et on écrit l'heure
+				
+			context.move_to((dashes_width/2), i/self.hours_displayed)
+			#(dashes_width/2) correspond au décalage de départ du trait pointillé
+			context.line_to(1, i/self.hours_displayed)
+			#On trace les pointillés
+
 		context.stroke()
 		#Traçage des lignes correspondant aux heures
-		
-		drawDayLines()
-		context.set_line_width(0.001)
-		context.stroke()
-		#Traçage des lignes correspondant aux jours

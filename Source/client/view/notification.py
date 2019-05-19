@@ -22,6 +22,16 @@ class NotificationBox(Gtk.ListBox, ViewObserver):
 		self.creation = Gtk.Label()
 		self.status = Gtk.Label()
 		self.agenda = Gtk.Label()
+		self.intersect_list = Gtk.ListStore(str, str, str, object)
+		self.intersect_view = Gtk.TreeView(self.intersect_list)
+
+		type_column = Gtk.TreeViewColumn("Type", Gtk.CellRendererText(), text=0)
+		date_column = Gtk.TreeViewColumn("Date", Gtk.CellRendererText(), text=1)
+		creation_column = Gtk.TreeViewColumn("Crée le", Gtk.CellRendererText(), text=2)
+
+		self.intersect_view.append_column(type_column)
+		self.intersect_view.append_column(date_column)
+		self.intersect_view.append_column(creation_column)
 
 		scroll = Gtk.ScrolledWindow()
 		scroll.add(self.description)
@@ -69,6 +79,15 @@ class NotificationBox(Gtk.ListBox, ViewObserver):
 		self.add(row)
 
 		row = Gtk.ListBoxRow()
+		box = Gtk.VBox()
+		box.add(Gtk.Label("En conflit avec", xalign=0))
+		scroll = Gtk.ScrolledWindow()
+		scroll.add(self.intersect_view)
+		box.add(scroll)
+		row.add(box)
+		self.add(row)
+
+		row = Gtk.ListBoxRow()
 		box = Gtk.HBox()
 
 		accept = Gtk.Button("Accepter")
@@ -84,11 +103,22 @@ class NotificationBox(Gtk.ListBox, ViewObserver):
 		self.add(row)
 
 	def on_accept_clicked(self, button):
-		self.common.notification_clicked.value.status = Notification.ACCEPTED
+		notif = self.common.notification_clicked.value
+		if len(notif.self_intersected_events) > 0:
+			dialog = Gtk.MessageDialog(None, 0, Gtk.MessageType.WARNING,
+				Gtk.ButtonsType.OK, "Attention")
+			dialog.format_secondary_text("Cette action supprimera les événéments en conflits")
+
+			if dialog.run() == Gtk.ResponseType.OK:
+				notif.accept()
+			dialog.destroy()
+		else:
+			notif.accept()
+
 		self.common.notification_clicked.notify()
 
 	def on_deny_clicked(self, button):
-		self.common.notification_clicked.value.status = Notification.REJECTED
+		self.common.notification_clicked.value.reject()
 		self.common.notification_clicked.notify()
 
 	def update(self):
@@ -103,6 +133,12 @@ class NotificationBox(Gtk.ListBox, ViewObserver):
 			self.creation.set_text(datetime_str(event.creation_date))
 			self.agenda.set_text(event.agenda.name)
 			self.status.set_text(notif.status)
+
+			self.intersect_list.clear()
+			for _event in notif.self_intersected_events:
+				self.intersect_list.append((_event.type, event_to_date_str(_event.start, _event.end),
+						datetime_str(_event.creation_date), _event))
+
 			self.show()
 		else:
 			self.hide()

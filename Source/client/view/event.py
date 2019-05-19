@@ -5,12 +5,13 @@ from gi.repository import Gtk
 from .common import *
 from .observer import *
 from datetime import *
+from .add_event import *
 
 class EventBox(Gtk.ListBox, ViewObserver):
 	#Boîte d'affichage détaillé d'un évènement
 	def __init__(self, common):
 		Gtk.ListBox.__init__(self)
-		ViewObserver.__init__(self, common, common.event_clicked)
+		ViewObserver.__init__(self, common, common.event_clicked, common.agenda_displayed)
 
 		self.initSubElements()
 
@@ -63,16 +64,28 @@ class EventBox(Gtk.ListBox, ViewObserver):
 		row.add(box)
 		self.add(row)
 
-		button = Gtk.Button("Supprimer")
-		button.connect("clicked", self.on_delete_clicked)
+		button = Gtk.Button("Modifier")
+		button.connect("clicked", self.on_modify_clicked)
 		self.add(button)
 
+		self.supp_button = Gtk.Button("Supprimer")
+		self.supp_button.connect("clicked", self.on_delete_clicked)
+		self.add(self.supp_button)
+
+
 	def on_delete_clicked(self, button):
-		self.common.event_clicked.value.delete()
-		self.common.event_clicked.value = None
+		self.common.event_clicked.value[self.common.agenda_displayed.value].delete()
+		self.common.event_clicked.value[self.common.agenda_displayed.value] = None
+
+	def on_modify_clicked(self, button):
+		ex = self.common.event_clicked.value[self.common.agenda_displayed.value]
+		button = AddEventButton(self.common)
+		button.launch_add_event(ex)
+
 
 	def update(self):
-		ev = self.common.event_clicked.value
+		ev = self.common.event_clicked.value.get(self.common.agenda_displayed.value, None)
+		#.get(self.common.agenda_displayed.value, None)
 		#Mis à jour des éléments du widget en fonction du modele
 		if ev is None:
 			self.hide()

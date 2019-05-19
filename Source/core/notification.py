@@ -21,6 +21,40 @@ class Notification(Data):
 		self._event = DataOwnerProperty.init(event, self)
 		self._agenda = DataOwnerProperty.init(agenda, self)
 		self._status = status
+		self._self_intersected_events = WeakRefSet(set())
+		self._remote_intersected_notifs = WeakRefSet(set())
 
 	def __repr__(self):
 		return "({}, {}, {})".format(self.event, self.agenda, self.status)
+
+	def accept(self):
+		""" Accepte la notification et refuse les événements/notification
+		en conflit """
+		self.status = self.ACCEPTED
+
+		# Suppression des événements en conflit.
+		for event in self.self_intersected_events:
+			self.agenda.remove_event(event)
+		# Refus des notifications en conflit.
+		for notif in self.remote_intersected_notifs:
+			notif.reject()
+
+	def reject(self):
+		""" Refuse la notification """
+		self.status = self.REJECTED
+
+	@property
+	def self_intersected_events(self):
+		return self._self_intersected_events
+
+	@self_intersected_events.setter
+	def self_intersected_events(self, events):
+		self._self_intersected_events = WeakRefSet(events)
+
+	@property
+	def remote_intersected_notifs(self):
+		return self._remote_intersected_notifs
+
+	@remote_intersected_notifs.setter
+	def remote_intersected_notifs(self, notifs):
+		self._remote_intersected_notifs = WeakRefSet(notifs)
