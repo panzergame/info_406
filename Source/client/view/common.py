@@ -9,8 +9,14 @@ def get_or_init(d, key, init):
 		d[key] = init
 	return d[key]
 
+def datetime_str(date):
+	return date.strftime("%d/%m/%Y à %H:%M")
+
+def date_to_day_str(date):
+	return date.strftime("%d/%m/%Y")
+
 def date_to_hour_str(date):
-	return "{:02d}:{:02d}".format(date.hour, date.minute)
+	return date.strftime("%H:%M")
 
 def event_to_date_str(start, end):
 	""" Conversion de la date et heure d'un événement en une chaine. """
