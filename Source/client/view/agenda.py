@@ -55,8 +55,9 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			notif = self.notification(start, end)
 			slots = self.presence.slots(start, end)
 			selected_event = self.common.event_clicked.value.get(self.common.agenda_displayed.value, None)
+			agenda_displayed = self.common.agenda_displayed.value
 
-			AgendaEvents.drawEventsAndSlots(da, ctx, events, slots, now)
+			AgendaEvents.drawEventsAndSlots(da, ctx, agenda_displayed, events, slots, now)
 			if notif is not None:
 				AgendaEvents.drawEvent(da, ctx, notif.event, now, (1, 1, 1, 0.5))
 
@@ -103,7 +104,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		self.queue_draw()
 
 	@staticmethod
-	def drawEventsAndSlots(drawingArea, context, events, slots, firstDay):
+	def drawEventsAndSlots(drawingArea, context, agenda_displayed, events, slots, firstDay):
 		"""Méthode appelant la méthode dessinant un event sur chaque event de l'agenda"""
 		
 		size = (drawingArea.get_allocation().width, drawingArea.get_allocation().height)
@@ -113,8 +114,12 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		#On met à l'échelle le contexte dans lequel on va dessiner
 		
 		for event in events:
-			color = ((event.start.hour/24),(event.start.day/30),(event.start.month/12), 1)
-			#todo mettre une vraie sélection de couleur, actuellement dépend de la date
+			if event.agenda.user == agenda_displayed.user or event.agenda.group == agenda_displayed.group:
+				#Si l'évènement dessiné est un évènement propre à l'agenda affiché (donc agenda affiché et agenda de l'évènement ont le même propriétaire)
+				color=(0,0.6,0.7)
+			else:
+				#Sinon (évènement externe)
+				color=(0.67,0.85,0.9)
 			
 			context.set_font_size((1/2)*(1/24))
 			#La taille des textes est la moitié de l'espace occupé verticalement par une heure
@@ -173,12 +178,8 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			hours_displayed=24
 			display_area_x,display_area_y,display_area_width,display_area_height=event_rectangle[0],event_rectangle[1],event_rectangle[2],event_rectangle[3]
 
-			if(sum(color)>1.5):
-			#Test de si la couleur de l'event est claire ou foncée pour une couleur de texte opposée
-				color = (0,0,0)
-			else:
-				color = (1,1,1)
-			context.set_source_rgb(color[0],color[1],color[2])
+			text_color = (0,0,0)
+			context.set_source_rgb(*text_color)
 
 			#Calcul des coordonnées du texte affichant le type de l'event
 			event_type_text = event.type
@@ -213,8 +214,13 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			x, y, width, height = event_rectangle
 			context.set_source_rgba(*color)
 			context.rectangle(x, y, width, height)
+			
 			context.fill()
 			#Affichage des infos de l'event sur ce rectangle
+
+			AgendaEvents.drawInnerBorder(drawingArea, context, x, y, width, height, (0,0,0), 0.0005)
+			#léger contour pour chaque évènement
+
 			drawEventInfo(drawingArea, context, event_rectangle, color)
 			context.fill()
 
