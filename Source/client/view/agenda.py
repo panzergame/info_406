@@ -257,6 +257,7 @@ class AgendaDayAnnotations(Gtk.DrawingArea, ViewObserver):
 		self.day = common.day.value
 		self.hours_displayed = common.hours_displayed.value
 		self.days_displayed = common.days_displayed.value
+		self.common = common
 
 		self.set_property("expand",True)
 		self.connect('draw', self.draw)
@@ -326,7 +327,9 @@ class AgendaDayAnnotations(Gtk.DrawingArea, ViewObserver):
 
 	def update(self):
 		"""méthode appelée lorsque le modèle change"""
-		self.queue_draw()
+		self.day = self.common.day.value
+		self.hours_displayed = self.common.hours_displayed.value
+		self.days_displayed = self.common.days_displayed.value
 
 	@staticmethod
 	def dayToString(current_day):
@@ -356,6 +359,7 @@ class AgendaTimeAnnotations(Gtk.DrawingArea, ViewObserver):
 
 		self.hours_displayed = common.hours_displayed.value
 		self.days_displayed = common.days_displayed.value
+		self.common = common
 
 		self.set_property("expand",True)
 		self.connect('draw', self.draw)
@@ -412,4 +416,5 @@ class AgendaTimeAnnotations(Gtk.DrawingArea, ViewObserver):
 
 	def update(self):
 		"""méthode appelée lorsque le modèle change"""
-		self.queue_draw()
+		self.hours_displayed = self.common.hours_displayed.value
+		self.days_displayed = self.common.days_displayed.value
