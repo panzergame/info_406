@@ -137,13 +137,13 @@ class AddEventButton(Gtk.Button):
 					if self.conflicts_with_indispensable(events):
 						valide = self.manage_spe_conflicts(events)
 					else:
-						valide = self.manage_std_conflicts(events)
+						valide = self.manage_std_conflicts(agenda, event, events)
 			else:
 				valide = True
 		dia.destroy()
 
 	def manage_spe_conflicts(self, events_list):
-		dialog = SpeConflictDialog(events_list, self.common)
+		dialog = SpeConflictDialog(events_list)
 		res = (dialog.run() == Gtk.ResponseType.OK)
 		dialog.destroy()
 		return res
@@ -179,7 +179,7 @@ class AddEventButton(Gtk.Button):
 			for e in events_list:
 				e.delete()
 			agenda.add_event(event)
-			self.common.event_clicked.value = event
+			self.common.event_clicked.value[self.common.agenda_displayed] = event
 			res = True
 		else:
 			res = False
@@ -191,7 +191,7 @@ class AddEventButton(Gtk.Button):
 		valide = False
 		while(not(valide)):
 			if (dialog.run() == Gtk.ResponseType.OK):
-				if (dialog.no_conflicts):
+				if (dialog.no_conflicts()):
 					dia = EditRequestDialog()
 					if (dia.run() == Gtk.ResponseType.OK):
 						# Procéder aux changements
