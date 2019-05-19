@@ -24,7 +24,7 @@ class ClientCollection(DbCollection):
 	def flush(self):
 		super().flush()
 
-		#self.conn.commit()
+		self.conn.commit()
 
 	def close(self):
 		self.cursor.close()
