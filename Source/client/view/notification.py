@@ -8,9 +8,6 @@ from .common import *
 from .observer import *
 from datetime import *
 
-def datetime_str(date):
-	return date.strftime("%d/%m/%Y à %H:%M")
-
 class NotificationBox(Gtk.ListBox, ViewObserver):
 	def __init__(self, common):
 		Gtk.ListBox.__init__(self)

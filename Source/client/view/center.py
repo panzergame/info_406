@@ -7,8 +7,7 @@ from gi.repository import Gtk
 from client.model import common
 from .agenda_title import AgendaTitleBox
 from .agenda import AgendaBox
-from .add_event import AddEvent
-from .link_button import LinkButton
+from .agenda_menu import *
 
 class CenterBox(Gtk.VBox):
 	"""Boîte contenant tout ce qui est affiché à l'écran"""
@@ -17,4 +16,4 @@ class CenterBox(Gtk.VBox):
 
 		self.pack_start(AgendaTitleBox(common), False, False, 0)
 		self.add(AgendaBox(common))
-		self.pack_end(AddEvent(common), False, False, 0)
+		self.pack_end(AgendaMenu(common), False, False, 0)

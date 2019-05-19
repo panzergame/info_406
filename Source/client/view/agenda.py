@@ -348,10 +348,12 @@ class AgendaDayAnnotations(Gtk.DrawingArea, ViewObserver):
 
 		return ("{} {:02d}/{:02d}".format(dayName, current_day.day, current_day.month))
 
-class AgendaTimeAnnotations(Gtk.DrawingArea):
+class AgendaTimeAnnotations(Gtk.DrawingArea, ViewObserver):
 	"""Classe de dessin des annotations de temps"""
 	def __init__(self, common):
 		Gtk.DrawingArea.__init__(self)
+		ViewObserver.__init__(self, common, common.day)
+
 		self.hours_displayed = common.hours_displayed.value
 		self.days_displayed = common.days_displayed.value
 
@@ -407,3 +409,7 @@ class AgendaTimeAnnotations(Gtk.DrawingArea):
 
 		context.stroke()
 		#Traçage des lignes correspondant aux heures
+
+	def update(self):
+		"""méthode appelée lorsque le modèle change"""
+		self.queue_draw()

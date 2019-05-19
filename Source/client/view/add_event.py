@@ -5,15 +5,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from .date_time import DateTimeDialog
-from .user_filter import *
-from .resource_filter import *
 from core import *
 from datetime import datetime
 from datetime import timedelta
 from .conflict_dialogs import *
-
-def datetime_str(date):
-	return date.strftime("%d/%m/%Y à %H:%M")
 
 class AddEventDialog(Gtk.Dialog):
 	def __init__(self, common, ex_event = None):
@@ -212,11 +207,3 @@ class AddEventButton(Gtk.Button):
 				valide = True
 		dialog.destroy()
 		return res
-
-class AddEvent(Gtk.HBox):
-	def __init__(self, common):
-		Gtk.HBox.__init__(self)
-
-		self.add(UserFilter(common))
-		self.add(ResourceFilter(common))
-		self.add(AddEventButton(common))
