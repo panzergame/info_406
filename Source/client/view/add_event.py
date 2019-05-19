@@ -9,6 +9,7 @@ from core import *
 from datetime import datetime
 from datetime import timedelta
 from .conflict_dialogs import *
+from .common import *
 
 class AddEventDialog(Gtk.Dialog):
 	def __init__(self, common, ex_event = None):
