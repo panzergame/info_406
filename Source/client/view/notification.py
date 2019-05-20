@@ -8,6 +8,11 @@ from .common import *
 from .observer import *
 from datetime import *
 
+class NotificationFrame(Gtk.Frame):
+	def __init__(self, common):
+		super().__init__()
+		self.add(NotificationBox(common))
+
 class NotificationBox(Gtk.ListBox, ViewObserver):
 	def __init__(self, common):
 		Gtk.ListBox.__init__(self)
@@ -145,7 +150,7 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		Gtk.Box.__init__(self)
 		ViewObserver.__init__(self, common, common.agenda_displayed)
 
-		notification = NotificationBox(common)
+		notification = NotificationFrame(common)
 
 		"""
 						1			2			3			4 (objet)
