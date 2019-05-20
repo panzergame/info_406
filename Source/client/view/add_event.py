@@ -158,14 +158,21 @@ class AddEventButton(Gtk.Button):
 
 	def manage_std_conflicts(self, agenda, event, events_list):
 		dialog = StdConflictDialog(event.start, event.end, self.common)
-		if (dialog.run() == Gtk.ResponseType.OK):
-			res = self.force_creation(agenda, event, events_list)
-		elif (dialog.run() == 1):
-			res = self.edit_events(agenda, event, events_list)
-		elif (dialog.run() == 2):
-			res = False
-		else:
-			res = True
+		valide = False
+		while(not(valide)):
+			response = dialog.run()
+			if (response == Gtk.ResponseType.OK):
+				res = self.force_creation(agenda, event, events_list)
+				valide = res
+			elif (response == 1):
+				res = self.edit_events(agenda, event, events_list)
+				valide = res
+			elif (response == 2):
+				res = False
+				valide = True
+			else:
+				res = True
+				valide = True
 		dialog.destroy()
 		return res
 
@@ -183,7 +190,7 @@ class AddEventButton(Gtk.Button):
 		return res
 
 	def edit_events(self, agenda, event, events_list):
-		dialog = EditEventsDialog(events_list)
+		dialog = EditEventsDialog(event.start, event.end, self.common)
 		valide = False
 		while(not(valide)):
 			if (dialog.run() == Gtk.ResponseType.OK):
