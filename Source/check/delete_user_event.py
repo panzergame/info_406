@@ -24,14 +24,25 @@ today = datetime.now()
 hour = timedelta(hours=1)
 half = timedelta(minutes=30)
 
-ev = Event.new(collection, today, today + hour, "INFO_402", "", set(), set())
+ev1 = Event.new(collection, today, today + hour, "INFO_402", "", set(), set())
+ev2 = Event.new(collection, today + hour, today + hour * 2, "INFO_402", "", set(), set())
 
-agenda.add_event(ev)
+l = WeakRefSet()
+l.add(ev1)
+l.add(ev2)
 
+print("list :")
+print(l)
 
-print("delete", ev.id)
-print(agenda._weakrefs)
-print(ev._weakrefs)
-ev.delete()
+print("weak refs ev1")
+print(ev1._weakrefs)
+print("weak refs ev2")
+print(ev2._weakrefs)
 
-agenda.delete()
+print("delete 2")
+ev2.delete()
+print("delete 1")
+ev1.delete()
+
+print("list :")
+print(l)

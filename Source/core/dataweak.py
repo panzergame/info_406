@@ -74,9 +74,7 @@ class WeakRefSet:
 		return self
 
 	def delete(self, owner=None, delete_proxies=False):
-		self._update_owner()
-		for ref in self._weakrefs:
-			ref.delete(owner=self, delete_proxies=False)
+		self._weakrefs.discard(owner)
 		return self.discard(owner, del_ref=False)
 
 	def discard(self, item, del_ref=True):
@@ -118,12 +116,12 @@ class WeakRefered:
 
 	def new_ref(self, ref):
 		""" Ajout d'une reférence, ref sera notifier de la destruction. """
-		#print("new ref", self, ref, type(ref))
+		#print("new ref", self, ref)
 		self._weakrefs.add(ref)
 
 	def del_ref(self, ref):
 		""" Suppression d'une référence, ref ne sera plus notifier de la destruction. """
-		#print("del ref", self, ref, type(ref))
+		#print("del ref", self, ref)
 		self._weakrefs.discard(ref)
 
 	def delete(self):
