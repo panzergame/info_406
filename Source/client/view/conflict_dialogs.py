@@ -53,26 +53,24 @@ class SpeConflictDialog(Gtk.Dialog):
 class StdConflictDialog(Gtk.Dialog):
 	def __init__(self, start, end, common):
 		Gtk.Dialog.__init__(self, "Conflit(s) lors de l'ajout d'un évènement", None, 0,
-			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+			("Abandonner la création", Gtk.ResponseType.CANCEL, "Déplacer l'évènement en cours de création", 2, "Ecraser les évènements existant", Gtk.ResponseType.OK))
 
 		self.common = common
 
 		self.start = start
 		self.end = end
 
-		self.add_button("Éditer", 1)
-		self.add_button("Déplacer", 2)
-		self.add_button(Gtk.STOCK_OK, Gtk.ResponseType.OK)
+		#self.add_button("Éditer", 1)
 
 		self.events_list = self.common.agenda_displayed.value.all_events(self.start, self.end)
 		self.grp_events = self.events_list - self.common.agenda_displayed.value.events(self.start, self.end)
 		self.perso_events = self.events_list - self.grp_events
 
 		self.info = Gtk.Label("""Vous ne pouvez pas ajouter d'évenement sur cette plage horaire car le(s) évènement(s) suivant(s) s'y trouve(nt) déjà :""")
-		self.choix = Gtk.Label(
-			"""Cliquez sur "Valider" pour forcer la création du nouvel évènement sur cette plage horaire et ainsi écraser le(s) évènement(s) déjà existant(s),
-sur "Éditer" pour éditer les évènements déjà présent(s),
-sur "Déplacer" pour déplacer votre nouvel évènement ou sur "Annuler" pour abandonner la création.""")
+		#self.choix = Gtk.Label(
+#	"""Cliquez sur "Valider" pour forcer la création du nouvel évènement sur cette plage horaire et ainsi écraser le(s) évènement(s) déjà existant(s),
+#sur "Éditer" pour éditer les évènements déjà présent(s),
+#sur "Déplacer" pour déplacer votre nouvel évènement ou sur "Annuler" pour abandonner la création.""")
 
 		box = self.get_content_area()
 		box.add(self.info)
@@ -125,7 +123,7 @@ sur "Déplacer" pour déplacer votre nouvel évènement ou sur "Annuler" pour ab
 
 		box.add(view)
 
-		box.add(self.choix)
+		#box.add(self.choix)
 		self.show_all()
 
 	def list_filling(self):
@@ -241,8 +239,8 @@ class PersonalEventRow(Gtk.ListBoxRow):
 		name = Gtk.Label(self.nom)
 		start = Gtk.Label(self.deb)
 		end = Gtk.Label(self.fin)
-		edit = Gtk.Button("Éditer")
-		edit.connect("clicked", self.on_edit_clicked)
+		#edit = Gtk.Button("Éditer")
+		#edit.connect("clicked", self.on_edit_clicked)
 
 		self.hbox.pack_start(name, True, True, 0)
 		self.hbox.pack_start(start, True, True, 0)
@@ -251,9 +249,9 @@ class PersonalEventRow(Gtk.ListBoxRow):
 
 		self.add(self.hbox)
 
-	def on_edit_clicked(self, button):
+	"""def on_edit_clicked(self, button):
 		button = AddEventButton(self.common)
-		button.launch_add_event(self.event)
+		button.launch_add_event(self.event)"""
 
 class GroupEventRow(Gtk.ListBoxRow):
 	def __init__(self, event):
