@@ -79,8 +79,11 @@ class EventBox(Gtk.ListBox, ViewObserver):
 
 	def on_modify_clicked(self, button):
 		ex = self.common.event_clicked.value[self.common.agenda_displayed.value]
+		self.modify_event(ex)
+
+	def modify_event(self, event):
 		button = AddEventButton(self.common)
-		button.launch_add_event(ex)
+		button.launch_add_event(event)
 
 
 	def update(self):
@@ -97,8 +100,6 @@ class EventBox(Gtk.ListBox, ViewObserver):
 			self.description.update(ev.description)
 			self.resources.update(ev.resources)
 			self.users.update(ev.users)
-
-
 
 class EventTitleBox(Gtk.Label):
 	#Label d'affichage du type d'un évènement
