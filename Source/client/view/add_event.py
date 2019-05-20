@@ -11,6 +11,75 @@ from datetime import timedelta
 from .conflict_dialogs import *
 from .common import *
 
+class AddResourceList(Gtk.TreeView):
+	def __init__(self, resources):
+		self.resources = set()
+		self.list = Gtk.ListStore(str, str, int, bool, object)
+
+		Gtk.TreeView.__init__(self, self.list)
+
+		name_column = Gtk.TreeViewColumn("Nom", Gtk.CellRendererText(), text=0)
+		loc_column = Gtk.TreeViewColumn("Location", Gtk.CellRendererText(), text=1)
+		cap_column = Gtk.TreeViewColumn("Capacité", Gtk.CellRendererText(), text=2)
+		selected = Gtk.CellRendererToggle()
+		selected.connect("toggled", self.on_selected)
+		select_column = Gtk.TreeViewColumn("Sélectionné(s)", selected, active=3)
+
+		self.append_column(name_column)
+		self.append_column(loc_column)
+		self.append_column(cap_column)
+
+		for res in resources:
+			self.list.append((res.name, res.location, res.capacity, False, res))
+
+	def on_selected(self, widget, path):
+		row = self.list[path]
+		row[3] = not row[3]
+
+		res = row[4]
+
+		if row[3]:
+			self.resources.add(res)
+		else:
+			self.resources.discard(res)
+
+class AddUserList(Gtk.TreeView):
+	def __init__(self, users):
+		self.users = set()
+		self.list = Gtk.ListStore(str, str, bool, object)
+
+		Gtk.TreeView.__init__(self, self.list)
+
+		first_name = Gtk.CellRendererText()
+		last_name = Gtk.CellRendererText()
+
+		name_column = Gtk.TreeViewColumn("Nom")
+		name_column.pack_start(first_name, True)
+		name_column.pack_start(last_name, True)
+		name_column.add_attribute(first_name, "text", 0)
+		name_column.add_attribute(last_name, "text", 1)
+
+		selected = Gtk.CellRendererToggle()
+		selected.connect("toggled", self.on_selected)
+		select_column = Gtk.TreeViewColumn("Sélectionné(s)", selected, active=2)
+
+		self.append_column(name_column)
+		self.append_column(select_column)
+
+		for user in users:
+			self.list.append((user.first_name, user.last_name, False, user))
+
+	def on_selected(self, widget, path):
+		row = self.list[path]
+		row[2] = not row[2]
+
+		user = row[3]
+
+		if row[2]:
+			self.users.add(user)
+		else:
+			self.users.discard(user)
+
 class AddEventDialog(Gtk.Dialog):
 	def __init__(self, common, ex_event = None):
 		if ex_event is None:
@@ -26,6 +95,17 @@ class AddEventDialog(Gtk.Dialog):
 		self.name_entry = Gtk.Entry()
 		self.type_entry = Gtk.Entry()
 		self.description_entry = Gtk.Entry()
+
+		group = self.common.agenda_displayed.value.group
+		if group is None:
+			users = set()
+			resources = set()
+		else:
+			users = group.subscribers
+			resources = group.resources
+
+		self.users_list = AddUserList(users)
+		self.resources_list = AddResourceList(resources)
 
 		if ex_event is None:
 			self.start = datetime.now().replace(minute=0)
@@ -52,6 +132,12 @@ class AddEventDialog(Gtk.Dialog):
 		box.add(self.name_entry)
 		#box.add(self.type_entry)
 		box.add(self.description_entry)
+
+		if group is not None:
+			box.add(Gtk.Label("Participants"))
+			box.add(self.users_list)
+			box.add(Gtk.Label("Ressources"))
+			box.add(self.resources_list)
 
 		row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
 		row.pack_start(self.start_button, True, True, 0)
@@ -100,6 +186,14 @@ class AddEventDialog(Gtk.Dialog):
 	def description(self):
 		return self.description_entry.get_text()
 
+	@property
+	def users(self):
+		return self.users_list.users
+
+	@property
+	def resources(self):
+		return self.resources_list.resources
+
 class AddEventButton(Gtk.Button):
 	def __init__(self, common):
 		Gtk.Button.__init__(self)
@@ -123,11 +217,12 @@ class AddEventButton(Gtk.Button):
 				if ex_event is not None:
 					ex_event.delete()
 				agenda = self.common.agenda_displayed.value ### TODO TODO TODO : choisir pour les groupes
-				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, set(), set())
+				event = Event.new(self.common.collection, dia.start, dia.end, dia.name, dia.description, dia.resources, dia.users)
+				print(event.resources, event.users)
 				events = agenda.all_events(event.start, event.end)
 				if self.no_conflict(events):
 					agenda.add_event(event)
-					self.common.event_clicked.value[self.common.agenda_displayed] = event
+					self.common.event_clicked.value[self.common.agenda_displayed.value] = event
 					valide = True
 				else:
 					if self.conflicts_with_indispensable(events):

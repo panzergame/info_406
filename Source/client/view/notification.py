@@ -178,7 +178,7 @@ class NotificationListBox(Gtk.VBox, ViewObserver):
 		select = self.view.get_selection()
 		select.connect("changed", self.on_notification_changed)
 
-		sync_button = Gtk.Button("Synchroniser")
+		sync_button = Gtk.Button("Actualiser")
 		sync_button.connect("clicked", self.on_sync_clicked)
 
 		scroll = Gtk.ScrolledWindow()

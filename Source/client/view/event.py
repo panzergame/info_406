@@ -25,9 +25,9 @@ class EventBox(Gtk.ListBox, ViewObserver):
  		#Description       
 		self.description = EventDescriptionScrollable("default_description")
  		#Ressources utilisées       
-		self.resources = EventResourcesScrollable([])
+		self.resources = EventResourcesScrollable()
 		#Utilisateurs inscrits
-		self.users = EventUsersScrollable([])
+		self.users = EventUsersScrollable()
 
 		row = Gtk.ListBoxRow()
 		box = Gtk.HBox()
@@ -130,62 +130,40 @@ class EventDescriptionScrollable(Gtk.ScrolledWindow):
 	def update(self, description):
 		self.label.set_text(description)
 
-class EventResourcesScrollable(Gtk.ScrolledWindow):
-	#Fenêtre défilable, contient les ressources d'un évènement
-	def __init__(self, resources):
-		Gtk.ScrolledWindow.__init__(self)
-		resourcesFlowBox = Gtk.FlowBox(orientation = Gtk.Orientation.HORIZONTAL)
-		resourcesFlowBox.set_selection_mode(Gtk.SelectionMode.NONE)
-		self.add(resourcesFlowBox)
-		for resource in resources:
-			resourcesFlowBox.add(EventResourceBox(resource))
+class EventResourcesScrollable(Gtk.TreeView):
+	def __init__(self):
+		self.list = Gtk.ListStore(str, str, object)
+
+		Gtk.TreeView.__init__(self, self.list)
+
+		name_column = Gtk.TreeViewColumn("Nom", Gtk.CellRendererText(), text=0)
+		loc_column = Gtk.TreeViewColumn("Location", Gtk.CellRendererText(), text=1)
+		cap_column = Gtk.TreeViewColumn("Capacité", Gtk.CellRendererText(), text=2)
+
+		self.append_column(name_column)
+		self.append_column(loc_column)
+		self.append_column(cap_column)
 
 	def update(self, resources):
-		for child in self.get_child().get_children():
-			self.get_child().remove(child)
-			
-		for resource in resources:
-			self.get_child().add(EventResourceBox(resource))
+		self.list.clear()
 
-class EventResourceBox(Gtk.Box):
-	#Boîte d'affichage d'une ressource
-	def __init__(self, resource):
-		Gtk.Box.__init__(self)
+		for res in resources:
+			self.list.append((res.name, res.location, res.capacity, res))
 
-		frame = Gtk.Frame()
-		subBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        
-		title = Gtk.Label(label = "{} ({})".format(resource.name,resource.capacity))
-		location = Gtk.Label(label = resource.location)
-		subBox.add(title)
-		subBox.add(location)
+class EventUsersScrollable(Gtk.TreeView):
+	def __init__(self):
+		self.list = Gtk.ListStore(str, str, object)
 
-		frame.add(subBox)
-        
-		self.add(frame)
+		Gtk.TreeView.__init__(self, self.list)
 
+		fname_column = Gtk.TreeViewColumn("Prénom", Gtk.CellRendererText(), text=0)
+		lname_column = Gtk.TreeViewColumn("Nom", Gtk.CellRendererText(), text=1)
 
-class EventUsersScrollable(Gtk.ScrolledWindow):
-	#Fenêtre défilable, contient les utilisateurs participant à un évènement
-	def __init__(self, users):
-		Gtk.ScrolledWindow.__init__(self)
-		usersFlowBox = Gtk.FlowBox(orientation = Gtk.Orientation.HORIZONTAL)
-		usersFlowBox.set_selection_mode(Gtk.SelectionMode.NONE)
-		self.add(usersFlowBox)
-		for user in users:
-			usersFlowBox.add(EventUserBox(user))
+		self.append_column(fname_column)
+		self.append_column(lname_column)
 
 	def update(self, users):
-		for child in self.get_child().get_children():
-			self.get_child().remove(child)
-			
-		for user in users:
-			self.get_child().add(EventUserBox(user))
+		self.list.clear()
 
-class EventUserBox(Gtk.Box):
-	#Boîte d'affichage d'un utilisateur
-	def __init__(self, user):
-		Gtk.Box.__init__(self)
-		frame = Gtk.Frame()
-		frame.add(Gtk.Label(label="{} {}".format(user.first_name, user.last_name)))
-		self.add(frame)
+		for user in users:
+			self.list.append((user.first_name, user.last_name, user))

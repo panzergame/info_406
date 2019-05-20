@@ -63,7 +63,7 @@ class ResourceFilter(Gtk.VBox, ViewObserver):
 		else:
 			resources = self.common.resources_filtered.value[group]
 
-		if row[2]:
+		if row[3]:
 			resources.add(res)
 		else:
 			resources.discard(res)
