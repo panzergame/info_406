@@ -131,10 +131,7 @@ class Agenda(Data):
 
 	def event_is_accepted(self, event):
 		"""Teste si un évènement externe à l'agenda a été accepté par l'utilisateur"""
-		for notif in (self.notifications_accepted(event.start, event.end)):
-			if notif.event == event:
-				return True
-		return False
+		return event in (self.notifications_accepted(event.start, event.end))
 
 	def all_events(self, from_date, to_date):
 		""" Renvoi tous les évenement avec ceux des agendas liés accepté """
