@@ -116,7 +116,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		for event in events:
 			if not event.all_user_ready():
 				#Evènement dont l'utilisateur est participant (uniquement pour les agendas perso)
-				color=(0.2,0.6,0.1)
+				color=(0.5, 0.27, 0.64)
 			elif event.agenda.user == agenda_displayed.user or event.agenda.group == agenda_displayed.group:
 				#Si l'évènement dessiné est un évènement propre à l'agenda affiché (donc agenda affiché et agenda de l'évènement ont le même propriétaire)
 				color=(0,0.6,0.7)
