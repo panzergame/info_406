@@ -114,8 +114,8 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		#On met à l'échelle le contexte dans lequel on va dessiner
 		
 		for event in events:
-			if agenda_displayed.user != None and event.is_user(agenda_displayed.user):
-				#évènement dont l'utilisateur est participant (uniquement pour les agendas perso)
+			if not event.all_user_ready():
+				#Evènement dont l'utilisateur est participant (uniquement pour les agendas perso)
 				color=(0.2,0.6,0.1)
 			elif event.agenda.user == agenda_displayed.user or event.agenda.group == agenda_displayed.group:
 				#Si l'évènement dessiné est un évènement propre à l'agenda affiché (donc agenda affiché et agenda de l'évènement ont le même propriétaire)
@@ -129,8 +129,8 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			
 			AgendaEvents.drawEvent(drawingArea, context, event, firstDay, color)
 
-			if not event.all_user_ready():
-				for rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay)
+			if agenda_displayed.user != None and event.is_user(agenda_displayed.user):
+				for rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay):
 					x, y, width, height = rectangle
 					#On ajoute une bordure à l'évènement si tous les participants n'ont pas accepté
 					AgendaEvents.drawInnerBorder(drawingArea, context, x, y, width, height,(1,0,0,0.5), 0.005)
@@ -139,6 +139,8 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			color = (1, 0, 0, 0.5)
 			AgendaEvents.drawSlot(drawingArea, context, slot, firstDay, color)
 
+	"""if agenda_displayed.user != None and event.is_user(agenda_displayed.user):
+					#évènement dont l'utilisateur est participant (uniquement pour les agendas perso)"""
 	@staticmethod
 	def getSlotCoords(start, end, firstDay):
 		"""Permet de récupérer les coordonnées et dimension d'un créneau de l'EDT"""
