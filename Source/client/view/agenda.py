@@ -130,9 +130,10 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			AgendaEvents.drawEvent(drawingArea, context, event, firstDay, color)
 
 			if not event.all_user_ready():
-				x, y, width, height = AgendaEvents.getSlotCoords(event.start, event.end; firstDay)
-				#On ajoute une bordure à l'évènement si tous les participants n'ont pas accepté
-				AgendaEvents.drawInnerBorder(drawingArea, context, x, y, width, height,(1,0,0,0.5), 0.005)
+				for rectangle in AgendaEvents.getSlotCoords(event.start, event.end, firstDay)
+					x, y, width, height = rectangle
+					#On ajoute une bordure à l'évènement si tous les participants n'ont pas accepté
+					AgendaEvents.drawInnerBorder(drawingArea, context, x, y, width, height,(1,0,0,0.5), 0.005)
 
 		for slot in slots:
 			color = (1, 0, 0, 0.5)
