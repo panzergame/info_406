@@ -15,7 +15,7 @@ class SpeConflictDialog(Gtk.Dialog):
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
 		self.events_list = events_list
-		self.info = Gtk.Label(""" Vous ne pouvez pas ajouter d'évenement sur cette plage horaire car vous êtes indispensables au(x) évènement(s) suivant(s) :""")
+		self.info = Gtk.Label(""" Vous ne pouvez pas ajouter d'évènement sur cette plage horaire car vous êtes indispensable aux évènements suivants :""")
 		self.choix = Gtk.Label(""" Cliquez sur "Valider" pour déplacer votre nouvel évènement ou sur "Annuler" pour abandonner la création.""")
 
 		self.list = Gtk.ListStore(str, str, str)
@@ -52,8 +52,8 @@ class SpeConflictDialog(Gtk.Dialog):
 
 class StdConflictDialog(Gtk.Dialog):
 	def __init__(self, start, end, common):
-		Gtk.Dialog.__init__(self, "Conflit(s) lors de l'ajout d'un évènement", None, 0,
-			("Abandonner la création", Gtk.ResponseType.CANCEL, "Déplacer l'évènement en cours de création", 2, "Ecraser les évènements existant", Gtk.ResponseType.OK))
+		Gtk.Dialog.__init__(self, "Conflits lors de l'ajout d'un évènement", None, 0,
+			("Abandonner la création", Gtk.ResponseType.CANCEL, "Déplacer l'évènement en cours de création", 2, "Écraser les évènements existants", Gtk.ResponseType.OK))
 
 		self.common = common
 
@@ -66,7 +66,7 @@ class StdConflictDialog(Gtk.Dialog):
 		self.grp_events = self.events_list - self.common.agenda_displayed.value.events(self.start, self.end)
 		self.perso_events = self.events_list - self.grp_events
 
-		self.info = Gtk.Label("""Vous ne pouvez pas ajouter d'évenement sur cette plage horaire car le(s) évènement(s) suivant(s) s'y trouve(nt) déjà :""")
+		self.info = Gtk.Label("""Vous ne pouvez pas ajouter d'évènement sur cette plage horaire car les évènements suivants s'y trouvent déjà :""")
 		#self.choix = Gtk.Label(
 #	"""Cliquez sur "Valider" pour forcer la création du nouvel évènement sur cette plage horaire et ainsi écraser le(s) évènement(s) déjà existant(s),
 #sur "Éditer" pour éditer les évènements déjà présent(s),
@@ -147,8 +147,8 @@ class ForceRequestDialog(Gtk.Dialog):
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
-		self.info = Gtk.Label("""	Etes-vous sûr de vouloir créer cet évènement sur cette plage horaire ?
-En faisant cela vous écraserez tous les évènements y éxistants de manière irréversible.""")
+		self.info = Gtk.Label("""	Êtes-vous sûr de vouloir créer cet évènement sur cette plage horaire ?
+En faisant cela vous écraserez de manière irréversible tous les évènements existants.""")
 
 		box = self.get_content_area()
 		box.add(self.info)
@@ -156,7 +156,7 @@ En faisant cela vous écraserez tous les évènements y éxistants de manière i
 
 class EditEventsDialog(Gtk.Dialog):
 	def __init__(self, start, end, common):
-		Gtk.Dialog.__init__(self, "Edition d'évènements", None, 0,
+		Gtk.Dialog.__init__(self, "Édition d'évènements", None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
 			Gtk.STOCK_OK, Gtk.ResponseType.OK))
 
@@ -207,7 +207,7 @@ class EditEventsDialog(Gtk.Dialog):
 
 	def compt_conflicts(self):
 		nb = len(self.events_list)
-		text = "Nombre de conflit(s) restant(s) : " + (str(nb))
+		text = "Nombre de conflits restants : " + (str(nb))
 		self.conflicts_counter.set_text(text)
 
 	#def on_dereg_clicked(self, button):

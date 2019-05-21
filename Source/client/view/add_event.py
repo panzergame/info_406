@@ -83,9 +83,9 @@ class AddUserList(Gtk.TreeView):
 class AddEventDialog(Gtk.Dialog):
 	def __init__(self, common, ex_event = None):
 		if ex_event is None:
-			title = "Ajouter un événement"
+			title = "Ajouter un évènement"
 		else:
-			title = "Modifier un événement"
+			title = "Modifier un évènement"
 
 		Gtk.Dialog.__init__(self, title , None, 0,
 			(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
