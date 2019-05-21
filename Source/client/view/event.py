@@ -132,7 +132,7 @@ class EventDescriptionScrollable(Gtk.ScrolledWindow):
 
 class EventResourcesScrollable(Gtk.TreeView):
 	def __init__(self):
-		self.list = Gtk.ListStore(str, str, object)
+		self.list = Gtk.ListStore(str, str, int, object)
 
 		Gtk.TreeView.__init__(self, self.list)
 

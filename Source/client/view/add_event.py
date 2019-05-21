@@ -28,6 +28,7 @@ class AddResourceList(Gtk.TreeView):
 		self.append_column(name_column)
 		self.append_column(loc_column)
 		self.append_column(cap_column)
+		self.append_column(select_column)
 
 		for res in resources:
 			self.list.append((res.name, res.location, res.capacity, False, res))
