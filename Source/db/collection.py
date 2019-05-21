@@ -245,6 +245,12 @@ class DbCollection(Collection):
 					self._data_or_proxy(row["event"], DbEvent),
 					self._data_or_proxy(row["agenda"], DbAgenda),
 					row["status"])		
+		if issubclass(type, DbResource):
+			return DbResource(_id, self,
+					row["name"], row["location"], row["capacity"],
+					self._data_or_proxy(row["group"], DbGroup))
+
+		raise TypeError()
 
 	def _load_linked_agenda(self, _id):
 		agendas = self._list_relation_dict("Agenda_Agenda", {"agenda2" : DbAgenda, "last_sync" : datetime}, "agenda1", _id)
