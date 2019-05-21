@@ -249,7 +249,7 @@ class AddEventButton(Gtk.Button):
 		return False
 
 	def indispensable(self, event):
-		return (self.common.user_clicked in event.users)
+		return event.is_user(self.common.user_clicked)
 
 	def manage_std_conflicts(self, agenda, event, events_list):
 		dialog = StdConflictDialog(event.start, event.end, self.common)

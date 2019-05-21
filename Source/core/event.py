@@ -60,6 +60,17 @@ class Event(Data):
 		"""suppression de la participation d'un utilisateur à un évènement"""
 		self.users.discard(user)
 
+	def is_user(self, user):
+		"""teste si un utilisateur est un participant de l'évènement"""
+		return user in self.users
+
+	def all_user_ready(self):
+		"""Teste si tous les participant de l'évènement sont prêts"""
+		for user in self.users:
+			if not user.agenda.event_is_accepted(self):
+				return False
+		return True
+
 	def add_resource(self, resource):
 		"""Ajout d'une ressource pour un event"""
 		self.resources.add(resource)

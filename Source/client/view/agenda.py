@@ -114,7 +114,10 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 		#On met à l'échelle le contexte dans lequel on va dessiner
 		
 		for event in events:
-			if event.agenda.user == agenda_displayed.user or event.agenda.group == agenda_displayed.group:
+			if agenda_displayed.user != None and event.is_user(agenda_displayed.user):
+				#évènement dont l'utilisateur est participant (uniquement pour les agendas perso)
+				color=(0.2,0.6,0.1)
+			elif event.agenda.user == agenda_displayed.user or event.agenda.group == agenda_displayed.group:
 				#Si l'évènement dessiné est un évènement propre à l'agenda affiché (donc agenda affiché et agenda de l'évènement ont le même propriétaire)
 				color=(0,0.6,0.7)
 			else:
@@ -125,6 +128,10 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 			#La taille des textes est la moitié de l'espace occupé verticalement par une heure
 			
 			AgendaEvents.drawEvent(drawingArea, context, event, firstDay, color)
+
+			if not event.all_user_ready():
+				#On ajoute une bordure à l'évènement si tous les participants n'ont pas accepté
+				AgendaEvents.drawInnerBorder(drawingArea, context, x, y, width, height,(1,0,0,0.5), 0.005)
 
 		for slot in slots:
 			color = (1, 0, 0, 0.5)
@@ -246,7 +253,7 @@ class AgendaEvents(Gtk.DrawingArea, ViewObserver):
 	@staticmethod
 	def drawInnerBorder(drawingArea, context, x, y, width, height, color, border_width):
 		"""Fonction qui permet de tracer une bordure intérieure d'un rectangle"""
-		context.set_source_rgb(*color)
+		context.set_source_rgba(*color)
 		context.set_line_width(border_width)
 		context.rectangle(x+border_width/2,y+border_width/2,width-border_width,height-border_width)
 		#Quand on trace le contour d'un rectangle avec pycairo, le "milieu" de la bordure correspond au coordonnées du rectangle

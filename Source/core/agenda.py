@@ -129,6 +129,13 @@ class Agenda(Data):
 				for notif in self._notifications
 					if notif.status == Notification.ACCEPTED and notif.event.intersect_range(from_date, to_date))
 
+	def event_is_accepted(self, event):
+		"""Teste si un évènement externe à l'agenda a été accepté par l'utilisateur"""
+		for notif in (self.notifications_accepted(event.start, event.end)):
+			if notif.event == event:
+				return True
+		return False
+
 	def all_events(self, from_date, to_date):
 		""" Renvoi tous les évenement avec ceux des agendas liés accepté """
 		return self.events(from_date, to_date) | self.notifications_accepted(from_date, to_date)
